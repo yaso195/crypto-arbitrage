@@ -10,6 +10,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/gin-gonic/gin",
+			"repository": "https://github.com/gin-gonic/gin",
+			"vcs": "git",
+			"revision": "783c7ee9c14eac0e65b501664b4f553291556b43",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/preichenberger/go-gdax",
 			"repository": "https://github.com/preichenberger/go-gdax",
 			"vcs": "git",

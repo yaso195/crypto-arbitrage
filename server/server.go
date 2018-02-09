@@ -1,14 +1,20 @@
 package server
 
 import (
+    "bytes"
     "fmt"
     "io/ioutil"
+    "log"
     "net/http"
+    "os"
+    "os/exec"
+    "runtime"
     "strconv"
 
     gdax "github.com/preichenberger/go-gdax"
 
     "github.com/buger/jsonparser"
+    "github.com/gin-gonic/gin"
 )
 
 type Price struct {
@@ -28,10 +34,18 @@ const (
 )
 
 func Run() {
-  PrintTable()
+  port := os.Getenv("PORT")
+  if port == "" {
+    log.Fatal("$PORT must be set")
+  }
+
+  router := gin.New()
+  router.Use(gin.Logger())
+
+  router.GET("/", PrintTable)
 }
 
-func PrintTable() {
+func PrintTable(c *gin.Context) {
   gdaxPrices, err := getGdaxPrices()
   if err != nil {
     fmt.Println("Error reading GDAX prices : ", err)
@@ -57,9 +71,11 @@ func PrintTable() {
     fmt.Println("Error reading the currency rate: ", err)
   }
 
-  findTRYPrices("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices)
-  findTRYPrices("ETH", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices)
-  findTRYPrices("LTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices)
+  var buffer bytes.Buffer
+
+  buffer.WriteString(findTRYPrices("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices))
+  buffer.WriteString(findTRYPrices("ETH", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices))
+  buffer.WriteString(findTRYPrices("LTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices))
 }
 
 func getCurrencyRate(symbol string) (float64, error) {
@@ -207,7 +223,7 @@ func getKoineksPrices() ([]Price, error) {
   return prices, nil
 }
 
-func findTRYPrices(symbol string, tryRate float64, priceLists... []Price ) []Price {
+func findTRYPrices(symbol string, tryRate float64, priceLists... []Price ) string {
   var tryList []Price
 
   for _, list := range priceLists {
@@ -232,10 +248,40 @@ func findTRYPrices(symbol string, tryRate float64, priceLists... []Price ) []Pri
     } else {
       askPercentage := (p.Ask - firstAsk) * 100 / firstAsk 
       bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk 
-      out += fmt.Sprintf("%s Ask : %.2f Bid : %.2f Ask Diff. : %%%.2f Bid Diff. : %%%.2f ", p.Exchange, p.Ask, p.Bid, askPercentage, bidPercentage)
+      out += fmt.Sprintf("%s Ask Diff. : %%%.2f Bid Diff. : %%%.2f ", p.Exchange, askPercentage, bidPercentage)
     }
   }
   fmt.Println(out)
 
-  return tryList
+  return out
+}
+
+var clear map[string]func() //create a map for storing clear funcs
+
+func init() {
+    clear = make(map[string]func()) //Initialize it
+    clear["linux"] = func() { 
+        cmd := exec.Command("clear") //Linux example, its tested
+        cmd.Stdout = os.Stdout
+        cmd.Run()
+    }
+    clear["darwin"] = func() { 
+        cmd := exec.Command("clear") //Linux example, its tested
+        cmd.Stdout = os.Stdout
+        cmd.Run()
+    }
+    clear["windows"] = func() {
+        cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested 
+        cmd.Stdout = os.Stdout
+        cmd.Run()
+    }
+}
+
+func CallClear() {
+    value, ok := clear[runtime.GOOS] //runtime.GOOS -> linux, windows, darwin etc.
+    if ok { //if we defined a clear func for that platform:
+        value()  //we execute it
+    } else { //unsupported platform
+        panic("Your platform is unsupported! I can't clear terminal screen :(")
+    }
 }
