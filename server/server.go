@@ -77,6 +77,7 @@ func PrintTable(c *gin.Context) {
   ltcDiffs := findTRYDifferences("LTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices)
   
   c.HTML(http.StatusOK, "index.tmpl", gin.H{
+    "USDTRY": tryRate,
     "GdaxBTC" :gdaxPrices[0].Ask, 
     "ParibuBTC" : btcDiffs[0],
     "BTCTurkBTC" : btcDiffs[1],
