@@ -3,43 +3,70 @@
 <head>
     <title>Crypto Arbitrage</title>
     <meta http-equiv="refresh" content="20" />
+    <style>
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 4px;
+    text-align: center;    
+}
+</style>
 </head>
 
 <body>
-
-<p>
   <br> USD/TRY = {{.USDTRY}}
-  <table>
+  <table style="width:50%">
+  <tr>
+  	<th></th>
+    <th>GDAX</th>
+    <th colspan="2">Paribu</th> 
+    <th colspan="2">BTCTurk</th>
+    <th colspan="2">Koineks</th>
+  </tr>
   <tr>
   	<th>Symbol</th>
-    <th>GDAX</th>
-    <th>Paribu</th> 
-    <th>BTCTurk</th>
-    <th>Koineks</th>
+    <th>ASK</th>
+    <th>ASK</th>
+    <th>BID</th>
+    <th>ASK</th>
+    <th>BID</th>
+    <th>ASK</th>
+    <th>BID</th>
   </tr>
   <tr>
   	<td>BTC</td>
     <td>{{.GdaxBTC}}</td>
-    <td>%{{.ParibuBTC}}</td> 
-    <td>%{{.BTCTurkBTC}}</td>
-    <td>%{{.KoineksBTC}}</td>
+    <td>%{{.ParibuBTCAsk}}</td>
+    <td>%{{.ParibuBTCBid}}</td> 
+    <td>%{{.BTCTurkBTCAsk}}</td>
+    <td>%{{.BTCTurkBTCBid}}</td>
+    <td>%{{.KoineksBTCAsk}}</td>
+    <td>%{{.KoineksBTCBid}}</td>
   </tr>
   <tr>
   	<td>ETH</td>
     <td>{{.GdaxETH}}</td>
     <td>-</td> 
-    <td>%{{.BTCTurkETH}}</td>
-    <td>%{{.KoineksETH}}</td>
+    <td>-</td> 
+    <td>%{{.BTCTurkETHAsk}}</td>
+    <td>%{{.BTCTurkETHBid}}</td>
+    <td>%{{.KoineksETHAsk}}</td>
+    <td>%{{.KoineksETHBid}}</td>
   </tr>
   <tr>
   	<td>LTC</td>
     <td>{{.GdaxLTC}}</td>
     <td>-</td> 
     <td>-</td>
-    <td>%{{.KoineksLTC}}</td>
+    <td>-</td> 
+    <td>-</td>
+    <td>%{{.KoineksLTCAsk}}</td>
+    <td>%{{.KoineksLTCBid}}</td>
   </tr>
 </table>
-</p>
+
 
 </body>
 </html>`

@@ -79,14 +79,20 @@ func PrintTable(c *gin.Context) {
   c.HTML(http.StatusOK, "index.tmpl", gin.H{
     "USDTRY": tryRate,
     "GdaxBTC" :gdaxPrices[0].Ask, 
-    "ParibuBTC" : btcDiffs[0],
-    "BTCTurkBTC" : btcDiffs[1],
-    "KoineksBTC" : btcDiffs[2],
+    "ParibuBTCAsk" : btcDiffs[0],
+    "ParibuBTCBid" : btcDiffs[1],
+    "BTCTurkBTCAsk" : btcDiffs[2],
+    "BTCTurkBTCBid" : btcDiffs[3],
+    "KoineksBTCAsk" : btcDiffs[4],
+    "KoineksBTCBid" : btcDiffs[5],
     "GdaxETH" :gdaxPrices[1].Ask,
-    "BTCTurkETH" : ethDiffs[0],
-    "KoineksETH" : ethDiffs[1],
+    "BTCTurkETHAsk" : ethDiffs[0],
+    "BTCTurkETHBid" : ethDiffs[1],
+    "KoineksETHAsk" : ethDiffs[2],
+    "KoineksETHBid" : ethDiffs[3],
     "GdaxLTC" :gdaxPrices[2].Ask,
-    "KoineksLTC" : ltcDiffs[0],
+    "KoineksLTCAsk" : ltcDiffs[0],
+    "KoineksLTCBid" : ltcDiffs[1],
     })
 }
 
@@ -256,9 +262,10 @@ func findTRYDifferences(symbol string, tryRate float64, priceLists... []Price ) 
     if i == 0 {
       firstAsk = p.Ask
     } else { 
+      askPercentage := (p.Ask - firstAsk) * 100 / firstAsk 
       bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk 
 
-      returnPercentages = append(returnPercentages, fmt.Sprintf("%.2f", bidPercentage))
+      returnPercentages = append(returnPercentages, fmt.Sprintf("%.2f", askPercentage), fmt.Sprintf("%.2f", bidPercentage))
     }
   }
   //fmt.Print(out)
