@@ -43,6 +43,7 @@ func Run() {
   router.Use(gin.Logger())
 
   router.GET("/", PrintTable)
+  router.Run(":" + port)
 }
 
 func PrintTable(c *gin.Context) {
@@ -76,6 +77,8 @@ func PrintTable(c *gin.Context) {
   buffer.WriteString(findTRYPrices("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices))
   buffer.WriteString(findTRYPrices("ETH", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices))
   buffer.WriteString(findTRYPrices("LTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices))
+
+  c.String(http.StatusOK, buffer.String())
 }
 
 func getCurrencyRate(symbol string) (float64, error) {
@@ -239,19 +242,19 @@ func findTRYPrices(symbol string, tryRate float64, priceLists... []Price ) strin
     }
   }
 
-  out := symbol + " "
+  out := symbol + "\n"
   firstAsk := 0.0
   for i, p := range tryList {
     if i == 0 {
-      out += fmt.Sprintf("%s Ask : %.2f ", p.Exchange, p.Ask)
+      out += fmt.Sprintf("%s Ask : %.2f \n", p.Exchange, p.Ask)
       firstAsk = p.Ask
     } else {
       askPercentage := (p.Ask - firstAsk) * 100 / firstAsk 
       bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk 
-      out += fmt.Sprintf("%s Ask Diff. : %%%.2f Bid Diff. : %%%.2f ", p.Exchange, askPercentage, bidPercentage)
+      out += fmt.Sprintf("\t \t %s Ask Diff. : %%%.2f Bid Diff. : %%%.2f \n", p.Exchange, askPercentage, bidPercentage)
     }
   }
-  fmt.Println(out)
+  fmt.Print(out)
 
   return out
 }

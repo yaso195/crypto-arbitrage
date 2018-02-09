@@ -1,1 +1,1 @@
-web: crypto-try-arbitrage
+web: crypto-arbitrage
