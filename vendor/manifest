@@ -1,0 +1,21 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/buger/jsonparser",
+			"repository": "https://github.com/buger/jsonparser",
+			"vcs": "git",
+			"revision": "4be68c93a24430ddf9c33d1380b7042fd3a13424",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/preichenberger/go-gdax",
+			"repository": "https://github.com/preichenberger/go-gdax",
+			"vcs": "git",
+			"revision": "9f457f1e11fd8926184665e78be8c9c7c9498792",
+			"branch": "master",
+			"notests": true
+		}
+	]
+}

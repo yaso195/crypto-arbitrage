@@ -1,0 +1,13 @@
+{
+  "name": "CryptoTRYArbitrage",
+  "description": "An App to track signal performances",
+  "keywords": [
+    "crypto-try-arbitrage",
+    "crypto-arbitrage",
+    "stocksignal",
+  ],
+  "image": "heroku/go:1.6",
+  "mount_dir": "src/github.com/heroku/crypto-try-arbitrage",
+  "website": "http://github.com/yaso195/crypto-try-arbitrage",
+  "repository": "http://github.com/yaso195/crypto-try-arbitrage"
+}
