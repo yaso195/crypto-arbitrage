@@ -1,330 +1,231 @@
 package server
 
 import (
-    "fmt"
-    "io/ioutil"
-    "log"
-    "net/http"
-    "os"
-    "os/exec"
-    "runtime"
-    "strconv"
-    "sync"
-    "time"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"os/exec"
+	"runtime"
+	"sync"
+	"time"
 
-    gdax "github.com/preichenberger/go-gdax"
-
-    "github.com/buger/jsonparser"
-    "github.com/gin-gonic/gin"
+	"github.com/buger/jsonparser"
+	"github.com/gin-gonic/gin"
 )
 
 type Price struct {
-  Exchange string
-  Currency string
-  ID string
-  Ask float64
-  Bid float64
+	Exchange string
+	Currency string
+	ID       string
+	Ask      float64
+	Bid      float64
 }
 
 const (
-  BASE_CURRENCY_URI = "http://free.currencyconverterapi.com/api/v3/convert?q=USD_%s&compact=ultra"
-
-  PARIBU_URI = "https://www.paribu.com/ticker"
-  BTCTURK_URI = "https://www.btcturk.com/api/ticker"
-  KOINEKS_URI = "https://koineks.com/ticker"
+	BASE_CURRENCY_URI = "http://free.currencyconverterapi.com/api/v3/convert?q=USD_%s,USD_%s&compact=ultra"
 )
 
 var (
-  tryRate = 0.0
+	tryRate = 0.0
+	jpyRate = 0.0
 )
 
 func Run() {
-  port := os.Getenv("PORT")
-  if port == "" {
-    log.Fatal("$PORT must be set")
-  }
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
 
-  router := gin.New()
-  router.Use(gin.Logger())
-  router.LoadHTMLGlob("templates/*")
+	router := gin.New()
+	router.Use(gin.Logger())
+	router.LoadHTMLGlob("templates/*")
 
-  router.GET("/", PrintTable)
+	router.GET("/", PrintTable)
 
-  var wg sync.WaitGroup
-  wg.Add(1)
-  go func() {
-    defer wg.Done()
-    router.Run(":" + port)
-  }()
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		router.Run(":" + port)
+	}()
 
-  wg.Add(1)
-  go func() {
-    defer wg.Done()
-    getCurrencies()
-  }()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		getCurrencies()
+	}()
 
-  wg.Wait()
+	wg.Wait()
 }
 
 func getCurrencies() {
-  var err error
-  for {
-    tryRate, err = getCurrencyRate("TRY")
-    if err != nil {
-      log.Println("Error reading the currency rate: ", err)
-    }
-    time.Sleep(1 * time.Hour)
-  }    
+	for {
+		getCurrencyRates()
+		time.Sleep(1 * time.Hour)
+	}
 }
 
 func PrintTable(c *gin.Context) {
-  gdaxPrices, err := getGdaxPrices()
-  if err != nil {
-    fmt.Println("Error reading GDAX prices : ", err)
-  }
+	gdaxPrices, err := getGdaxPrices()
+	if err != nil {
+		fmt.Println("Error reading GDAX prices : ", err)
+		log.Println("Error reading GDAX prices : ", err)
+	}
 
-  paribuPrices, err := getParibuPrices()
-  if err != nil {
-    fmt.Println("Error reading Paribu prices : ", err)
-  }
+	paribuPrices, err := getParibuPrices()
+	if err != nil {
+		fmt.Println("Error reading Paribu prices : ", err)
+		log.Println("Error reading Paribu prices : ", err)
+	}
 
-  btcTurkPrices, err := getBTCTurkPrices()
-  if err != nil {
-    fmt.Println("Error reading BTCTurk prices : ", err)
-  }
+	btcTurkPrices, err := getBTCTurkPrices()
+	if err != nil {
+		fmt.Println("Error reading BTCTurk prices : ", err)
+		log.Println("Error reading BTCTurk prices : ", err)
+	}
 
-  koineksPrices, err := getKoineksPrices()
-  if err != nil {
-    fmt.Println("Error reading Koineks prices : ", err)
-  }
+	koineksPrices, err := getKoineksPrices()
+	if err != nil {
+		fmt.Println("Error reading Koineks prices : ", err)
+		log.Println("Error reading Koineks prices : ", err)
+	}
 
-  btcDiffs := findTRYDifferences("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices)
-  ethDiffs := findTRYDifferences("ETH", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices)
-  ltcDiffs := findTRYDifferences("LTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices)
-  
-  c.HTML(http.StatusOK, "index.tmpl", gin.H{
-    "USDTRY": tryRate,
-    "GdaxBTC" :gdaxPrices[0].Ask, 
-    "ParibuBTCAsk" : btcDiffs[0],
-    "ParibuBTCBid" : btcDiffs[1],
-    "BTCTurkBTCAsk" : btcDiffs[2],
-    "BTCTurkBTCBid" : btcDiffs[3],
-    "KoineksBTCAsk" : btcDiffs[4],
-    "KoineksBTCBid" : btcDiffs[5],
-    "GdaxETH" :gdaxPrices[1].Ask,
-    "BTCTurkETHAsk" : ethDiffs[0],
-    "BTCTurkETHBid" : ethDiffs[1],
-    "KoineksETHAsk" : ethDiffs[2],
-    "KoineksETHBid" : ethDiffs[3],
-    "GdaxLTC" :gdaxPrices[2].Ask,
-    "KoineksLTCAsk" : ltcDiffs[0],
-    "KoineksLTCBid" : ltcDiffs[1],
-    })
+	bitflyerPrices, err := getBitflyerPrices()
+	if err != nil {
+		fmt.Println("Error reading Bitflyer prices : ", err)
+		log.Println("Error reading Bitflyer prices : ", err)
+	}
+
+	btcDiffs := findPriceDifferences("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, bitflyerPrices)
+	ethDiffs := findPriceDifferences("ETH", tryRate, gdaxPrices, btcTurkPrices, koineksPrices)
+	ltcDiffs := findPriceDifferences("LTC", tryRate, gdaxPrices, koineksPrices)
+
+	c.HTML(http.StatusOK, "index.tmpl", gin.H{
+		"USDTRY":         tryRate,
+		"USDJPY":         jpyRate,
+		"GdaxBTC":        gdaxPrices[0].Ask,
+		"ParibuBTCAsk":   btcDiffs[0],
+		"ParibuBTCBid":   btcDiffs[1],
+		"BTCTurkBTCAsk":  btcDiffs[2],
+		"BTCTurkBTCBid":  btcDiffs[3],
+		"KoineksBTCAsk":  btcDiffs[4],
+		"KoineksBTCBid":  btcDiffs[5],
+		"BitflyerBTCAsk": btcDiffs[6],
+		"BitflyerBTCBid": btcDiffs[7],
+		"GdaxETH":        gdaxPrices[1].Ask,
+		"BTCTurkETHAsk":  ethDiffs[0],
+		"BTCTurkETHBid":  ethDiffs[1],
+		"KoineksETHAsk":  ethDiffs[2],
+		"KoineksETHBid":  ethDiffs[3],
+		"GdaxLTC":        gdaxPrices[2].Ask,
+		"KoineksLTCAsk":  ltcDiffs[0],
+		"KoineksLTCBid":  ltcDiffs[1],
+	})
 }
 
-func getCurrencyRate(symbol string) (float64, error) {
+func getCurrencyRates() {
+	response, err := http.Get(fmt.Sprintf(BASE_CURRENCY_URI, "TRY", "JPY"))
+	if err != nil {
+		fmt.Println("failed to get response for currencies : ", err)
+		log.Println("failed to get response for currencies : ", err)
+	}
 
-  response, err := http.Get(fmt.Sprintf(BASE_CURRENCY_URI, symbol))
-  if err != nil {
-    return 0, fmt.Errorf("failed to get currency response for %s : %s", symbol, err)
-  }
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("failed to read currency response data : ", err)
+		log.Println("failed to read currency response data : ", err)
+	}
 
-  responseData, err := ioutil.ReadAll(response.Body)
-  if err != nil {
-    return 0, fmt.Errorf("failed to read currency response data : %s", err)
-  }
+	tryRate, err = jsonparser.GetFloat(responseData, "USD_TRY")
+	if err != nil {
+		fmt.Println("failed to read the TRY currency price from the response data: ", err)
+		log.Println("failed to read the TRY currency price from the response data: ", err)
+	}
 
-  price, err := jsonparser.GetFloat(responseData, fmt.Sprintf("USD_%s", symbol))
-  if err != nil {
-    return 0, fmt.Errorf("failed to read the currency price from the response data: %s", err)
-  }
-
-  return price, nil
+	jpyRate, err = jsonparser.GetFloat(responseData, "USD_JPY")
+	if err != nil {
+		fmt.Println("failed to read the TRY currency price from the response data: ", err)
+		log.Println("failed to read the TRY currency price from the response data: ", err)
+	}
 }
 
-func getGdaxPrices() ([]Price, error) {
+func findPriceDifferences(symbol string, tryRate float64, priceLists ...[]Price) []string {
+	var tryList []Price
+	var jpyList []Price
+	var returnPercentages []string
+	for _, list := range priceLists {
+		for _, p := range list {
+			if p.ID == symbol {
+				switch p.Currency {
+				case "USD":
+					tryP := Price{Currency: "TRY", Exchange: p.Exchange, Bid: p.Bid * tryRate, Ask: p.Ask * tryRate}
+					jpyP := Price{Currency: "JPY", Exchange: p.Exchange, Bid: p.Bid * jpyRate, Ask: p.Ask * jpyRate}
+					tryList = append(tryList, tryP)
+					jpyList = append(jpyList, jpyP)
+				case "TRY":
+					tryList = append(tryList, p)
+				case "JPY":
+					jpyList = append(jpyList, p)
+				}
+			}
+		}
+	}
 
-  client := gdax.NewClient("", "", "")
-  var prices []Price
+	firstAsk := 0.0
+	for i, p := range tryList {
+		if i == 0 {
+			firstAsk = p.Ask
+		} else {
+			askPercentage := (p.Ask - firstAsk) * 100 / firstAsk
+			bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk
 
-  ids := []string{"BTC-USD", "ETH-USD", "LTC-USD"}
+			returnPercentages = append(returnPercentages, fmt.Sprintf("%.2f", askPercentage), fmt.Sprintf("%.2f", bidPercentage))
+		}
+	}
 
-  for _, id := range ids {
-      ticker, err := client.GetTicker(id)
-      if err != nil {
-        return nil, fmt.Errorf("Error reading %s price : %s\n", id, err)
-      }
+	for i, p := range jpyList {
+		if i == 0 {
+			firstAsk = p.Ask
+		} else {
+			askPercentage := (p.Ask - firstAsk) * 100 / firstAsk
+			bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk
 
-      p := Price{Exchange: "GDAX", Currency : "USD", ID : id[0:3], Ask : ticker.Ask, Bid : ticker.Bid}
-      prices = append(prices, p)
-  }
+			returnPercentages = append(returnPercentages, fmt.Sprintf("%.2f", askPercentage), fmt.Sprintf("%.2f", bidPercentage))
+		}
+	}
+	//fmt.Print(out)
 
-  return prices, nil
-
-}
-
-func getParibuPrices() ([]Price, error) {
-  var prices []Price
-
-  response, err := http.Get(PARIBU_URI)
-  if err != nil {
-    return nil, fmt.Errorf("failed to get Paribu response : %s", err)
-  }
-
-  responseData, err := ioutil.ReadAll(response.Body)
-  if err != nil {
-    return nil, fmt.Errorf("failed to read Paribu response data : %s", err)
-  }
-
-  priceAsk, err := jsonparser.GetFloat(responseData, "BTC_TL", "lowestAsk")
-  if err != nil {
-    return nil, fmt.Errorf("failed to read the ask price from the Paribu response data: %s", err)
-  }
-
-  priceBid, err := jsonparser.GetFloat(responseData, "BTC_TL", "highestBid")
-  if err != nil {
-    return nil, fmt.Errorf("failed to read the bid price from the Paribu response data: %s", err)
-  }
-
-  prices = append(prices, Price{Exchange: "Paribu", Currency: "TRY", ID: "BTC", Ask: priceAsk, Bid: priceBid})
-  return prices, nil
-}
-
-func getBTCTurkPrices() ([]Price, error) {
-  var prices []Price
-
-  response, err := http.Get(BTCTURK_URI)
-  if err != nil {
-    return nil, fmt.Errorf("failed to get BTCTurk response : %s", err)
-  }
-
-  responseData, err := ioutil.ReadAll(response.Body)
-  if err != nil {
-    return nil, fmt.Errorf("failed to read BTCTurk response data : %s", err)
-  }
-
-  btcPriceAsk, err := jsonparser.GetFloat(responseData, "[0]", "ask")
-  if err != nil {
-    return nil, fmt.Errorf("failed to read the BTC ask price from the BTCTurk response data: %s", err)
-  }
-
-  btcPriceBid, err := jsonparser.GetFloat(responseData, "[0]", "bid")
-  if err != nil {
-    return nil, fmt.Errorf("failed to read the BTC bid price from the BTCTurk response data: %s", err)
-  }
-
-  prices = append(prices, Price{Exchange: "BTCTurk", Currency: "TRY", ID: "BTC", Ask: btcPriceAsk, Bid: btcPriceBid})
-
-  ethPriceAsk, err := jsonparser.GetFloat(responseData, "[2]", "ask")
-  if err != nil {
-    return nil, fmt.Errorf("failed to read the ETH ask price from the BTCTurk response data: %s", err)
-  }
-
-  ethPriceBid, err := jsonparser.GetFloat(responseData, "[2]", "bid")
-  if err != nil {
-    return nil, fmt.Errorf("failed to read the ETH bid price from the BTCTurk response data: %s", err)
-  }
-
-  prices = append(prices, Price{Exchange: "BTCTurk", Currency: "TRY", ID: "ETH", Ask: ethPriceAsk, Bid: ethPriceBid})
-
-  return prices, nil
-}
-
-func getKoineksPrices() ([]Price, error) {
-  var prices []Price
-
-  response, err := http.Get(KOINEKS_URI)
-  if err != nil {
-    return nil, fmt.Errorf("failed to get Koineks response : %s", err)
-  }
-
-  responseData, err := ioutil.ReadAll(response.Body)
-  if err != nil {
-    return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
-  }
-
-  ids := []string{"BTC", "ETH", "LTC"}
-
-  for _, id := range ids {
-
-    priceAsk, err := jsonparser.GetString(responseData, id, "ask")
-    if err != nil {
-      return nil, fmt.Errorf("failed to read the ask price from the Koineks response data: %s", err)
-    }
-
-    askF, _ := strconv.ParseFloat(priceAsk, 64)
-    
-    priceBid, err := jsonparser.GetString(responseData, id, "bid")
-    if err != nil {
-      return nil, fmt.Errorf("failed to read the bid price from the Koineks response data: %s", err)
-    }
-
-    askB, _ := strconv.ParseFloat(priceBid, 64)
-
-    prices = append(prices, Price{Exchange: "Koineks", Currency: "TRY", ID: id, Ask: askF, Bid: askB})
-  }
-
-  return prices, nil
-}
-
-func findTRYDifferences(symbol string, tryRate float64, priceLists... []Price ) []string {
-  var tryList []Price
-  var returnPercentages []string
-  for _, list := range priceLists {
-    for _, p := range list {
-      if p.ID == symbol {
-        if p.Currency == "USD" {
-          p.Currency = "TRY"
-          p.Bid *= tryRate
-          p.Ask *= tryRate
-        }
-        tryList = append(tryList, p)
-      }
-    }
-  }
-
-  firstAsk := 0.0
-  for i, p := range tryList {
-    if i == 0 {
-      firstAsk = p.Ask
-    } else { 
-      askPercentage := (p.Ask - firstAsk) * 100 / firstAsk 
-      bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk 
-
-      returnPercentages = append(returnPercentages, fmt.Sprintf("%.2f", askPercentage), fmt.Sprintf("%.2f", bidPercentage))
-    }
-  }
-  //fmt.Print(out)
-
-  return returnPercentages
+	return returnPercentages
 }
 
 var clear map[string]func() //create a map for storing clear funcs
 
 func init() {
-    clear = make(map[string]func()) //Initialize it
-    clear["linux"] = func() { 
-        cmd := exec.Command("clear") //Linux example, its tested
-        cmd.Stdout = os.Stdout
-        cmd.Run()
-    }
-    clear["darwin"] = func() { 
-        cmd := exec.Command("clear") //Linux example, its tested
-        cmd.Stdout = os.Stdout
-        cmd.Run()
-    }
-    clear["windows"] = func() {
-        cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested 
-        cmd.Stdout = os.Stdout
-        cmd.Run()
-    }
+	clear = make(map[string]func()) //Initialize it
+	clear["linux"] = func() {
+		cmd := exec.Command("clear") //Linux example, its tested
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
+	clear["darwin"] = func() {
+		cmd := exec.Command("clear") //Linux example, its tested
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
+	clear["windows"] = func() {
+		cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
 }
 
 func CallClear() {
-    value, ok := clear[runtime.GOOS] //runtime.GOOS -> linux, windows, darwin etc.
-    if ok { //if we defined a clear func for that platform:
-        value()  //we execute it
-    } else { //unsupported platform
-        panic("Your platform is unsupported! I can't clear terminal screen :(")
-    }
+	value, ok := clear[runtime.GOOS] //runtime.GOOS -> linux, windows, darwin etc.
+	if ok {                          //if we defined a clear func for that platform:
+		value() //we execute it
+	} else { //unsupported platform
+		panic("Your platform is unsupported! I can't clear terminal screen :(")
+	}
 }
