@@ -1,7 +1,6 @@
 package server
 
 import (
-    "bytes"
     "fmt"
     "io/ioutil"
     "log"
@@ -41,6 +40,7 @@ func Run() {
 
   router := gin.New()
   router.Use(gin.Logger())
+  router.LoadHTMLGlob("templates/*")
 
   router.GET("/", PrintTable)
   router.Run(":" + port)
@@ -62,7 +62,7 @@ func PrintTable(c *gin.Context) {
     fmt.Println("Error reading BTCTurk prices : ", err)
   }
 
-  koineksTurkPrices, err := getKoineksPrices()
+  koineksPrices, err := getKoineksPrices()
   if err != nil {
     fmt.Println("Error reading Koineks prices : ", err)
   }
@@ -72,13 +72,21 @@ func PrintTable(c *gin.Context) {
     fmt.Println("Error reading the currency rate: ", err)
   }
 
-  var buffer bytes.Buffer
-
-  buffer.WriteString(findTRYPrices("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices))
-  buffer.WriteString(findTRYPrices("ETH", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices))
-  buffer.WriteString(findTRYPrices("LTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksTurkPrices))
-
-  c.String(http.StatusOK, buffer.String())
+  btcDiffs := findTRYDifferences("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices)
+  ethDiffs := findTRYDifferences("ETH", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices)
+  ltcDiffs := findTRYDifferences("LTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices)
+  
+  c.HTML(http.StatusOK, "index.tmpl", gin.H{
+    "GdaxBTC" :gdaxPrices[0].Ask, 
+    "ParibuBTC" : btcDiffs[0],
+    "BTCTurkBTC" : btcDiffs[1],
+    "KoineksBTC" : btcDiffs[2],
+    "GdaxETH" :gdaxPrices[1].Ask,
+    "BTCTurkETH" : ethDiffs[0],
+    "KoineksETH" : ethDiffs[1],
+    "GdaxLTC" :gdaxPrices[2].Ask,
+    "KoineksLTC" : ltcDiffs[0],
+    })
 }
 
 func getCurrencyRate(symbol string) (float64, error) {
@@ -226,9 +234,9 @@ func getKoineksPrices() ([]Price, error) {
   return prices, nil
 }
 
-func findTRYPrices(symbol string, tryRate float64, priceLists... []Price ) string {
+func findTRYDifferences(symbol string, tryRate float64, priceLists... []Price ) []string {
   var tryList []Price
-
+  var returnPercentages []string
   for _, list := range priceLists {
     for _, p := range list {
       if p.ID == symbol {
@@ -242,21 +250,19 @@ func findTRYPrices(symbol string, tryRate float64, priceLists... []Price ) strin
     }
   }
 
-  out := symbol + "\n"
   firstAsk := 0.0
   for i, p := range tryList {
     if i == 0 {
-      out += fmt.Sprintf("%s Ask : %.2f \n", p.Exchange, p.Ask)
       firstAsk = p.Ask
-    } else {
-      askPercentage := (p.Ask - firstAsk) * 100 / firstAsk 
+    } else { 
       bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk 
-      out += fmt.Sprintf("\t \t %s Ask Diff. : %%%.2f Bid Diff. : %%%.2f \n", p.Exchange, askPercentage, bidPercentage)
+
+      returnPercentages = append(returnPercentages, fmt.Sprintf("%.2f", bidPercentage))
     }
   }
-  fmt.Print(out)
+  //fmt.Print(out)
 
-  return out
+  return returnPercentages
 }
 
 var clear map[string]func() //create a map for storing clear funcs
