@@ -72,30 +72,40 @@ func PrintTable(c *gin.Context) {
 	if err != nil {
 		fmt.Println("Error reading GDAX prices : ", err)
 		log.Println("Error reading GDAX prices : ", err)
+		c.String(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	paribuPrices, err := getParibuPrices()
 	if err != nil {
 		fmt.Println("Error reading Paribu prices : ", err)
 		log.Println("Error reading Paribu prices : ", err)
+		c.String(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	btcTurkPrices, err := getBTCTurkPrices()
 	if err != nil {
 		fmt.Println("Error reading BTCTurk prices : ", err)
 		log.Println("Error reading BTCTurk prices : ", err)
+		c.String(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	koineksPrices, err := getKoineksPrices()
 	if err != nil {
 		fmt.Println("Error reading Koineks prices : ", err)
 		log.Println("Error reading Koineks prices : ", err)
+		c.String(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	bitflyerPrices, err := getBitflyerPrices()
 	if err != nil {
 		fmt.Println("Error reading Bitflyer prices : ", err)
 		log.Println("Error reading Bitflyer prices : ", err)
+		c.String(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	btcDiffs := findPriceDifferences("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, bitflyerPrices)
