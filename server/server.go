@@ -9,6 +9,8 @@ import (
     "os/exec"
     "runtime"
     "strconv"
+    "sync"
+    "time"
 
     gdax "github.com/preichenberger/go-gdax"
 
@@ -32,6 +34,10 @@ const (
   KOINEKS_URI = "https://koineks.com/ticker"
 )
 
+var (
+  tryRate = 0.0
+)
+
 func Run() {
   port := os.Getenv("PORT")
   if port == "" {
@@ -43,7 +49,32 @@ func Run() {
   router.LoadHTMLGlob("templates/*")
 
   router.GET("/", PrintTable)
-  router.Run(":" + port)
+
+  var wg sync.WaitGroup
+  wg.Add(1)
+  go func() {
+    defer wg.Done()
+    router.Run(":" + port)
+  }()
+
+  wg.Add(1)
+  go func() {
+    defer wg.Done()
+    getCurrencies()
+  }()
+
+  wg.Wait()
+}
+
+func getCurrencies() {
+  var err error
+  for {
+    tryRate, err = getCurrencyRate("TRY")
+    if err != nil {
+      log.Println("Error reading the currency rate: ", err)
+    }
+    time.Sleep(1 * time.Hour)
+  }    
 }
 
 func PrintTable(c *gin.Context) {
@@ -65,11 +96,6 @@ func PrintTable(c *gin.Context) {
   koineksPrices, err := getKoineksPrices()
   if err != nil {
     fmt.Println("Error reading Koineks prices : ", err)
-  }
-
-  tryRate, err := getCurrencyRate("TRY")
-  if err != nil {
-    fmt.Println("Error reading the currency rate: ", err)
   }
 
   btcDiffs := findTRYDifferences("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices)
