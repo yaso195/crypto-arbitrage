@@ -30,6 +30,11 @@ const (
 var (
 	tryRate = 0.0
 	jpyRate = 0.0
+
+  btcDiffs []string
+  ethDiffs []string
+  ltcDiffs []string
+  gdaxPrices []Price
 )
 
 func Run() {
@@ -57,6 +62,12 @@ func Run() {
 		getCurrencies()
 	}()
 
+  wg.Add(1)
+  go func() {
+    defer wg.Done()
+    getPrices()
+  }()
+
 	wg.Wait()
 }
 
@@ -67,51 +78,60 @@ func getCurrencies() {
 	}
 }
 
+func getPrices() {
+  for {
+    calculatePrices()
+    time.Sleep(20 * time.Second)
+  }
+}
+
+func calculatePrices() {
+  var err error
+  gdaxPrices, err = getGdaxPrices()
+  if err != nil {
+    fmt.Println("Error reading GDAX prices : ", err)
+    log.Println("Error reading GDAX prices : ", err)
+    return
+  }
+
+  paribuPrices, err := getParibuPrices()
+  if err != nil {
+    fmt.Println("Error reading Paribu prices : ", err)
+    log.Println("Error reading Paribu prices : ", err)
+    return
+  }
+
+  btcTurkPrices, err := getBTCTurkPrices()
+  if err != nil {
+    fmt.Println("Error reading BTCTurk prices : ", err)
+    log.Println("Error reading BTCTurk prices : ", err)
+    return
+  }
+
+  koineksPrices, err := getKoineksPrices()
+  if err != nil {
+    fmt.Println("Error reading Koineks prices : ", err)
+    log.Println("Error reading Koineks prices : ", err)
+    return
+  }
+
+  bitflyerPrices, err := getBitflyerPrices()
+  if err != nil {
+    fmt.Println("Error reading Bitflyer prices : ", err)
+    log.Println("Error reading Bitflyer prices : ", err)
+    return
+  }
+
+  btcDiffs = findPriceDifferences("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, bitflyerPrices)
+  ethDiffs = findPriceDifferences("ETH", tryRate, gdaxPrices, btcTurkPrices, koineksPrices)
+  ltcDiffs = findPriceDifferences("LTC", tryRate, gdaxPrices, koineksPrices)
+}
+
 func PrintTable(c *gin.Context) {
-	gdaxPrices, err := getGdaxPrices()
-	if err != nil {
-		fmt.Println("Error reading GDAX prices : ", err)
-		log.Println("Error reading GDAX prices : ", err)
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	paribuPrices, err := getParibuPrices()
-	if err != nil {
-		fmt.Println("Error reading Paribu prices : ", err)
-		log.Println("Error reading Paribu prices : ", err)
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	btcTurkPrices, err := getBTCTurkPrices()
-	if err != nil {
-		fmt.Println("Error reading BTCTurk prices : ", err)
-		log.Println("Error reading BTCTurk prices : ", err)
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	koineksPrices, err := getKoineksPrices()
-	if err != nil {
-		fmt.Println("Error reading Koineks prices : ", err)
-		log.Println("Error reading Koineks prices : ", err)
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	bitflyerPrices, err := getBitflyerPrices()
-	if err != nil {
-		fmt.Println("Error reading Bitflyer prices : ", err)
-		log.Println("Error reading Bitflyer prices : ", err)
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	btcDiffs := findPriceDifferences("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, bitflyerPrices)
-	ethDiffs := findPriceDifferences("ETH", tryRate, gdaxPrices, btcTurkPrices, koineksPrices)
-	ltcDiffs := findPriceDifferences("LTC", tryRate, gdaxPrices, koineksPrices)
-
+  if len(gdaxPrices) < 3 || len(btcDiffs) < 8 || len(ethDiffs) < 4 || len(ltcDiffs) < 2 {
+    c.String(http.StatusInternalServerError, "Failed to fetch prices")
+    return
+  } 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"USDTRY":         tryRate,
 		"USDJPY":         jpyRate,
