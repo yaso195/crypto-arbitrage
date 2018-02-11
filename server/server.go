@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+  "math"
 	"net/http"
 	"os"
-	"os/exec"
-	"runtime"
 	"sync"
 	"time"
 
@@ -31,10 +30,10 @@ var (
 	tryRate = 0.0
 	jpyRate = 0.0
 
-  btcDiffs []string
-  ethDiffs []string
-  ltcDiffs []string
+  diffs map[string]float64
   gdaxPrices []Price
+
+  ALL_SYMBOLS = []string{"BTC", "ETH", "LTC"}
 )
 
 func Run() {
@@ -122,13 +121,13 @@ func calculatePrices() {
     return
   }
 
-  btcDiffs = findPriceDifferences("BTC", tryRate, gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, bitflyerPrices)
-  ethDiffs = findPriceDifferences("ETH", tryRate, gdaxPrices, btcTurkPrices, koineksPrices)
-  ltcDiffs = findPriceDifferences("LTC", tryRate, gdaxPrices, koineksPrices)
+  findPriceDifferences(gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, bitflyerPrices)
+
+  sendMessages()
 }
 
 func PrintTable(c *gin.Context) {
-  if len(gdaxPrices) < 3 || len(btcDiffs) < 8 || len(ethDiffs) < 4 || len(ltcDiffs) < 2 {
+  if len(gdaxPrices) < 3 {
     c.String(http.StatusInternalServerError, "Failed to fetch prices")
     return
   } 
@@ -136,22 +135,22 @@ func PrintTable(c *gin.Context) {
 		"USDTRY":         tryRate,
 		"USDJPY":         jpyRate,
 		"GdaxBTC":        gdaxPrices[0].Ask,
-		"ParibuBTCAsk":   btcDiffs[0],
-		"ParibuBTCBid":   btcDiffs[1],
-		"BTCTurkBTCAsk":  btcDiffs[2],
-		"BTCTurkBTCBid":  btcDiffs[3],
-		"KoineksBTCAsk":  btcDiffs[4],
-		"KoineksBTCBid":  btcDiffs[5],
-		"BitflyerBTCAsk": btcDiffs[6],
-		"BitflyerBTCBid": btcDiffs[7],
+		"ParibuBTCAsk":   diffs["ParibuBTCAsk"],
+		"ParibuBTCBid":   diffs["ParibuBTCBid"],
+		"BTCTurkBTCAsk":  diffs["BTCTurkBTCAsk"],
+		"BTCTurkBTCBid":  diffs["BTCTurkBTCBid"],
+		"KoineksBTCAsk":  diffs["KoineksBTCAsk"],
+		"KoineksBTCBid":  diffs["KoineksBTCBid"],
+		"BitflyerBTCAsk": diffs["BitflyerBTCAsk"],
+		"BitflyerBTCBid": diffs["BitflyerBTCBid"],
 		"GdaxETH":        gdaxPrices[1].Ask,
-		"BTCTurkETHAsk":  ethDiffs[0],
-		"BTCTurkETHBid":  ethDiffs[1],
-		"KoineksETHAsk":  ethDiffs[2],
-		"KoineksETHBid":  ethDiffs[3],
+		"BTCTurkETHAsk":  diffs["BTCTurkETHAsk"],
+		"BTCTurkETHBid":  diffs["BTCTurkETHBid"],
+		"KoineksETHAsk":  diffs["KoineksETHAsk"],
+		"KoineksETHBid":  diffs["KoineksETHBid"],
 		"GdaxLTC":        gdaxPrices[2].Ask,
-		"KoineksLTCAsk":  ltcDiffs[0],
-		"KoineksLTCBid":  ltcDiffs[1],
+		"KoineksLTCAsk":  diffs["KoineksLTCAsk"],
+		"KoineksLTCBid":  diffs["KoineksLTCBid"],
 	})
 }
 
@@ -181,81 +180,65 @@ func getCurrencyRates() {
 	}
 }
 
-func findPriceDifferences(symbol string, tryRate float64, priceLists ...[]Price) []string {
-	var tryList []Price
-	var jpyList []Price
-	var returnPercentages []string
-	for _, list := range priceLists {
-		for _, p := range list {
-			if p.ID == symbol {
-				switch p.Currency {
-				case "USD":
-					tryP := Price{Currency: "TRY", Exchange: p.Exchange, Bid: p.Bid * tryRate, Ask: p.Ask * tryRate}
-					jpyP := Price{Currency: "JPY", Exchange: p.Exchange, Bid: p.Bid * jpyRate, Ask: p.Ask * jpyRate}
-					tryList = append(tryList, tryP)
-					jpyList = append(jpyList, jpyP)
-				case "TRY":
-					tryList = append(tryList, p)
-				case "JPY":
-					jpyList = append(jpyList, p)
-				}
-			}
-		}
-	}
+func findPriceDifferences(priceLists ...[]Price) {
+  for _, symbol := range ALL_SYMBOLS {
+    var tryList []Price
+  	var jpyList []Price
+  	for _, list := range priceLists {
+  		for _, p := range list {
+  			if p.ID == symbol {
+  				switch p.Currency {
+  				case "USD":
+  					tryP := Price{Currency: "TRY", Exchange: p.Exchange, Bid: p.Bid * tryRate, Ask: p.Ask * tryRate}
+  					jpyP := Price{Currency: "JPY", Exchange: p.Exchange, Bid: p.Bid * jpyRate, Ask: p.Ask * jpyRate}
+  					tryList = append(tryList, tryP)
+  					jpyList = append(jpyList, jpyP)
+  				case "TRY":
+  					tryList = append(tryList, p)
+  				case "JPY":
+  					jpyList = append(jpyList, p)
+  				}
+  			}
+  		}
+  	}
 
-	firstAsk := 0.0
-	for i, p := range tryList {
-		if i == 0 {
-			firstAsk = p.Ask
-		} else {
-			askPercentage := (p.Ask - firstAsk) * 100 / firstAsk
-			bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk
+  	firstAsk := 0.0
+  	for i, p := range tryList {
+  		if i == 0 {
+  			firstAsk = p.Ask
+  		} else {
+  			askPercentage := (p.Ask - firstAsk) * 100 / firstAsk
+  			bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk
 
-			returnPercentages = append(returnPercentages, fmt.Sprintf("%.2f", askPercentage), fmt.Sprintf("%.2f", bidPercentage))
-		}
-	}
+        diffs[fmt.Sprintf("%s%s%s", p.Exchange, symbol, "Ask")] = Round(askPercentage, .5, 2)
+        diffs[fmt.Sprintf("%s%s%s", p.Exchange, symbol, "Bid")] = Round(bidPercentage, .5, 2)
+  		}
+  	}
 
-	for i, p := range jpyList {
-		if i == 0 {
-			firstAsk = p.Ask
-		} else {
-			askPercentage := (p.Ask - firstAsk) * 100 / firstAsk
-			bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk
+  	for i, p := range jpyList {
+  		if i == 0 {
+  			firstAsk = p.Ask
+  		} else {
+  			askPercentage := (p.Ask - firstAsk) * 100 / firstAsk
+  			bidPercentage := (p.Bid - firstAsk) * 100 / firstAsk
 
-			returnPercentages = append(returnPercentages, fmt.Sprintf("%.2f", askPercentage), fmt.Sprintf("%.2f", bidPercentage))
-		}
-	}
-	//fmt.Print(out)
-
-	return returnPercentages
+  			diffs[fmt.Sprintf("%s%s%s", p.Exchange, symbol, "Ask")] = Round(askPercentage, .5, 2)
+        diffs[fmt.Sprintf("%s%s%s", p.Exchange, symbol, "Bid")] = Round(bidPercentage, .5, 2)
+  		}
+  	}
+  }
 }
 
-var clear map[string]func() //create a map for storing clear funcs
-
-func init() {
-	clear = make(map[string]func()) //Initialize it
-	clear["linux"] = func() {
-		cmd := exec.Command("clear") //Linux example, its tested
-		cmd.Stdout = os.Stdout
-		cmd.Run()
-	}
-	clear["darwin"] = func() {
-		cmd := exec.Command("clear") //Linux example, its tested
-		cmd.Stdout = os.Stdout
-		cmd.Run()
-	}
-	clear["windows"] = func() {
-		cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
-		cmd.Stdout = os.Stdout
-		cmd.Run()
-	}
-}
-
-func CallClear() {
-	value, ok := clear[runtime.GOOS] //runtime.GOOS -> linux, windows, darwin etc.
-	if ok {                          //if we defined a clear func for that platform:
-		value() //we execute it
-	} else { //unsupported platform
-		panic("Your platform is unsupported! I can't clear terminal screen :(")
-	}
+func Round(val float64, roundOn float64, places int ) (newVal float64) {
+  var round float64
+  pow := math.Pow(10, float64(places))
+  digit := pow * val
+  _, div := math.Modf(digit)
+  if div >= roundOn {
+    round = math.Ceil(digit)
+  } else {
+    round = math.Floor(digit)
+  }
+  newVal = round / pow
+  return
 }

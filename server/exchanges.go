@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/buger/jsonparser"
@@ -16,7 +17,32 @@ const (
 	BTCTURK_URI  = "https://www.btcturk.com/api/ticker"
 	KOINEKS_URI  = "https://koineks.com/ticker"
 	BITFLYER_URI = "https://api.bitflyer.jp/v1/ticker"
+
+	PARIBU = "Paribu"
+	BTCTURK = "BTCTurk"
+	KOINEKS = "Koineks"
+	BITFLYER = "Bitflyer"
 )
+
+var (
+	symbolToExchangeNames map[string][]string
+
+	ALL_EXCHANGES = []string{PARIBU, BTCTURK, KOINEKS, BITFLYER}
+)
+
+func init() {
+	notificationFlags = map[string]bool{}
+	for _, exchange := range ALL_EXCHANGES {
+		for _, symbol := range ALL_SYMBOLS {
+			notificationFlags[fmt.Sprintf("%s%s", symbol, exchange)] = false
+		}
+	}
+
+	diffs = map[string]float64{}
+
+	PUSHOVER_USER = os.Getenv("PUSHOVER_USER")
+	PUSHOVER_APP_TOKEN = os.Getenv("PUSHOVER_APP_TOKEN")
+}
 
 func getGdaxPrices() ([]Price, error) {
 
@@ -62,7 +88,7 @@ func getParibuPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read the bid price from the Paribu response data: %s", err)
 	}
 
-	prices = append(prices, Price{Exchange: "Paribu", Currency: "TRY", ID: "BTC", Ask: priceAsk, Bid: priceBid})
+	prices = append(prices, Price{Exchange: PARIBU, Currency: "TRY", ID: "BTC", Ask: priceAsk, Bid: priceBid})
 	return prices, nil
 }
 
@@ -101,7 +127,7 @@ func getBTCTurkPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read the ETH bid price from the BTCTurk response data: %s", err)
 	}
 
-	prices = append(prices, Price{Exchange: "BTCTurk", Currency: "TRY", ID: "ETH", Ask: ethPriceAsk, Bid: ethPriceBid})
+	prices = append(prices, Price{Exchange: BTCTURK, Currency: "TRY", ID: "ETH", Ask: ethPriceAsk, Bid: ethPriceBid})
 
 	return prices, nil
 }
@@ -137,7 +163,7 @@ func getKoineksPrices() ([]Price, error) {
 
 		askB, _ := strconv.ParseFloat(priceBid, 64)
 
-		prices = append(prices, Price{Exchange: "Koineks", Currency: "TRY", ID: id, Ask: askF, Bid: askB})
+		prices = append(prices, Price{Exchange: KOINEKS, Currency: "TRY", ID: id, Ask: askF, Bid: askB})
 	}
 
 	return prices, nil
@@ -166,7 +192,7 @@ func getBitflyerPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read the bid price from the Bitflyer response data: %s", err)
 	}
 
-	prices = append(prices, Price{Exchange: "Bitflyer", Currency: "JPY", ID: "BTC", Ask: priceAsk, Bid: priceBid})
+	prices = append(prices, Price{Exchange: BITFLYER, Currency: "JPY", ID: "BTC", Ask: priceAsk, Bid: priceBid})
 
 	return prices, nil
 }
