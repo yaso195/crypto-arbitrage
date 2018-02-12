@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 const (
@@ -17,6 +18,7 @@ const (
 
 var (
 	notificationFlags map[string]bool
+	notificationTimes map[string]time.Time
 	PUSHOVER_USER = ""
 	PUSHOVER_APP_TOKEN = ""
 )
@@ -27,14 +29,18 @@ func sendMessages() {
 		for _, symbol := range ALL_SYMBOLS {
 			exchangeSymbol := fmt.Sprintf("%s%s", exchange, symbol)
 			notificationFlag := notificationFlags[exchangeSymbol]
+			notificationTime := notificationTimes[exchangeSymbol]
 			askDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Ask")]
 			bidDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Bid")]
 			if notificationFlag && askDiff > MIN_NOTI_PERC && bidDiff < MAX_NOTI_PERC {
 				notificationFlags[exchangeSymbol] = false
 			}
 
-			if !notificationFlag && (askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
+			duration := time.Since(notificationTime)
+			if !notificationFlag && duration.Minutes() >= 5 && 
+			(askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
 				notificationFlags[exchangeSymbol] = true
+				notificationTimes[exchangeSymbol] = time.Now()
 				if askDiff <= MIN_NOTI_PERC {
 					out += fmt.Sprintf("%s %s %%%.2f\n", exchange, symbol, askDiff)
 				} else {

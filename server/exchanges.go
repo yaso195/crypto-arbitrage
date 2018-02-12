@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/buger/jsonparser"
 
@@ -32,9 +33,12 @@ var (
 
 func init() {
 	notificationFlags = map[string]bool{}
+	notificationTimes = map[string]time.Time{}
 	for _, exchange := range ALL_EXCHANGES {
 		for _, symbol := range ALL_SYMBOLS {
-			notificationFlags[fmt.Sprintf("%s%s", symbol, exchange)] = false
+			exchangeSymbol := fmt.Sprintf("%s%s", exchange, symbol)
+			notificationFlags[exchangeSymbol] = false
+			notificationTimes[exchangeSymbol] = time.Time{}
 		}
 	}
 
