@@ -19,9 +19,9 @@ const (
 	KOINEKS_URI  = "https://koineks.com/ticker"
 	BITFLYER_URI = "https://api.bitflyer.jp/v1/ticker"
 
-	PARIBU = "Paribu"
-	BTCTURK = "BTCTurk"
-	KOINEKS = "Koineks"
+	PARIBU   = "Paribu"
+	BTCTURK  = "BTCTurk"
+	KOINEKS  = "Koineks"
 	BITFLYER = "Bitflyer"
 )
 

@@ -10,16 +10,16 @@ import (
 )
 
 const (
-  PUSHOVER_URI = "https://api.pushover.net/1/messages.json"
+	PUSHOVER_URI = "https://api.pushover.net/1/messages.json"
 
-  MIN_NOTI_PERC = -1.0
-  MAX_NOTI_PERC = 2.5
+	MIN_NOTI_PERC = -2.0
+	MAX_NOTI_PERC = 2.5
 )
 
 var (
-	notificationFlags map[string]bool
-	notificationTimes map[string]time.Time
-	PUSHOVER_USER = ""
+	notificationFlags  map[string]bool
+	notificationTimes  map[string]time.Time
+	PUSHOVER_USER      = ""
 	PUSHOVER_APP_TOKEN = ""
 )
 
@@ -37,8 +37,8 @@ func sendMessages() {
 			}
 
 			duration := time.Since(notificationTime)
-			if !notificationFlag && duration.Minutes() >= 5 && 
-			(askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
+			if !notificationFlag && duration.Minutes() >= 5 &&
+				(askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
 				notificationFlags[exchangeSymbol] = true
 				notificationTimes[exchangeSymbol] = time.Now()
 				if askDiff <= MIN_NOTI_PERC {
@@ -50,28 +50,27 @@ func sendMessages() {
 		}
 	}
 
-
 	sendPushoverMessage(out)
 }
 
 func sendPushoverMessage(message string) {
 	if message == "" {
 		return
-	}	
-  
+	}
+
 	// POST
 	form := url.Values{
-    	"user": {PUSHOVER_USER},
-    	"token":  {PUSHOVER_APP_TOKEN},
-    	"message": {message},
-  	}
+		"user":    {PUSHOVER_USER},
+		"token":   {PUSHOVER_APP_TOKEN},
+		"message": {message},
+	}
 
-  	body := bytes.NewBufferString(form.Encode())
-  	_, err := http.Post(PUSHOVER_URI, "application/x-www-form-urlencoded", body)
-  	if err != nil {
-    	fmt.Println("Failed to send the message to pushover : ", err)
-    	log.Println("Failed to send the message to pushover : ", err)
-  	}
+	body := bytes.NewBufferString(form.Encode())
+	_, err := http.Post(PUSHOVER_URI, "application/x-www-form-urlencoded", body)
+	if err != nil {
+		fmt.Println("Failed to send the message to pushover : ", err)
+		log.Println("Failed to send the message to pushover : ", err)
+	}
 
-  	log.Println("Sent message ", message)
+	log.Println("Sent message ", message)
 }
