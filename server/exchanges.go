@@ -53,7 +53,7 @@ func getGdaxPrices() ([]Price, error) {
 	client := gdax.NewClient("", "", "")
 	var prices []Price
 
-	ids := []string{"BTC-USD", "ETH-USD", "LTC-USD"}
+	ids := []string{"BTC-USD", "ETH-USD", "LTC-USD", "ETH-BTC"}
 
 	for _, id := range ids {
 		ticker, err := client.GetTicker(id)
@@ -132,6 +132,9 @@ func getBTCTurkPrices() ([]Price, error) {
 	}
 
 	prices = append(prices, Price{Exchange: BTCTURK, Currency: "TRY", ID: "ETH", Ask: ethPriceAsk, Bid: ethPriceBid})
+
+	btcTurkETHBTCAskBid = ethPriceAsk / btcPriceBid
+	btcTurkETHBTCBidAsk = ethPriceBid / btcPriceAsk
 
 	return prices, nil
 }

@@ -30,8 +30,10 @@ var (
 	tryRate = 0.0
 	jpyRate = 0.0
 
-	diffs      map[string]float64
-	gdaxPrices []Price
+	diffs               map[string]float64
+	gdaxPrices          []Price
+	btcTurkETHBTCAskBid float64
+	btcTurkETHBTCBidAsk float64
 
 	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC"}
 )
@@ -127,30 +129,37 @@ func calculatePrices() {
 }
 
 func PrintTable(c *gin.Context) {
-	if len(gdaxPrices) < 3 {
+	if len(gdaxPrices) < 4 {
 		c.String(http.StatusInternalServerError, "Failed to fetch prices")
 		return
 	}
+
+	btcTurkETHBTCAskBidDiff := Round((btcTurkETHBTCAskBid-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
+	btcTurkETHBTCBidAskDiff := Round((btcTurkETHBTCBidAsk-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
+
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
-		"USDTRY":         tryRate,
-		"USDJPY":         jpyRate,
-		"GdaxBTC":        gdaxPrices[0].Ask,
-		"ParibuBTCAsk":   diffs["ParibuBTCAsk"],
-		"ParibuBTCBid":   diffs["ParibuBTCBid"],
-		"BTCTurkBTCAsk":  diffs["BTCTurkBTCAsk"],
-		"BTCTurkBTCBid":  diffs["BTCTurkBTCBid"],
-		"KoineksBTCAsk":  diffs["KoineksBTCAsk"],
-		"KoineksBTCBid":  diffs["KoineksBTCBid"],
-		"BitflyerBTCAsk": diffs["BitflyerBTCAsk"],
-		"BitflyerBTCBid": diffs["BitflyerBTCBid"],
-		"GdaxETH":        gdaxPrices[1].Ask,
-		"BTCTurkETHAsk":  diffs["BTCTurkETHAsk"],
-		"BTCTurkETHBid":  diffs["BTCTurkETHBid"],
-		"KoineksETHAsk":  diffs["KoineksETHAsk"],
-		"KoineksETHBid":  diffs["KoineksETHBid"],
-		"GdaxLTC":        gdaxPrices[2].Ask,
-		"KoineksLTCAsk":  diffs["KoineksLTCAsk"],
-		"KoineksLTCBid":  diffs["KoineksLTCBid"],
+		"USDTRY":              tryRate,
+		"USDJPY":              jpyRate,
+		"GdaxBTC":             gdaxPrices[0].Ask,
+		"ParibuBTCAsk":        diffs["ParibuBTCAsk"],
+		"ParibuBTCBid":        diffs["ParibuBTCBid"],
+		"BTCTurkBTCAsk":       diffs["BTCTurkBTCAsk"],
+		"BTCTurkBTCBid":       diffs["BTCTurkBTCBid"],
+		"KoineksBTCAsk":       diffs["KoineksBTCAsk"],
+		"KoineksBTCBid":       diffs["KoineksBTCBid"],
+		"BitflyerBTCAsk":      diffs["BitflyerBTCAsk"],
+		"BitflyerBTCBid":      diffs["BitflyerBTCBid"],
+		"GdaxETH":             gdaxPrices[1].Ask,
+		"BTCTurkETHAsk":       diffs["BTCTurkETHAsk"],
+		"BTCTurkETHBid":       diffs["BTCTurkETHBid"],
+		"KoineksETHAsk":       diffs["KoineksETHAsk"],
+		"KoineksETHBid":       diffs["KoineksETHBid"],
+		"GdaxLTC":             gdaxPrices[2].Ask,
+		"KoineksLTCAsk":       diffs["KoineksLTCAsk"],
+		"KoineksLTCBid":       diffs["KoineksLTCBid"],
+		"GdaxETHBTC":          gdaxPrices[3].Ask,
+		"BTCTurkETHBTCAskBid": btcTurkETHBTCAskBidDiff,
+		"BTCTurkETHBTCBidAsk": btcTurkETHBTCBidAskDiff,
 	})
 }
 

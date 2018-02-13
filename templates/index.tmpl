@@ -75,7 +75,30 @@ th, td {
     <td>-</td> 
     <td>-</td> 
   </tr>
-</table>
+  </table>
+
+<br>
+<br>
+<br>
+  <table style="width:50%">
+  <tr>
+    <th></th>
+    <th>GDAX</th>
+    <th colspan="2">BTCTurk</th> 
+  </tr>
+  <tr>
+    <th>Symbol</th>
+    <th>ASK</th>
+    <th>ASK/BID</th>
+    <th>BID/ASK</th>
+  </tr>
+  <tr>
+    <td>ETH/BTC</td>
+    <td>{{.GdaxETHBTC}}</td>
+    <td>%{{.BTCTurkETHBTCAskBid}}</td>
+    <td>%{{.BTCTurkETHBTCBidAsk}}</td>
+  </tr>
+  </table>
 
 
 </body>
