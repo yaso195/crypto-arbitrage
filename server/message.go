@@ -37,7 +37,7 @@ func sendMessages() {
 			}
 
 			duration := time.Since(notificationTime)
-			if !notificationFlag && duration.Minutes() >= 5 &&
+			if !notificationFlag && duration.Minutes() >= 10 &&
 				(askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
 				notificationFlags[exchangeSymbol] = true
 				notificationTimes[exchangeSymbol] = time.Now()
