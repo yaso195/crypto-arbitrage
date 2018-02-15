@@ -53,7 +53,7 @@ func getGdaxPrices() ([]Price, error) {
 	client := gdax.NewClient("", "", "")
 	var prices []Price
 
-	ids := []string{"BTC-USD", "ETH-USD", "LTC-USD", "ETH-BTC"}
+	ids := []string{"BTC-USD", "ETH-USD", "LTC-USD", "ETH-BTC", "LTC-BTC"}
 
 	for _, id := range ids {
 		ticker, err := client.GetTicker(id)
@@ -154,6 +154,7 @@ func getKoineksPrices() ([]Price, error) {
 
 	ids := []string{"BTC", "ETH", "LTC"}
 
+	var btcPriceAsk, btcPriceBid float64
 	for _, id := range ids {
 
 		priceAsk, err := jsonparser.GetString(responseData, id, "ask")
@@ -161,16 +162,28 @@ func getKoineksPrices() ([]Price, error) {
 			return nil, fmt.Errorf("failed to read the ask price from the Koineks response data: %s", err)
 		}
 
-		askF, _ := strconv.ParseFloat(priceAsk, 64)
+		pAsk, _ := strconv.ParseFloat(priceAsk, 64)
 
 		priceBid, err := jsonparser.GetString(responseData, id, "bid")
 		if err != nil {
 			return nil, fmt.Errorf("failed to read the bid price from the Koineks response data: %s", err)
 		}
 
-		askB, _ := strconv.ParseFloat(priceBid, 64)
+		pBid, _ := strconv.ParseFloat(priceBid, 64)
 
-		prices = append(prices, Price{Exchange: KOINEKS, Currency: "TRY", ID: id, Ask: askF, Bid: askB})
+		prices = append(prices, Price{Exchange: KOINEKS, Currency: "TRY", ID: id, Ask: pAsk, Bid: pBid})
+
+		switch id {
+		case "BTC":
+			btcPriceAsk = pAsk
+			btcPriceBid = pBid
+		case "ETH":
+			koineksETHBTCAskBid = pAsk / btcPriceBid
+			koineksETHBTCBidAsk = pBid / btcPriceAsk
+		case "LTC":
+			koineksLTCBTCAskBid = pAsk / btcPriceBid
+			koineksLTCBTCBidAsk = pBid / btcPriceAsk
+		}
 	}
 
 	return prices, nil

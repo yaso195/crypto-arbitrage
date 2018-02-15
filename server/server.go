@@ -34,6 +34,10 @@ var (
 	gdaxPrices          []Price
 	btcTurkETHBTCAskBid float64
 	btcTurkETHBTCBidAsk float64
+	koineksETHBTCAskBid float64
+	koineksETHBTCBidAsk float64
+	koineksLTCBTCAskBid float64
+	koineksLTCBTCBidAsk float64
 
 	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC"}
 )
@@ -129,13 +133,17 @@ func calculatePrices() {
 }
 
 func PrintTable(c *gin.Context) {
-	if len(gdaxPrices) < 4 {
+	if len(gdaxPrices) < 5 {
 		c.String(http.StatusInternalServerError, "Failed to fetch prices")
 		return
 	}
 
 	btcTurkETHBTCAskBidDiff := Round((btcTurkETHBTCAskBid-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
 	btcTurkETHBTCBidAskDiff := Round((btcTurkETHBTCBidAsk-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
+	koineksETHBTCAskBidDiff := Round((koineksETHBTCAskBid-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
+	koineksETHBTCBidAskDiff := Round((koineksETHBTCBidAsk-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
+	koineksLTCBTCAskBidDiff := Round((koineksLTCBTCAskBid-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
+	koineksLTCBTCBidAskDiff := Round((koineksLTCBTCBidAsk-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"USDTRY":              tryRate,
@@ -158,8 +166,13 @@ func PrintTable(c *gin.Context) {
 		"KoineksLTCAsk":       diffs["KoineksLTCAsk"],
 		"KoineksLTCBid":       diffs["KoineksLTCBid"],
 		"GdaxETHBTC":          gdaxPrices[3].Ask,
+		"GdaxLTCBTC":          gdaxPrices[4].Ask,
 		"BTCTurkETHBTCAskBid": btcTurkETHBTCAskBidDiff,
 		"BTCTurkETHBTCBidAsk": btcTurkETHBTCBidAskDiff,
+		"KoineksETHBTCAskBid": koineksETHBTCAskBidDiff,
+		"KoineksETHBTCBidAsk": koineksETHBTCBidAskDiff,
+		"KoineksLTCBTCAskBid": koineksLTCBTCAskBidDiff,
+		"KoineksLTCBTCBidAsk": koineksLTCBTCBidAskDiff,
 	})
 }
 
