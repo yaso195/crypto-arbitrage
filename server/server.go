@@ -91,45 +91,52 @@ func getPrices() {
 }
 
 func calculatePrices() {
-	var err error
-	gdaxPrices, err = getGdaxPrices()
-	if err != nil {
-		fmt.Println("Error reading GDAX prices : ", err)
-		log.Println("Error reading GDAX prices : ", err)
-		return
-	}
+  var err error
+  gdaxPrices, err = getGdaxPrices()
+  if err != nil {
+    fmt.Println("Error reading GDAX prices : ", err)
+    log.Println("Error reading GDAX prices : ", err)
+    return
+  }
 
-	paribuPrices, err := getParibuPrices()
-	if err != nil {
-		fmt.Println("Error reading Paribu prices : ", err)
-		log.Println("Error reading Paribu prices : ", err)
-		return
-	}
+  paribuPrices, err := getParibuPrices()
+  if err != nil {
+    fmt.Println("Error reading Paribu prices : ", err)
+    log.Println("Error reading Paribu prices : ", err)
+    return
+  }
 
-	btcTurkPrices, err := getBTCTurkPrices()
-	if err != nil {
-		fmt.Println("Error reading BTCTurk prices : ", err)
-		log.Println("Error reading BTCTurk prices : ", err)
-		return
-	}
+  btcTurkPrices, err := getBTCTurkPrices()
+  if err != nil {
+    fmt.Println("Error reading BTCTurk prices : ", err)
+    log.Println("Error reading BTCTurk prices : ", err)
+    return
+  }
 
-	koineksPrices, err := getKoineksPrices()
-	if err != nil {
-		fmt.Println("Error reading Koineks prices : ", err)
-		log.Println("Error reading Koineks prices : ", err)
-		return
-	}
+  koineksPrices, err := getKoineksPrices()
+  if err != nil {
+    fmt.Println("Error reading Koineks prices : ", err)
+    log.Println("Error reading Koineks prices : ", err)
+    return
+  }
 
-	bitflyerPrices, err := getBitflyerPrices()
-	if err != nil {
-		fmt.Println("Error reading Bitflyer prices : ", err)
-		log.Println("Error reading Bitflyer prices : ", err)
-		return
-	}
+  koinimPrices, err := getKoinimPrices()
+  if err != nil {
+    fmt.Println("Error reading Koinim prices : ", err)
+    log.Println("Error reading Koinim prices : ", err)
+    return
+  }
 
-	findPriceDifferences(gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, bitflyerPrices)
+  bitflyerPrices, err := getBitflyerPrices()
+  if err != nil {
+    fmt.Println("Error reading Bitflyer prices : ", err)
+    log.Println("Error reading Bitflyer prices : ", err)
+    return
+  }
 
-	sendMessages()
+  findPriceDifferences(gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, bitflyerPrices)
+
+  sendMessages()
 }
 
 func PrintTable(c *gin.Context) {
@@ -155,6 +162,8 @@ func PrintTable(c *gin.Context) {
 		"BTCTurkBTCBid":       diffs["BTCTurkBTCBid"],
 		"KoineksBTCAsk":       diffs["KoineksBTCAsk"],
 		"KoineksBTCBid":       diffs["KoineksBTCBid"],
+    "KoinimBTCAsk":  diffs["KoinimBTCAsk"],
+    "KoinimBTCBid":  diffs["KoinimBTCBid"],
 		"BitflyerBTCAsk":      diffs["BitflyerBTCAsk"],
 		"BitflyerBTCBid":      diffs["BitflyerBTCBid"],
 		"GdaxETH":             gdaxPrices[1].Ask,
@@ -165,6 +174,8 @@ func PrintTable(c *gin.Context) {
 		"GdaxLTC":             gdaxPrices[2].Ask,
 		"KoineksLTCAsk":       diffs["KoineksLTCAsk"],
 		"KoineksLTCBid":       diffs["KoineksLTCBid"],
+    "KoinimLTCAsk":  diffs["KoinimLTCAsk"],
+    "KoinimLTCBid":  diffs["KoinimLTCBid"],
 		"GdaxETHBTC":          gdaxPrices[3].Ask,
 		"GdaxLTCBTC":          gdaxPrices[4].Ask,
 		"BTCTurkETHBTCAskBid": btcTurkETHBTCAskBidDiff,

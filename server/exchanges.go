@@ -17,18 +17,20 @@ const (
 	PARIBU_URI   = "https://www.paribu.com/ticker"
 	BTCTURK_URI  = "https://www.btcturk.com/api/ticker"
 	KOINEKS_URI  = "https://koineks.com/ticker"
+	KOINIM_URI  = "https://koinim.com/ticker"
 	BITFLYER_URI = "https://api.bitflyer.jp/v1/ticker"
 
-	PARIBU   = "Paribu"
-	BTCTURK  = "BTCTurk"
-	KOINEKS  = "Koineks"
+	PARIBU = "Paribu"
+	BTCTURK = "BTCTurk"
+	KOINEKS = "Koineks"
+	KOINIM = "Koinim"
 	BITFLYER = "Bitflyer"
 )
 
 var (
 	symbolToExchangeNames map[string][]string
 
-	ALL_EXCHANGES = []string{PARIBU, BTCTURK, KOINEKS, BITFLYER}
+	ALL_EXCHANGES = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, BITFLYER}
 )
 
 func init() {
@@ -135,6 +137,56 @@ func getBTCTurkPrices() ([]Price, error) {
 
 	btcTurkETHBTCAskBid = ethPriceAsk / btcPriceBid
 	btcTurkETHBTCBidAsk = ethPriceBid / btcPriceAsk
+
+	return prices, nil
+}
+
+func getKoinimPrices() ([]Price, error) {
+	var prices []Price
+
+	response, err := http.Get(KOINIM_URI)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get Koinim response : %s", err)
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read Koinim response data : %s", err)
+	}
+
+	koinimPriceAsk, err := jsonparser.GetFloat(responseData, "ask")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the BTC ask price from the Koinim response data: %s", err)
+	}
+
+	koinimPriceBid, err := jsonparser.GetFloat(responseData, "bid")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the BTC bid price from the Koinim response data: %s", err)
+	}
+
+	prices = append(prices, Price{Exchange: KOINIM, Currency: "TRY", ID: "BTC", Ask: koinimPriceAsk, Bid: koinimPriceBid})
+
+	response, err = http.Get(KOINIM_URI+"/ltc")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get Koinim response : %s", err)
+	}
+
+	responseData, err = ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read Koinim response data : %s", err)
+	}
+
+	ltcPriceAsk, err := jsonparser.GetFloat(responseData, "ask")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the LTC ask price from the Koinim response data: %s", err)
+	}
+
+	ltcPriceBid, err := jsonparser.GetFloat(responseData, "bid")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the LTC bid price from the Koinim response data: %s", err)
+	}
+
+	prices = append(prices, Price{Exchange: KOINIM, Currency: "TRY", ID: "LTC", Ask: ltcPriceAsk, Bid: ltcPriceBid})
 
 	return prices, nil
 }
