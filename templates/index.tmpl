@@ -18,7 +18,7 @@ th, td {
 <body>
   <br> USD/TRY = {{.USDTRY}}
   <br> USD/JPY = {{.USDJPY}}
-  <table style="width:50%">
+  <table style="width:70%">
   <tr>
   	<th></th>
     <th>GDAX</th>
@@ -45,26 +45,26 @@ th, td {
   <tr>
   	<td>BTC</td>
     <td>{{.GdaxBTC}}</td>
-    <td>%{{.ParibuBTCAsk}}</td>
-    <td>%{{.ParibuBTCBid}}</td> 
-    <td>%{{.BTCTurkBTCAsk}}</td>
-    <td>%{{.BTCTurkBTCBid}}</td>
-    <td>%{{.KoineksBTCAsk}}</td>
-    <td>%{{.KoineksBTCBid}}</td>
-    <td>%{{.KoinimBTCAsk}}</td>
-    <td>%{{.KoinimBTCBid}}</td>
-    <td>%{{.BitflyerBTCAsk}}</td>
-    <td>%{{.BitflyerBTCBid}}</td>
+    <td>%{{.ParibuBTCAsk}} <br><small><i> ({{.ParibuBTCAskPrice}})</small></td>
+    <td>%{{.ParibuBTCBid}} <br><small><i> ({{.ParibuBTCBidPrice}})</small></td> 
+    <td>%{{.BTCTurkBTCAsk}} <br><small><i> ({{.BTCTurkBTCAskPrice}})</small></td>
+    <td>%{{.BTCTurkBTCBid}} <br><small><i> ({{.BTCTurkBTCBidPrice}})</small></td>
+    <td>%{{.KoineksBTCAsk}} <br><small><i> ({{.KoineksBTCAskPrice}})</small></td>
+    <td>%{{.KoineksBTCBid}} <br><small><i> ({{.KoineksBTCBidPrice}})</small></td>
+    <td>%{{.KoinimBTCAsk}} <br><small><i> ({{.KoinimBTCAskPrice}})</small></td>
+    <td>%{{.KoinimBTCBid}} <br><small><i> ({{.KoinimBTCBidPrice}})</small></td>
+    <td>%{{.BitflyerBTCAsk}} <br><small><i> ({{.BitflyerBTCAskPrice}})</small></td>
+    <td>%{{.BitflyerBTCBid}} <br><small><i> ({{.BitflyerBTCBidPrice}})</small></td>
   </tr>
   <tr>
   	<td>ETH</td>
     <td>{{.GdaxETH}}</td>
     <td>-</td> 
     <td>-</td> 
-    <td>%{{.BTCTurkETHAsk}}</td>
-    <td>%{{.BTCTurkETHBid}}</td>
-    <td>%{{.KoineksETHAsk}}</td>
-    <td>%{{.KoineksETHBid}}</td>
+    <td>%{{.BTCTurkETHAsk}} <br><small><i> ({{.BTCTurkETHAskPrice}})</small></td>
+    <td>%{{.BTCTurkETHBid}} <br><small><i> ({{.BTCTurkETHBidPrice}})</small></td>
+    <td>%{{.KoineksETHAsk}} <br><small><i> ({{.KoineksETHAskPrice}})</small></td>
+    <td>%{{.KoineksETHBid}} <br><small><i> ({{.KoineksETHBidPrice}})</small></td>
     <td>-</td> 
     <td>-</td>
     <td>-</td> 
@@ -77,10 +77,10 @@ th, td {
     <td>-</td>
     <td>-</td> 
     <td>-</td>
-    <td>%{{.KoineksLTCAsk}}</td>
-    <td>%{{.KoineksLTCBid}}</td>
-    <td>%{{.KoinimLTCAsk}}</td>
-    <td>%{{.KoinimLTCBid}}</td>
+    <td>%{{.KoineksLTCAsk}} <br><small><i> ({{.KoineksLTCAskPrice}})</small></td>
+    <td>%{{.KoineksLTCBid}} <br><small><i> ({{.KoineksLTCBidPrice}})</small></td>
+    <td>%{{.KoinimLTCAsk}} <br><small><i> ({{.KoinimLTCAskPrice}})</small></td>
+    <td>%{{.KoinimLTCBid}} <br><small><i> ({{.KoinimLTCBidPrice}})</small></td>
     <td>-</td> 
     <td>-</td> 
   </tr>

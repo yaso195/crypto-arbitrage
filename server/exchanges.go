@@ -17,13 +17,13 @@ const (
 	PARIBU_URI   = "https://www.paribu.com/ticker"
 	BTCTURK_URI  = "https://www.btcturk.com/api/ticker"
 	KOINEKS_URI  = "https://koineks.com/ticker"
-	KOINIM_URI  = "https://koinim.com/ticker"
+	KOINIM_URI   = "https://koinim.com/ticker"
 	BITFLYER_URI = "https://api.bitflyer.jp/v1/ticker"
 
-	PARIBU = "Paribu"
-	BTCTURK = "BTCTurk"
-	KOINEKS = "Koineks"
-	KOINIM = "Koinim"
+	PARIBU   = "Paribu"
+	BTCTURK  = "BTCTurk"
+	KOINEKS  = "Koineks"
+	KOINIM   = "Koinim"
 	BITFLYER = "Bitflyer"
 )
 
@@ -45,6 +45,7 @@ func init() {
 	}
 
 	diffs = map[string]float64{}
+	prices = map[string]float64{}
 
 	PUSHOVER_USER = os.Getenv("PUSHOVER_USER")
 	PUSHOVER_APP_TOKEN = os.Getenv("PUSHOVER_APP_TOKEN")
@@ -63,7 +64,12 @@ func getGdaxPrices() ([]Price, error) {
 			return nil, fmt.Errorf("Error reading %s price : %s\n", id, err)
 		}
 
-		p := Price{Exchange: "GDAX", Currency: "USD", ID: id[0:3], Ask: ticker.Ask, Bid: ticker.Bid}
+		tempID := id
+		if id[4:] == "USD" {
+			tempID = id[0:3]
+		}
+
+		p := Price{Exchange: "GDAX", Currency: "USD", ID: tempID, Ask: ticker.Ask, Bid: ticker.Bid}
 		prices = append(prices, p)
 	}
 
@@ -166,7 +172,7 @@ func getKoinimPrices() ([]Price, error) {
 
 	prices = append(prices, Price{Exchange: KOINIM, Currency: "TRY", ID: "BTC", Ask: koinimPriceAsk, Bid: koinimPriceBid})
 
-	response, err = http.Get(KOINIM_URI+"/ltc")
+	response, err = http.Get(KOINIM_URI + "/ltc")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get Koinim response : %s", err)
 	}
