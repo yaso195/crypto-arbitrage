@@ -194,6 +194,9 @@ func getKoinimPrices() ([]Price, error) {
 
 	prices = append(prices, Price{Exchange: KOINIM, Currency: "TRY", ID: "LTC", Ask: ltcPriceAsk, Bid: ltcPriceBid})
 
+	koinimLTCBTCAskBid = ltcPriceAsk / koinimPriceBid
+	koinimLTCBTCBidAsk = ltcPriceBid / koinimPriceAsk
+
 	return prices, nil
 }
 

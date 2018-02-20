@@ -30,15 +30,12 @@ var (
 	tryRate = 0.0
 	jpyRate = 0.0
 
-	diffs               map[string]float64
-	prices              map[string]float64
-	gdaxPrices          []Price
-	btcTurkETHBTCAskBid float64
-	btcTurkETHBTCBidAsk float64
-	koineksETHBTCAskBid float64
-	koineksETHBTCBidAsk float64
-	koineksLTCBTCAskBid float64
-	koineksLTCBTCBidAsk float64
+	diffs                                                                              map[string]float64
+	prices                                                                             map[string]float64
+	gdaxPrices                                                                         []Price
+	btcTurkETHBTCAskBid, btcTurkETHBTCBidAsk                                           float64
+	koineksETHBTCAskBid, koineksETHBTCBidAsk, koineksLTCBTCAskBid, koineksLTCBTCBidAsk float64
+	koinimLTCBTCAskBid, koinimLTCBTCBidAsk                                             float64
 
 	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC"}
 )
@@ -152,6 +149,8 @@ func PrintTable(c *gin.Context) {
 	koineksETHBTCBidAskDiff := Round((koineksETHBTCBidAsk-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
 	koineksLTCBTCAskBidDiff := Round((koineksLTCBTCAskBid-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
 	koineksLTCBTCBidAskDiff := Round((koineksLTCBTCBidAsk-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
+	koinimLTCBTCAskBidDiff := Round((koinimLTCBTCAskBid-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
+	koinimLTCBTCBidAskDiff := Round((koinimLTCBTCBidAsk-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"USDTRY":              tryRate,
@@ -185,6 +184,8 @@ func PrintTable(c *gin.Context) {
 		"KoineksETHBTCBidAsk": koineksETHBTCBidAskDiff,
 		"KoineksLTCBTCAskBid": koineksLTCBTCAskBidDiff,
 		"KoineksLTCBTCBidAsk": koineksLTCBTCBidAskDiff,
+		"KoinimLTCBTCAskBid":  koinimLTCBTCAskBidDiff,
+		"KoinimLTCBTCBidAsk":  koinimLTCBTCBidAskDiff,
 		"ParibuBTCAskPrice":   prices["ParibuBTCAsk"],
 		"ParibuBTCBidPrice":   prices["ParibuBTCBid"],
 		"BTCTurkBTCAskPrice":  prices["BTCTurkBTCAsk"],
