@@ -13,7 +13,7 @@ import (
 const (
 	PUSHOVER_URI = "https://api.pushover.net/1/messages.json"
 
-	MIN_NOTI_PERC = -2.0
+	MIN_NOTI_PERC = -1.0
 	MAX_NOTI_PERC = 2.5
 )
 
@@ -31,13 +31,13 @@ func sendMessages() {
 			exchangeSymbol := fmt.Sprintf("%s%s", exchange, symbol)
 			notificationFlag := notificationFlags[exchangeSymbol]
 			notificationTime := notificationTimes[exchangeSymbol]
+			duration := time.Since(notificationTime)
 			askDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Ask")]
 			bidDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Bid")]
 			if notificationFlag && askDiff > MIN_NOTI_PERC && bidDiff < MAX_NOTI_PERC {
 				notificationFlags[exchangeSymbol] = false
 			}
 
-			duration := time.Since(notificationTime)
 			if !notificationFlag && duration.Minutes() >= 10 &&
 				(askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
 				notificationFlags[exchangeSymbol] = true
@@ -52,12 +52,31 @@ func sendMessages() {
 	}
 
 	for key, diff := range crossDiffs {
-		if strings.Contains(key, "AskBid") && diff <= -1 && false {
-			out += fmt.Sprintf("%s %%%.2f\n", key, diff)
+		notificationFlag := notificationFlags[key]
+		notificationTime := notificationTimes[key]
+		duration := time.Since(notificationTime)
+		if strings.Contains(key, "AskBid") {
+			if diff <= -1 && !notificationFlag && duration.Minutes() >= 10 {
+				out += fmt.Sprintf("%s %%%.2f\n", key, diff)
+				notificationFlags[key] = true
+				notificationTimes[key] = time.Now()
+			}
+
+			if diff > -1 {
+				notificationFlags[key] = false
+			}
 		}
 
-		if strings.Contains(key, "BidAsk") && diff >= 1 && false {
-			out += fmt.Sprintf("%s %%%.2f\n", key, diff)
+		if strings.Contains(key, "BidAsk") {
+			if diff >= 1 && !notificationFlag && duration.Minutes() >= 10 {
+				out += fmt.Sprintf("%s %%%.2f\n", key, diff)
+				notificationFlags[key] = true
+				notificationTimes[key] = time.Now()
+			}
+
+			if diff < 1 {
+				notificationFlags[key] = false
+			}
 		}
 	}
 
