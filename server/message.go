@@ -14,7 +14,7 @@ const (
 	PUSHOVER_URI = "https://api.pushover.net/1/messages.json"
 
 	MIN_NOTI_PERC = -1.0
-	MAX_NOTI_PERC = 2.5
+	MAX_NOTI_PERC = 2
 )
 
 var (
