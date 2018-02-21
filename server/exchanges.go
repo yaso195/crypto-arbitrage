@@ -45,6 +45,7 @@ func init() {
 	}
 
 	diffs = map[string]float64{}
+	crossDiffs = map[string]float64{}
 	prices = map[string]float64{}
 
 	PUSHOVER_USER = os.Getenv("PUSHOVER_USER")

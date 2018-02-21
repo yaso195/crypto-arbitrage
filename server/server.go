@@ -31,6 +31,7 @@ var (
 	jpyRate = 0.0
 
 	diffs                                                                              map[string]float64
+	crossDiffs                                                                         map[string]float64
 	prices                                                                             map[string]float64
 	gdaxPrices                                                                         []Price
 	btcTurkETHBTCAskBid, btcTurkETHBTCBidAsk                                           float64
@@ -143,14 +144,14 @@ func PrintTable(c *gin.Context) {
 		return
 	}
 
-	btcTurkETHBTCAskBidDiff := Round((btcTurkETHBTCAskBid-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
-	btcTurkETHBTCBidAskDiff := Round((btcTurkETHBTCBidAsk-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
-	koineksETHBTCAskBidDiff := Round((koineksETHBTCAskBid-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
-	koineksETHBTCBidAskDiff := Round((koineksETHBTCBidAsk-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
-	koineksLTCBTCAskBidDiff := Round((koineksLTCBTCAskBid-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
-	koineksLTCBTCBidAskDiff := Round((koineksLTCBTCBidAsk-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
-	koinimLTCBTCAskBidDiff := Round((koinimLTCBTCAskBid-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
-	koinimLTCBTCBidAskDiff := Round((koinimLTCBTCBidAsk-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
+	crossDiffs["BTCTurkETHBTCAskBid"] = Round((btcTurkETHBTCAskBid-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
+	crossDiffs["BTCTurkETHBTCBidAsk"] = Round((btcTurkETHBTCBidAsk-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
+	crossDiffs["KoineksETHBTCAskBid"] = Round((koineksETHBTCAskBid-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
+	crossDiffs["KoineksETHBTCBidAsk"] = Round((koineksETHBTCBidAsk-gdaxPrices[3].Ask)*100/gdaxPrices[3].Ask, .5, 2)
+	crossDiffs["KoineksLTCBTCAskBid"] = Round((koineksLTCBTCAskBid-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
+	crossDiffs["KoineksLTCBTCBidAsk"] = Round((koineksLTCBTCBidAsk-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
+	crossDiffs["KoinimLTCBTCAskBid"] = Round((koinimLTCBTCAskBid-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
+	crossDiffs["KoinimLTCBTCBidAsk"] = Round((koinimLTCBTCBidAsk-gdaxPrices[4].Ask)*100/gdaxPrices[4].Ask, .5, 2)
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"USDTRY":              tryRate,
@@ -178,14 +179,14 @@ func PrintTable(c *gin.Context) {
 		"KoinimLTCBid":        diffs["KoinimLTCBid"],
 		"GdaxETHBTC":          gdaxPrices[3].Ask,
 		"GdaxLTCBTC":          gdaxPrices[4].Ask,
-		"BTCTurkETHBTCAskBid": btcTurkETHBTCAskBidDiff,
-		"BTCTurkETHBTCBidAsk": btcTurkETHBTCBidAskDiff,
-		"KoineksETHBTCAskBid": koineksETHBTCAskBidDiff,
-		"KoineksETHBTCBidAsk": koineksETHBTCBidAskDiff,
-		"KoineksLTCBTCAskBid": koineksLTCBTCAskBidDiff,
-		"KoineksLTCBTCBidAsk": koineksLTCBTCBidAskDiff,
-		"KoinimLTCBTCAskBid":  koinimLTCBTCAskBidDiff,
-		"KoinimLTCBTCBidAsk":  koinimLTCBTCBidAskDiff,
+		"BTCTurkETHBTCAskBid": crossDiffs["BTCTurkETHBTCAskBid"],
+		"BTCTurkETHBTCBidAsk": crossDiffs["BTCTurkETHBTCBidAsk"],
+		"KoineksETHBTCAskBid": crossDiffs["KoineksETHBTCAskBid"],
+		"KoineksETHBTCBidAsk": crossDiffs["KoineksETHBTCBidAsk"],
+		"KoineksLTCBTCAskBid": crossDiffs["KoineksLTCBTCAskBid"],
+		"KoineksLTCBTCBidAsk": crossDiffs["KoineksLTCBTCBidAsk"],
+		"KoinimLTCBTCAskBid":  crossDiffs["KoinimLTCBTCAskBid"],
+		"KoinimLTCBTCBidAsk":  crossDiffs["KoinimLTCBTCBidAsk"],
 		"ParibuBTCAskPrice":   prices["ParibuBTCAsk"],
 		"ParibuBTCBidPrice":   prices["ParibuBTCBid"],
 		"BTCTurkBTCAskPrice":  prices["BTCTurkBTCAsk"],

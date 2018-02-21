@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -47,6 +48,16 @@ func sendMessages() {
 					out += fmt.Sprintf("%s %s %%%.2f\n", exchange, symbol, bidDiff)
 				}
 			}
+		}
+	}
+
+	for key, diff := range crossDiffs {
+		if strings.Contains(key, "AskBid") && diff <= -1 {
+			out += fmt.Sprintf("%s %%%.2f\n", key, diff)
+		}
+
+		if strings.Contains(key, "BidAsk") && diff >= 1 {
+			out += fmt.Sprintf("%s %%%.2f\n", key, diff)
 		}
 	}
 
