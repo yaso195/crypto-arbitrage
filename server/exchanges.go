@@ -293,7 +293,7 @@ func getBitflyerPrices() ([]Price, error) {
 	return prices, nil
 }
 
-func getPoloniexPrices(bitcoinPrice float64) ([]Price, error) {
+func getPoloniexPrices() ([]Price, error) {
 	var prices []Price
 
 	response, err := http.Get(POLONIEX_URI)
@@ -323,7 +323,7 @@ func getPoloniexPrices(bitcoinPrice float64) ([]Price, error) {
 			currency = "XLM"
 		}
 
-		prices = append(prices, Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: Round(pAsk*bitcoinPrice, .5, 3), Bid: Round(pBid*bitcoinPrice, .5, 3)})
+		prices = append(prices, Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid})
 	}
 
 	return prices, nil

@@ -33,7 +33,7 @@ var (
 	diffs                                                                              map[string]float64
 	crossDiffs                                                                         map[string]float64
 	prices                                                                             map[string]float64
-	gdaxPrices                                                                         []Price
+	gdaxPrices, poloniexPrices                                                         []Price
 	btcTurkETHBTCAskBid, btcTurkETHBTCBidAsk                                           float64
 	koineksETHBTCAskBid, koineksETHBTCBidAsk, koineksLTCBTCAskBid, koineksLTCBTCBidAsk float64
 	koinimLTCBTCAskBid, koinimLTCBTCBidAsk                                             float64
@@ -92,19 +92,26 @@ func getPrices() {
 func calculatePrices() {
 	var err error
 	gdaxPrices, err = getGdaxPrices()
-	if err != nil {
+	if err != nil || len(gdaxPrices) != 5 {
 		fmt.Println("Error reading GDAX prices : ", err)
 		log.Println("Error reading GDAX prices : ", err)
 		return
 	}
 
-	poloniexPrices, err := getPoloniexPrices(gdaxPrices[0].Ask)
-	if err != nil {
+	poloniexPrices, err = getPoloniexPrices()
+	if err != nil || len(poloniexPrices) != len(poloniexCurrencies) {
 		fmt.Println("Error reading Poloniex prices : ", err)
 		log.Println("Error reading Poloniex prices : ", err)
 		return
 	}
-	gdaxPrices = append(gdaxPrices, poloniexPrices...)
+
+	bitcoinPrice := gdaxPrices[0].Ask
+	for _, p := range poloniexPrices {
+		tempP := p
+		tempP.Ask *= bitcoinPrice
+		tempP.Bid *= bitcoinPrice
+		gdaxPrices = append(gdaxPrices, tempP)
+	}
 
 	paribuPrices, err := getParibuPrices()
 	if err != nil {
@@ -147,8 +154,13 @@ func calculatePrices() {
 }
 
 func PrintTable(c *gin.Context) {
-	if len(gdaxPrices) < 5 {
-		c.String(http.StatusInternalServerError, "Failed to fetch prices")
+	if len(poloniexPrices) != len(poloniexCurrencies) {
+		c.String(http.StatusInternalServerError, "Failed to fetch poloniex prices")
+		return
+	}
+
+	if len(gdaxPrices) < 9 {
+		c.String(http.StatusInternalServerError, "Failed to fetch gdax prices")
 		return
 	}
 
@@ -213,18 +225,22 @@ func PrintTable(c *gin.Context) {
 		"KoineksLTCBidPrice":  prices["KoineksLTCBid"],
 		"KoinimLTCAskPrice":   prices["KoinimLTCAsk"],
 		"KoinimLTCBidPrice":   prices["KoinimLTCBid"],
-		"GdaxDASH":            gdaxPrices[5].Ask,
+		"GdaxDASH":            fmt.Sprintf("%.2f", gdaxPrices[5].Ask),
+		"PoloniexDASH":        fmt.Sprintf("%.8f", poloniexPrices[0].Ask),
 		"KoineksDASHAsk":      diffs["KoineksDASHAsk"],
 		"KoineksDASHBid":      diffs["KoineksDASHBid"],
-		"GdaxXRP":             gdaxPrices[6].Ask,
+		"GdaxXRP":             fmt.Sprintf("%.3f", gdaxPrices[6].Ask),
+		"PoloniexXRP":         fmt.Sprintf("%.8f", poloniexPrices[1].Ask),
 		"BTCTurkXRPAsk":       diffs["BTCTurkXRPAsk"],
 		"BTCTurkXRPBid":       diffs["BTCTurkXRPBid"],
 		"KoineksXRPAsk":       diffs["KoineksXRPAsk"],
 		"KoineksXRPBid":       diffs["KoineksXRPBid"],
-		"GdaxXLM":             gdaxPrices[7].Ask,
+		"GdaxXLM":             fmt.Sprintf("%.3f", gdaxPrices[7].Ask),
+		"PoloniexXLM":         fmt.Sprintf("%.8f", poloniexPrices[2].Ask),
 		"KoineksXLMAsk":       diffs["KoineksXLMAsk"],
 		"KoineksXLMBid":       diffs["KoineksXLMBid"],
-		"GdaxXEM":             gdaxPrices[8].Ask,
+		"GdaxXEM":             fmt.Sprintf("%.3f", gdaxPrices[8].Ask),
+		"PoloniexXEM":         fmt.Sprintf("%.8f", poloniexPrices[3].Ask),
 		"KoineksXEMAsk":       diffs["KoineksXEMAsk"],
 		"KoineksXEMBid":       diffs["KoineksXEMBid"],
 		"KoineksDASHAskPrice": prices["KoineksDASHAsk"],
