@@ -38,7 +38,7 @@ var (
 	koineksETHBTCAskBid, koineksETHBTCBidAsk, koineksLTCBTCAskBid, koineksLTCBTCBidAsk float64
 	koinimLTCBTCAskBid, koinimLTCBTCBidAsk                                             float64
 
-	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC"}
+	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "DASH", "XRP", "XLM", "XEM"}
 )
 
 func Run() {
@@ -97,6 +97,14 @@ func calculatePrices() {
 		log.Println("Error reading GDAX prices : ", err)
 		return
 	}
+
+	poloniexPrices, err := getPoloniexPrices(gdaxPrices[0].Ask)
+	if err != nil {
+		fmt.Println("Error reading Poloniex prices : ", err)
+		log.Println("Error reading Poloniex prices : ", err)
+		return
+	}
+	gdaxPrices = append(gdaxPrices, poloniexPrices...)
 
 	paribuPrices, err := getParibuPrices()
 	if err != nil {
@@ -205,6 +213,30 @@ func PrintTable(c *gin.Context) {
 		"KoineksLTCBidPrice":  prices["KoineksLTCBid"],
 		"KoinimLTCAskPrice":   prices["KoinimLTCAsk"],
 		"KoinimLTCBidPrice":   prices["KoinimLTCBid"],
+		"GdaxDASH":            gdaxPrices[5].Ask,
+		"KoineksDASHAsk":      diffs["KoineksDASHAsk"],
+		"KoineksDASHBid":      diffs["KoineksDASHBid"],
+		"GdaxXRP":             gdaxPrices[6].Ask,
+		"BTCTurkXRPAsk":       diffs["BTCTurkXRPAsk"],
+		"BTCTurkXRPBid":       diffs["BTCTurkXRPBid"],
+		"KoineksXRPAsk":       diffs["KoineksXRPAsk"],
+		"KoineksXRPBid":       diffs["KoineksXRPBid"],
+		"GdaxXLM":             gdaxPrices[7].Ask,
+		"KoineksXLMAsk":       diffs["KoineksXLMAsk"],
+		"KoineksXLMBid":       diffs["KoineksXLMBid"],
+		"GdaxXEM":             gdaxPrices[8].Ask,
+		"KoineksXEMAsk":       diffs["KoineksXEMAsk"],
+		"KoineksXEMBid":       diffs["KoineksXEMBid"],
+		"KoineksDASHAskPrice": prices["KoineksDASHAsk"],
+		"KoineksDASHBidPrice": prices["KoineksDASHBid"],
+		"BTCTurkXRPAskPrice":  prices["BTCTurkXRPAsk"],
+		"BTCTurkXRPBidPrice":  prices["BTCTurkXRPBid"],
+		"KoineksXRPAskPrice":  prices["KoineksXRPAsk"],
+		"KoineksXRPBidPrice":  prices["KoineksXRPBid"],
+		"KoineksXLMAskPrice":  prices["KoineksXLMAsk"],
+		"KoineksXLMBidPrice":  prices["KoineksXLMBid"],
+		"KoineksXEMAskPrice":  prices["KoineksXEMAsk"],
+		"KoineksXEMBidPrice":  prices["KoineksXEMBid"],
 	})
 }
 

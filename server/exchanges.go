@@ -19,7 +19,9 @@ const (
 	KOINEKS_URI  = "https://koineks.com/ticker"
 	KOINIM_URI   = "https://koinim.com/ticker"
 	BITFLYER_URI = "https://api.bitflyer.jp/v1/ticker"
+	POLONIEX_URI = "https://poloniex.com/public?command=returnTicker"
 
+	GDAX     = "GDAX"
 	PARIBU   = "Paribu"
 	BTCTURK  = "BTCTurk"
 	KOINEKS  = "Koineks"
@@ -30,7 +32,8 @@ const (
 var (
 	symbolToExchangeNames map[string][]string
 
-	ALL_EXCHANGES = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, BITFLYER}
+	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, BITFLYER}
+	poloniexCurrencies = []string{"DASH", "XRP", "STR", "XEM"}
 )
 
 func init() {
@@ -70,12 +73,11 @@ func getGdaxPrices() ([]Price, error) {
 			tempID = id[0:3]
 		}
 
-		p := Price{Exchange: "GDAX", Currency: "USD", ID: tempID, Ask: ticker.Ask, Bid: ticker.Bid}
+		p := Price{Exchange: GDAX, Currency: "USD", ID: tempID, Ask: ticker.Ask, Bid: ticker.Bid}
 		prices = append(prices, p)
 	}
 
 	return prices, nil
-
 }
 
 func getParibuPrices() ([]Price, error) {
@@ -141,6 +143,18 @@ func getBTCTurkPrices() ([]Price, error) {
 	}
 
 	prices = append(prices, Price{Exchange: BTCTURK, Currency: "TRY", ID: "ETH", Ask: ethPriceAsk, Bid: ethPriceBid})
+
+	xrpPriceAsk, err := jsonparser.GetFloat(responseData, "[3]", "ask")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the XRP ask price from the BTCTurk response data: %s", err)
+	}
+
+	xrpPriceBid, err := jsonparser.GetFloat(responseData, "[3]", "bid")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the XRP bid price from the BTCTurk response data: %s", err)
+	}
+
+	prices = append(prices, Price{Exchange: BTCTURK, Currency: "TRY", ID: "XRP", Ask: xrpPriceAsk, Bid: xrpPriceBid})
 
 	btcTurkETHBTCAskBid = ethPriceAsk / btcPriceBid
 	btcTurkETHBTCBidAsk = ethPriceBid / btcPriceAsk
@@ -214,7 +228,7 @@ func getKoineksPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC"}
+	ids := []string{"BTC", "ETH", "LTC", "DASH", "XRP", "XLM", "XEM"}
 
 	var btcPriceAsk, btcPriceBid float64
 	for _, id := range ids {
@@ -275,6 +289,42 @@ func getBitflyerPrices() ([]Price, error) {
 	}
 
 	prices = append(prices, Price{Exchange: BITFLYER, Currency: "JPY", ID: "BTC", Ask: priceAsk, Bid: priceBid})
+
+	return prices, nil
+}
+
+func getPoloniexPrices(bitcoinPrice float64) ([]Price, error) {
+	var prices []Price
+
+	response, err := http.Get(POLONIEX_URI)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get Poloniex response : %s", err)
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read Poloniex response data : %s", err)
+	}
+
+	for _, currency := range poloniexCurrencies {
+		priceAsk, err := jsonparser.GetString(responseData, fmt.Sprintf("BTC_%s", currency), "lowestAsk")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the ask price from the Poloniex response data: %s", err)
+		}
+		pAsk, _ := strconv.ParseFloat(priceAsk, 64)
+
+		priceBid, err := jsonparser.GetString(responseData, fmt.Sprintf("BTC_%s", currency), "highestBid")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the bid price from the Poloniex response data: %s", err)
+		}
+		pBid, _ := strconv.ParseFloat(priceBid, 64)
+
+		if currency == "STR" {
+			currency = "XLM"
+		}
+
+		prices = append(prices, Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: Round(pAsk*bitcoinPrice, .5, 3), Bid: Round(pBid*bitcoinPrice, .5, 3)})
+	}
 
 	return prices, nil
 }
