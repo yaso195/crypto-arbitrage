@@ -154,13 +154,19 @@ func calculatePrices() {
 }
 
 func PrintTable(c *gin.Context) {
+	var message string
 	if len(poloniexPrices) != len(poloniexCurrencies) {
-		c.String(http.StatusInternalServerError, "Failed to fetch poloniex prices")
-		return
+		message = "Failed to fetch poloniex prices, retrying in 5 seconds"
 	}
 
 	if len(gdaxPrices) < 9 {
-		c.String(http.StatusInternalServerError, "Failed to fetch gdax prices")
+		message = "Failed to fetch gdax prices, retrying in 5 seconds"
+	}
+
+	if message != "" {
+		c.HTML(http.StatusInternalServerError, "retry.tmpl", gin.H{
+			"Message": message,
+		})
 		return
 	}
 
