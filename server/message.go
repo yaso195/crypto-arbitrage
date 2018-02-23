@@ -21,7 +21,7 @@ var (
 	PUSHOVER_APP_TOKEN = ""
 
 	MIN_NOTI_PERC = -1.0
-	MAX_NOTI_PERC = 2.0
+	MAX_NOTI_PERC = 3.0
 )
 
 func sendMessages() {
