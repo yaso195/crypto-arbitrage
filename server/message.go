@@ -22,6 +22,7 @@ var (
 
 	MIN_NOTI_PERC = -1.0
 	MAX_NOTI_PERC = 3.0
+	DURATION      = 10.0
 )
 
 func sendMessages() {
@@ -38,7 +39,7 @@ func sendMessages() {
 				notificationFlags[exchangeSymbol] = false
 			}
 
-			if !notificationFlag && duration.Minutes() >= 10 &&
+			if !notificationFlag && duration.Minutes() >= DURATION &&
 				(askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
 				notificationFlags[exchangeSymbol] = true
 				notificationTimes[exchangeSymbol] = time.Now()
@@ -56,7 +57,7 @@ func sendMessages() {
 		notificationTime := notificationTimes[key]
 		duration := time.Since(notificationTime)
 		if strings.Contains(key, "AskBid") {
-			if diff <= -1 && !notificationFlag && duration.Minutes() >= 10 {
+			if diff <= -1 && !notificationFlag && duration.Minutes() >= DURATION {
 				out += fmt.Sprintf("%s %%%.2f\n", key, diff)
 				notificationFlags[key] = true
 				notificationTimes[key] = time.Now()
@@ -68,7 +69,7 @@ func sendMessages() {
 		}
 
 		if strings.Contains(key, "BidAsk") {
-			if diff >= 1 && !notificationFlag && duration.Minutes() >= 10 {
+			if diff >= 1 && !notificationFlag && duration.Minutes() >= DURATION {
 				out += fmt.Sprintf("%s %%%.2f\n", key, diff)
 				notificationFlags[key] = true
 				notificationTimes[key] = time.Now()

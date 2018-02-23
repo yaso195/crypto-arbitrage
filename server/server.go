@@ -7,7 +7,7 @@ import (
 	"math"
 	"net/http"
 	"os"
-  "strconv"
+	"strconv"
 	"sync"
 	"time"
 
@@ -53,7 +53,7 @@ func Run() {
 	router.LoadHTMLGlob("templates/*")
 
 	router.GET("/", PrintTable)
-  router.GET("/notification", SetNotificationLimits)
+	router.GET("/notification", SetNotificationLimits)
 
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -233,10 +233,10 @@ func PrintTable(c *gin.Context) {
 		"KoineksLTCBidPrice":  prices["KoineksLTCBid"],
 		"KoinimLTCAskPrice":   prices["KoinimLTCAsk"],
 		"KoinimLTCBidPrice":   prices["KoinimLTCBid"],
-    "GdaxDOGE":            fmt.Sprintf("%.8f", gdaxPrices[5].Ask),
-    "PoloniexDOGE":        fmt.Sprintf("%.8f", poloniexPrices[0].Ask),
-    "KoineksDOGEAsk":      diffs["KoineksDOGEAsk"],
-    "KoineksDOGEBid":      diffs["KoineksDOGEBid"],
+		"GdaxDOGE":            fmt.Sprintf("%.8f", gdaxPrices[5].Ask),
+		"PoloniexDOGE":        fmt.Sprintf("%.8f", poloniexPrices[0].Ask),
+		"KoineksDOGEAsk":      diffs["KoineksDOGEAsk"],
+		"KoineksDOGEBid":      diffs["KoineksDOGEBid"],
 		"GdaxDASH":            fmt.Sprintf("%.2f", gdaxPrices[6].Ask),
 		"PoloniexDASH":        fmt.Sprintf("%.8f", poloniexPrices[1].Ask),
 		"KoineksDASHAsk":      diffs["KoineksDASHAsk"],
@@ -255,8 +255,8 @@ func PrintTable(c *gin.Context) {
 		"PoloniexXEM":         fmt.Sprintf("%.8f", poloniexPrices[4].Ask),
 		"KoineksXEMAsk":       diffs["KoineksXEMAsk"],
 		"KoineksXEMBid":       diffs["KoineksXEMBid"],
-    "KoineksDOGEAskPrice": prices["KoineksDOGEAsk"],
-    "KoineksDOGEBidPrice": prices["KoineksDOGEBid"],
+		"KoineksDOGEAskPrice": prices["KoineksDOGEAsk"],
+		"KoineksDOGEBidPrice": prices["KoineksDOGEBid"],
 		"KoineksDASHAskPrice": prices["KoineksDASHAsk"],
 		"KoineksDASHBidPrice": prices["KoineksDASHBid"],
 		"BTCTurkXRPAskPrice":  prices["BTCTurkXRPAsk"],
@@ -271,33 +271,45 @@ func PrintTable(c *gin.Context) {
 }
 
 func SetNotificationLimits(c *gin.Context) {
-  minimumStr := c.Query("minimum")
-  maximumStr := c.Query("maximum")
+	minimumStr := c.Query("minimum")
+	maximumStr := c.Query("maximum")
+	durationStr := c.Query("duration")
 
-  if minimumStr != "" {
-    minimum, err := strconv.ParseFloat(minimumStr, 64)
-    if err != nil {
-      c.String(http.StatusInternalServerError, err.Error())
-      return
-    }
+	if minimumStr != "" {
+		minimum, err := strconv.ParseFloat(minimumStr, 64)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
 
-    MIN_NOTI_PERC = minimum
-  }
+		MIN_NOTI_PERC = minimum
+	}
 
-  if maximumStr != "" {
-    maximum, err := strconv.ParseFloat(maximumStr, 64)
-    if err != nil {
-      c.String(http.StatusInternalServerError, err.Error())
-      return
-    }
+	if maximumStr != "" {
+		maximum, err := strconv.ParseFloat(maximumStr, 64)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
 
-    MAX_NOTI_PERC = maximum
-  }
+		MAX_NOTI_PERC = maximum
+	}
 
-  c.HTML(http.StatusOK, "limits.tmpl", gin.H{
-    "Minimum":             MIN_NOTI_PERC,
-    "Maximum":             MAX_NOTI_PERC,
-  })
+	if durationStr != "" {
+		duration, err := strconv.ParseFloat(durationStr, 64)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		DURATION = duration
+	}
+
+	c.HTML(http.StatusOK, "limits.tmpl", gin.H{
+		"Minimum":  MIN_NOTI_PERC,
+		"Maximum":  MAX_NOTI_PERC,
+		"Duration": DURATION,
+	})
 }
 
 func getCurrencyRates() {
