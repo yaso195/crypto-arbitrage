@@ -12,9 +12,6 @@ import (
 
 const (
 	PUSHOVER_URI = "https://api.pushover.net/1/messages.json"
-
-	MIN_NOTI_PERC = -1.0
-	MAX_NOTI_PERC = 2
 )
 
 var (
@@ -22,6 +19,9 @@ var (
 	notificationTimes  map[string]time.Time
 	PUSHOVER_USER      = ""
 	PUSHOVER_APP_TOKEN = ""
+
+	MIN_NOTI_PERC = -1.0
+	MAX_NOTI_PERC = 2.0
 )
 
 func sendMessages() {

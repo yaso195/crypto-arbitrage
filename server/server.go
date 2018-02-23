@@ -7,6 +7,7 @@ import (
 	"math"
 	"net/http"
 	"os"
+  "strconv"
 	"sync"
 	"time"
 
@@ -52,6 +53,7 @@ func Run() {
 	router.LoadHTMLGlob("templates/*")
 
 	router.GET("/", PrintTable)
+  router.GET("/notification", SetNotificationLimits)
 
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -266,6 +268,36 @@ func PrintTable(c *gin.Context) {
 		"KoineksXEMAskPrice":  prices["KoineksXEMAsk"],
 		"KoineksXEMBidPrice":  prices["KoineksXEMBid"],
 	})
+}
+
+func SetNotificationLimits(c *gin.Context) {
+  minimumStr := c.Query("minimum")
+  maximumStr := c.Query("maximum")
+
+  if minimumStr != "" {
+    minimum, err := strconv.ParseFloat(minimumStr, 64)
+    if err != nil {
+      c.String(http.StatusInternalServerError, err.Error())
+      return
+    }
+
+    MIN_NOTI_PERC = minimum
+  }
+
+  if maximumStr != "" {
+    maximum, err := strconv.ParseFloat(maximumStr, 64)
+    if err != nil {
+      c.String(http.StatusInternalServerError, err.Error())
+      return
+    }
+
+    MAX_NOTI_PERC = maximum
+  }
+
+  c.HTML(http.StatusOK, "limits.tmpl", gin.H{
+    "Minimum":             MIN_NOTI_PERC,
+    "Maximum":             MAX_NOTI_PERC,
+  })
 }
 
 func getCurrencyRates() {

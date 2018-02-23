@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crypto Arbitrage</title>
+    <style>
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 4px;
+    text-align: center;    
+}
+</style>
+</head>
+
+<body>
+<form action="/notification">
+  Minimum Limit:<br>
+  <input name="minimum" type="text" value="{{.Minimum}}"><br>
+  Maximum Limit:<br>
+  <input name="maximum" type="text" value="{{.Maximum}}"><br><br>
+  <input type="submit" value="Submit">
+</form>
+</body>
+</html>
