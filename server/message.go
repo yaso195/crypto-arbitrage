@@ -20,63 +20,68 @@ var (
 	PUSHOVER_USER      = ""
 	PUSHOVER_APP_TOKEN = ""
 
-	MIN_NOTI_PERC = -1.0
-	MAX_NOTI_PERC = 3.0
-	DURATION      = 10.0
+	MIN_NOTI_PERC  = -1.0
+	MAX_NOTI_PERC  = 3.0
+	PAIR_THRESHOLD = 1.0
+	DURATION       = 10.0
 )
 
 func sendMessages() {
 	var out string
-	for _, exchange := range ALL_EXCHANGES {
-		for _, symbol := range ALL_SYMBOLS {
-			exchangeSymbol := fmt.Sprintf("%s%s", exchange, symbol)
-			notificationFlag := notificationFlags[exchangeSymbol]
-			notificationTime := notificationTimes[exchangeSymbol]
-			duration := time.Since(notificationTime)
-			askDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Ask")]
-			bidDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Bid")]
-			if notificationFlag && askDiff > MIN_NOTI_PERC && bidDiff < MAX_NOTI_PERC {
-				notificationFlags[exchangeSymbol] = false
-			}
+	if fiatNotificationEnabled {
+		for _, exchange := range ALL_EXCHANGES {
+			for _, symbol := range ALL_SYMBOLS {
+				exchangeSymbol := fmt.Sprintf("%s%s", exchange, symbol)
+				notificationFlag := notificationFlags[exchangeSymbol]
+				notificationTime := notificationTimes[exchangeSymbol]
+				duration := time.Since(notificationTime)
+				askDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Ask")]
+				bidDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Bid")]
+				if notificationFlag && askDiff > MIN_NOTI_PERC && bidDiff < MAX_NOTI_PERC {
+					notificationFlags[exchangeSymbol] = false
+				}
 
-			if !notificationFlag && duration.Minutes() >= DURATION &&
-				(askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
-				notificationFlags[exchangeSymbol] = true
-				notificationTimes[exchangeSymbol] = time.Now()
-				if askDiff <= MIN_NOTI_PERC {
-					out += fmt.Sprintf("%s %s %%%.2f\n", exchange, symbol, askDiff)
-				} else {
-					out += fmt.Sprintf("%s %s %%%.2f\n", exchange, symbol, bidDiff)
+				if !notificationFlag && duration.Minutes() >= DURATION &&
+					(askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
+					notificationFlags[exchangeSymbol] = true
+					notificationTimes[exchangeSymbol] = time.Now()
+					if askDiff <= MIN_NOTI_PERC {
+						out += fmt.Sprintf("%s %s %%%.2f\n", exchange, symbol, askDiff)
+					} else {
+						out += fmt.Sprintf("%s %s %%%.2f\n", exchange, symbol, bidDiff)
+					}
 				}
 			}
 		}
 	}
 
-	for key, diff := range crossDiffs {
-		notificationFlag := notificationFlags[key]
-		notificationTime := notificationTimes[key]
-		duration := time.Since(notificationTime)
-		if strings.Contains(key, "AskBid") {
-			if diff <= -1 && !notificationFlag && duration.Minutes() >= DURATION {
-				out += fmt.Sprintf("%s %%%.2f\n", key, diff)
-				notificationFlags[key] = true
-				notificationTimes[key] = time.Now()
+	if pairNotificationEnabled {
+		for key, diff := range crossDiffs {
+			notificationFlag := notificationFlags[key]
+			notificationTime := notificationTimes[key]
+			duration := time.Since(notificationTime)
+			if strings.Contains(key, "AskBid") {
+				if diff <= -1*PAIR_THRESHOLD && !notificationFlag && duration.Minutes() >= DURATION {
+					out += fmt.Sprintf("%s %%%.2f\n", key, diff)
+					notificationFlags[key] = true
+					notificationTimes[key] = time.Now()
+				}
+
+				if diff > -1*PAIR_THRESHOLD {
+					notificationFlags[key] = false
+				}
 			}
 
-			if diff > -1 {
-				notificationFlags[key] = false
-			}
-		}
+			if strings.Contains(key, "BidAsk") {
+				if diff >= 1 && !notificationFlag && duration.Minutes() >= DURATION {
+					out += fmt.Sprintf("%s %%%.2f\n", key, diff)
+					notificationFlags[key] = true
+					notificationTimes[key] = time.Now()
+				}
 
-		if strings.Contains(key, "BidAsk") {
-			if diff >= 1 && !notificationFlag && duration.Minutes() >= DURATION {
-				out += fmt.Sprintf("%s %%%.2f\n", key, diff)
-				notificationFlags[key] = true
-				notificationTimes[key] = time.Now()
-			}
-
-			if diff < 1 {
-				notificationFlags[key] = false
+				if diff < 1 {
+					notificationFlags[key] = false
+				}
 			}
 		}
 	}

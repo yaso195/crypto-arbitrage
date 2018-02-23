@@ -38,7 +38,7 @@ var (
 	btcTurkETHBTCAskBid, btcTurkETHBTCBidAsk                                           float64
 	koineksETHBTCAskBid, koineksETHBTCBidAsk, koineksLTCBTCAskBid, koineksLTCBTCBidAsk float64
 	koinimLTCBTCAskBid, koinimLTCBTCBidAsk                                             float64
-	notificationEnabled                                                                = false
+	fiatNotificationEnabled, pairNotificationEnabled                                   = false, false
 
 	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 )
@@ -153,9 +153,7 @@ func calculatePrices() {
 
 	findPriceDifferences(gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, bitflyerPrices)
 
-	if notificationEnabled {
-		sendMessages()
-	}
+	sendMessages()
 }
 
 func PrintTable(c *gin.Context) {
@@ -277,7 +275,9 @@ func SetNotificationLimits(c *gin.Context) {
 	minimumStr := c.Query("minimum")
 	maximumStr := c.Query("maximum")
 	durationStr := c.Query("duration")
-	enable := c.Query("enable")
+	fiatEnable := c.Query("fiatEnable")
+	pairEnable := c.Query("pairEnable")
+	pThresholdStr := c.Query("pThreshold")
 
 	if minimumStr != "" {
 		minimum, err := strconv.ParseFloat(minimumStr, 64)
@@ -309,19 +309,39 @@ func SetNotificationLimits(c *gin.Context) {
 		DURATION = duration
 	}
 
-	switch enable {
+	if pThresholdStr != "" {
+		pThreshold, err := strconv.ParseFloat(pThresholdStr, 64)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		PAIR_THRESHOLD = pThreshold
+	}
+
+	switch fiatEnable {
 	case "true":
-		notificationEnabled = true
+		fiatNotificationEnabled = true
 	case "false":
-		notificationEnabled = false
+		fiatNotificationEnabled = false
 	default:
-		notificationEnabled = false
+		fiatNotificationEnabled = false
+	}
+
+	switch pairEnable {
+	case "true":
+		pairNotificationEnabled = true
+	case "false":
+		pairNotificationEnabled = false
+	default:
+		pairNotificationEnabled = false
 	}
 
 	c.HTML(http.StatusOK, "notification.tmpl", gin.H{
-		"Minimum":  MIN_NOTI_PERC,
-		"Maximum":  MAX_NOTI_PERC,
-		"Duration": DURATION,
+		"Minimum":    MIN_NOTI_PERC,
+		"Maximum":    MAX_NOTI_PERC,
+		"Duration":   DURATION,
+		"PThreshold": PAIR_THRESHOLD,
 	})
 }
 

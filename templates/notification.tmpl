@@ -16,13 +16,21 @@ th, td {
 
 <body>
 <form action="/notification">
-  Notification :
-   <input type="radio" id ="enable" name="enable" value="true"> <label for="enable">Enable</label>
-   <input type="radio" id ="enable" name="enable" value="false"> <label for="enable">Disable</label>
+  <b>FIAT Notification Settings</b> <br><br>
+  Enable
+   <input type="radio" id ="fiatEnable" name="fiatEnable" value="true"> <label for="fiatEnable">Enable</label>
+   <input type="radio" id ="fiatEnable" name="fiatEnable" value="false"> <label for="fiatEnable">Disable</label>
    <br><br>
-  Minimum Limit: <input name="minimum" type="text" value="{{.Minimum}}"><br><br>
-  Maximum Limit: <input name="maximum" type="text" value="{{.Maximum}}"><br><br>
+  Minimum threshold (percent): <input name="minimum" type="text" value="{{.Minimum}}"><br><br>
+  Maximum threshold (percent): <input name="maximum" type="text" value="{{.Maximum}}"><br><br>
   Duration (minutes): <input name="duration" type="text" value="{{.Duration}}"><br><br>
+
+  <b>Pair Notification Settings</b> <br><br>
+  Enable
+   <input type="radio" id ="pairEnable" name="pairEnable" value="true"> <label for="pairEnable">Enable</label>
+   <input type="radio" id ="pairEnable" name="pairEnable" value="false"> <label for="pairEnable">Disable</label>
+   <br><br>
+   Pair threshold (percent): <input name="pThreshold" type="text" value="{{.PThreshold}}"><br><br>
   <input type="submit" value="Submit">
 </form>
 </body>
