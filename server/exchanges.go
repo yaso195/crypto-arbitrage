@@ -50,6 +50,7 @@ func init() {
 	diffs = map[string]float64{}
 	crossDiffs = map[string]float64{}
 	prices = map[string]float64{}
+	usdPrices = map[string]Price{}
 
 	PUSHOVER_USER = os.Getenv("PUSHOVER_USER")
 	PUSHOVER_APP_TOKEN = os.Getenv("PUSHOVER_APP_TOKEN")
@@ -293,8 +294,8 @@ func getBitflyerPrices() ([]Price, error) {
 	return prices, nil
 }
 
-func getPoloniexPrices() ([]Price, error) {
-	var prices []Price
+func getPoloniexPrices() (map[string]Price, error) {
+	prices := map[string]Price{}
 
 	response, err := http.Get(POLONIEX_URI)
 	if err != nil {
@@ -322,8 +323,7 @@ func getPoloniexPrices() ([]Price, error) {
 		if currency == "STR" {
 			currency = "XLM"
 		}
-
-		prices = append(prices, Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid})
+		prices[currency] = Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
 	}
 
 	return prices, nil
