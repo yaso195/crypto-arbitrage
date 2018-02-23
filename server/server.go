@@ -38,6 +38,7 @@ var (
 	btcTurkETHBTCAskBid, btcTurkETHBTCBidAsk                                           float64
 	koineksETHBTCAskBid, koineksETHBTCBidAsk, koineksLTCBTCAskBid, koineksLTCBTCBidAsk float64
 	koinimLTCBTCAskBid, koinimLTCBTCBidAsk                                             float64
+	notificationEnabled                                                                = false
 
 	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 )
@@ -152,7 +153,9 @@ func calculatePrices() {
 
 	findPriceDifferences(gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, bitflyerPrices)
 
-	sendMessages()
+	if notificationEnabled {
+		sendMessages()
+	}
 }
 
 func PrintTable(c *gin.Context) {
@@ -274,6 +277,7 @@ func SetNotificationLimits(c *gin.Context) {
 	minimumStr := c.Query("minimum")
 	maximumStr := c.Query("maximum")
 	durationStr := c.Query("duration")
+	enable := c.Query("enable")
 
 	if minimumStr != "" {
 		minimum, err := strconv.ParseFloat(minimumStr, 64)
@@ -305,7 +309,16 @@ func SetNotificationLimits(c *gin.Context) {
 		DURATION = duration
 	}
 
-	c.HTML(http.StatusOK, "limits.tmpl", gin.H{
+	switch enable {
+	case "true":
+		notificationEnabled = true
+	case "false":
+		notificationEnabled = false
+	default:
+		notificationEnabled = false
+	}
+
+	c.HTML(http.StatusOK, "notification.tmpl", gin.H{
 		"Minimum":  MIN_NOTI_PERC,
 		"Maximum":  MAX_NOTI_PERC,
 		"Duration": DURATION,
