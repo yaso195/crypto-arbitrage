@@ -37,6 +37,11 @@ func sendMessages() {
 				duration := time.Since(notificationTime)
 				askDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Ask")]
 				bidDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Bid")]
+
+				if bidDiff > askDiff {
+					continue
+				}
+
 				if notificationFlag && askDiff > MIN_NOTI_PERC && bidDiff < MAX_NOTI_PERC {
 					notificationFlags[exchangeSymbol] = false
 				}

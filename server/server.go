@@ -159,17 +159,6 @@ func calculatePrices() {
 }
 
 func PrintTable(c *gin.Context) {
-	/*var message string
-	if len(gdaxPrices) < 10 {
-		message = "Failed to fetch gdax prices, retrying in 5 seconds"
-	}
-
-	if message != "" {
-		c.HTML(http.StatusInternalServerError, "retry.tmpl", gin.H{
-			"Message": message,
-		})
-		return
-	}*/
 
 	ethBTCPrice := usdPrices["ETH-BTC"].Ask
 	ltcBTCPrice := usdPrices["LTC-BTC"].Ask
