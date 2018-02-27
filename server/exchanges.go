@@ -50,6 +50,7 @@ func init() {
 	diffs = map[string]float64{}
 	crossDiffs = map[string]float64{}
 	prices = map[string]float64{}
+	spreads = map[string]float64{}
 	usdPrices = map[string]Price{}
 
 	PUSHOVER_USER = os.Getenv("PUSHOVER_USER")
@@ -324,6 +325,7 @@ func getPoloniexPrices() (map[string]Price, error) {
 			currency = "XLM"
 		}
 		prices[currency] = Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
+		spreads[currency] = (pAsk - pBid) * 100 / pBid
 	}
 
 	return prices, nil
