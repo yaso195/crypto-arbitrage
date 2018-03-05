@@ -20,6 +20,7 @@ const (
 	KOINIM_URI   = "https://koinim.com/ticker"
 	BITFLYER_URI = "https://api.bitflyer.jp/v1/ticker"
 	POLONIEX_URI = "https://poloniex.com/public?command=returnTicker"
+	BITTREX_URI  = "https://bittrex.com/api/v1.1/public/getticker?market=BTC-%s"
 
 	GDAX     = "GDAX"
 	PARIBU   = "Paribu"
@@ -34,6 +35,7 @@ var (
 
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, BITFLYER}
 	poloniexCurrencies = []string{"DOGE", "DASH", "XRP", "STR", "XEM"}
+	bittrexCurrencies  = []string{"DOGE", "DASH", "XRP", "XLM", "XEM"}
 )
 
 func init() {
@@ -324,6 +326,38 @@ func getPoloniexPrices() (map[string]Price, error) {
 		if currency == "STR" {
 			currency = "XLM"
 		}
+		prices[currency] = Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
+		spreads[currency] = (pAsk - pBid) * 100 / pBid
+	}
+
+	return prices, nil
+}
+
+func getBittrexPrices() (map[string]Price, error) {
+	prices := map[string]Price{}
+
+	for _, currency := range bittrexCurrencies {
+
+		response, err := http.Get(fmt.Sprintf(BITTREX_URI, currency))
+		if err != nil {
+			return nil, fmt.Errorf("failed to get Bittrex response : %s", err)
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read Bittrex response data : %s", err)
+		}
+
+		pAsk, err := jsonparser.GetFloat(responseData, "result", "Ask")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the ask price from the Bittrex response data: %s", err)
+		}
+
+		pBid, err := jsonparser.GetFloat(responseData, "result", "Bid")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the bid price from the Bittrex response data: %s", err)
+		}
+
 		prices[currency] = Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
 		spreads[currency] = (pAsk - pBid) * 100 / pBid
 	}

@@ -34,7 +34,7 @@ var (
 	diffs                                                                              map[string]float64
 	crossDiffs                                                                         map[string]float64
 	prices, spreads                                                                    map[string]float64
-	usdPrices, poloniexPrices                                                          map[string]Price
+	usdPrices, poloniexPrices, bittrexPrices                                           map[string]Price
 	btcTurkETHBTCAskBid, btcTurkETHBTCBidAsk                                           float64
 	koineksETHBTCAskBid, koineksETHBTCBidAsk, koineksLTCBTCAskBid, koineksLTCBTCBidAsk float64
 	koinimLTCBTCAskBid, koinimLTCBTCBidAsk                                             float64
@@ -101,15 +101,15 @@ func calculatePrices() {
 		return
 	}
 
-	poloniexPrices, err = getPoloniexPrices()
-	if err != nil || len(poloniexPrices) != len(poloniexCurrencies) {
-		fmt.Println("Error reading Poloniex prices : ", err)
-		log.Println("Error reading Poloniex prices : ", err)
+	bittrexPrices, err = getBittrexPrices()
+	if err != nil || len(bittrexPrices) != len(bittrexCurrencies) {
+		fmt.Println("Error reading Bittrex prices : ", err)
+		log.Println("Error reading Bittrex prices : ", err)
 		return
 	}
 
 	bitcoinPrice := gdaxPrices[0].Ask
-	for _, p := range poloniexPrices {
+	for _, p := range bittrexPrices {
 		tempP := p
 		tempP.Ask *= bitcoinPrice
 		tempP.Bid *= bitcoinPrice
@@ -223,33 +223,6 @@ func PrintTable(c *gin.Context) {
 		"KoineksLTCBidPrice":  prices["KoineksLTCBid"],
 		"KoinimLTCAskPrice":   prices["KoinimLTCAsk"],
 		"KoinimLTCBidPrice":   prices["KoinimLTCBid"],
-		"GdaxDOGE":            fmt.Sprintf("%.8f", usdPrices["DOGE"].Ask),
-		"PoloniexDOGEAsk":     fmt.Sprintf("%.8f", poloniexPrices["DOGE"].Ask),
-		"PoloniexDOGESpread":  fmt.Sprintf("%.2f", spreads["DOGE"]),
-		"KoineksDOGEAsk":      diffs["KoineksDOGEAsk"],
-		"KoineksDOGEBid":      diffs["KoineksDOGEBid"],
-		"GdaxDASH":            fmt.Sprintf("%.2f", usdPrices["DASH"].Ask),
-		"PoloniexDASHAsk":     fmt.Sprintf("%.8f", poloniexPrices["DASH"].Ask),
-		"PoloniexDASHSpread":  fmt.Sprintf("%.2f", spreads["DASH"]),
-		"KoineksDASHAsk":      diffs["KoineksDASHAsk"],
-		"KoineksDASHBid":      diffs["KoineksDASHBid"],
-		"GdaxXRP":             fmt.Sprintf("%.3f", usdPrices["XRP"].Ask),
-		"PoloniexXRPAsk":      fmt.Sprintf("%.8f", poloniexPrices["XRP"].Ask),
-		"PoloniexXRPSpread":   fmt.Sprintf("%.2f", spreads["XRP"]),
-		"BTCTurkXRPAsk":       diffs["BTCTurkXRPAsk"],
-		"BTCTurkXRPBid":       diffs["BTCTurkXRPBid"],
-		"KoineksXRPAsk":       diffs["KoineksXRPAsk"],
-		"KoineksXRPBid":       diffs["KoineksXRPBid"],
-		"GdaxXLM":             fmt.Sprintf("%.3f", usdPrices["XLM"].Ask),
-		"PoloniexXLMAsk":      fmt.Sprintf("%.8f", poloniexPrices["XLM"].Ask),
-		"PoloniexXLMSpread":   fmt.Sprintf("%.2f", spreads["XLM"]),
-		"KoineksXLMAsk":       diffs["KoineksXLMAsk"],
-		"KoineksXLMBid":       diffs["KoineksXLMBid"],
-		"GdaxXEM":             fmt.Sprintf("%.3f", usdPrices["XEM"].Ask),
-		"PoloniexXEMAsk":      fmt.Sprintf("%.8f", poloniexPrices["XEM"].Ask),
-		"PoloniexXEMSpread":   fmt.Sprintf("%.2f", spreads["XEM"]),
-		"KoineksXEMAsk":       diffs["KoineksXEMAsk"],
-		"KoineksXEMBid":       diffs["KoineksXEMBid"],
 		"KoineksDOGEAskPrice": prices["KoineksDOGEAsk"],
 		"KoineksDOGEBidPrice": prices["KoineksDOGEBid"],
 		"KoineksDASHAskPrice": prices["KoineksDASHAsk"],
@@ -262,6 +235,33 @@ func PrintTable(c *gin.Context) {
 		"KoineksXLMBidPrice":  prices["KoineksXLMBid"],
 		"KoineksXEMAskPrice":  prices["KoineksXEMAsk"],
 		"KoineksXEMBidPrice":  prices["KoineksXEMBid"],
+		"GdaxDOGE":            fmt.Sprintf("%.8f", usdPrices["DOGE"].Ask),
+		"BittrexDOGEAsk":      fmt.Sprintf("%.8f", bittrexPrices["DOGE"].Ask),
+		"BittrexDOGESpread":   fmt.Sprintf("%.2f", spreads["DOGE"]),
+		"KoineksDOGEAsk":      diffs["KoineksDOGEAsk"],
+		"KoineksDOGEBid":      diffs["KoineksDOGEBid"],
+		"GdaxDASH":            fmt.Sprintf("%.2f", usdPrices["DASH"].Ask),
+		"BittrexDASHAsk":      fmt.Sprintf("%.8f", bittrexPrices["DASH"].Ask),
+		"BittrexDASHSpread":   fmt.Sprintf("%.2f", spreads["DASH"]),
+		"KoineksDASHAsk":      diffs["KoineksDASHAsk"],
+		"KoineksDASHBid":      diffs["KoineksDASHBid"],
+		"GdaxXRP":             fmt.Sprintf("%.3f", usdPrices["XRP"].Ask),
+		"BittrexXRPAsk":       fmt.Sprintf("%.8f", bittrexPrices["XRP"].Ask),
+		"BittrexXRPSpread":    fmt.Sprintf("%.2f", spreads["XRP"]),
+		"BTCTurkXRPAsk":       diffs["BTCTurkXRPAsk"],
+		"BTCTurkXRPBid":       diffs["BTCTurkXRPBid"],
+		"KoineksXRPAsk":       diffs["KoineksXRPAsk"],
+		"KoineksXRPBid":       diffs["KoineksXRPBid"],
+		"GdaxXLM":             fmt.Sprintf("%.3f", usdPrices["XLM"].Ask),
+		"BittrexXLMAsk":       fmt.Sprintf("%.8f", bittrexPrices["XLM"].Ask),
+		"BittrexXLMSpread":    fmt.Sprintf("%.2f", spreads["XLM"]),
+		"KoineksXLMAsk":       diffs["KoineksXLMAsk"],
+		"KoineksXLMBid":       diffs["KoineksXLMBid"],
+		"GdaxXEM":             fmt.Sprintf("%.3f", usdPrices["XEM"].Ask),
+		"BittrexXEMAsk":       fmt.Sprintf("%.8f", bittrexPrices["XEM"].Ask),
+		"BittrexXEMSpread":    fmt.Sprintf("%.2f", spreads["XEM"]),
+		"KoineksXEMAsk":       diffs["KoineksXEMAsk"],
+		"KoineksXEMBid":       diffs["KoineksXEMBid"],
 	})
 }
 
