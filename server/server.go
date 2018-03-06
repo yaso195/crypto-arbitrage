@@ -122,35 +122,30 @@ func calculatePrices() {
 	if err != nil {
 		fmt.Println("Error reading Paribu prices : ", err)
 		log.Println("Error reading Paribu prices : ", err)
-		return
 	}
 
 	btcTurkPrices, err := getBTCTurkPrices()
 	if err != nil {
 		fmt.Println("Error reading BTCTurk prices : ", err)
 		log.Println("Error reading BTCTurk prices : ", err)
-		return
 	}
 
 	koineksPrices, err := getKoineksPrices()
 	if err != nil {
 		fmt.Println("Error reading Koineks prices : ", err)
 		log.Println("Error reading Koineks prices : ", err)
-		return
 	}
 
 	koinimPrices, err := getKoinimPrices()
 	if err != nil {
 		fmt.Println("Error reading Koinim prices : ", err)
 		log.Println("Error reading Koinim prices : ", err)
-		return
 	}
 
 	bitflyerPrices, err := getBitflyerPrices()
 	if err != nil {
 		fmt.Println("Error reading Bitflyer prices : ", err)
 		log.Println("Error reading Bitflyer prices : ", err)
-		return
 	}
 
 	findPriceDifferences(gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, bitflyerPrices)
