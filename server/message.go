@@ -31,12 +31,12 @@ func sendMessages() {
 	if fiatNotificationEnabled {
 		for _, exchange := range ALL_EXCHANGES {
 			for _, symbol := range ALL_SYMBOLS {
-				exchangeSymbol := fmt.Sprintf("%s%s", exchange, symbol)
+				exchangeSymbol := fmt.Sprintf("%s-%s", exchange, symbol)
 				notificationFlag := notificationFlags[exchangeSymbol]
 				notificationTime := notificationTimes[exchangeSymbol]
 				duration := time.Since(notificationTime)
-				askDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Ask")]
-				bidDiff := diffs[fmt.Sprintf("%s%s", exchangeSymbol, "Bid")]
+				askDiff := diffs[fmt.Sprintf("%s-%s", exchangeSymbol, "Ask")]
+				bidDiff := diffs[fmt.Sprintf("%s-%s", exchangeSymbol, "Bid")]
 
 				if bidDiff > askDiff {
 					continue
