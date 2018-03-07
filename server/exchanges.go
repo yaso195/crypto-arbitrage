@@ -14,13 +14,14 @@ import (
 )
 
 const (
-	PARIBU_URI   = "https://www.paribu.com/ticker"
-	BTCTURK_URI  = "https://www.btcturk.com/api/ticker"
-	KOINEKS_URI  = "https://koineks.com/ticker"
-	KOINIM_URI   = "https://koinim.com/ticker"
-	BITFLYER_URI = "https://api.bitflyer.jp/v1/ticker"
-	POLONIEX_URI = "https://poloniex.com/public?command=returnTicker"
-	BITTREX_URI  = "https://bittrex.com/api/v1.1/public/getticker?market=BTC-%s"
+	PARIBU_URI               = "https://www.paribu.com/ticker"
+	BTCTURK_URI              = "https://www.btcturk.com/api/ticker"
+	KOINEKS_URI              = "https://koineks.com/ticker"
+	KOINIM_URI               = "https://koinim.com/ticker"
+	BITFLYER_URI             = "https://api.bitflyer.jp/v1/ticker"
+	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
+	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
+	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=BTC-%s"
 
 	GDAX     = "GDAX"
 	PARIBU   = "Paribu"
@@ -53,7 +54,11 @@ func init() {
 	crossDiffs = map[string]float64{}
 	prices = map[string]float64{}
 	spreads = map[string]float64{}
+	dogeVolumes = map[string]float64{}
 	usdPrices = map[string]Price{}
+
+	minDiffs, maxDiffs = map[string]float64{}, map[string]float64{}
+	minSymbol, maxSymbol = map[string]string{}, map[string]string{}
 
 	PUSHOVER_USER = os.Getenv("PUSHOVER_USER")
 	PUSHOVER_APP_TOKEN = os.Getenv("PUSHOVER_APP_TOKEN")
@@ -331,6 +336,47 @@ func getPoloniexPrices() (map[string]Price, error) {
 	}
 
 	return prices, nil
+}
+
+func getPoloniexDOGEVolumes() error {
+	response, err := http.Get(POLONIEX_DOGE_VOLUME_URI)
+	if err != nil {
+		return fmt.Errorf("failed to get Poloniex DOGE volume response : %s", err)
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read Poloniex DOGE volume response data : %s", err)
+	}
+
+	priceAsk, err := jsonparser.GetString(responseData, "asks", "[0]", "[0]")
+	if err != nil {
+		return fmt.Errorf("failed to read the DOGE ask price from the Poloniex response data: %s", err)
+	}
+	pAsk, _ := strconv.ParseFloat(priceAsk, 64)
+
+	askVolumeSize, err := jsonparser.GetFloat(responseData, "asks", "[0]", "[1]")
+	if err != nil {
+		return fmt.Errorf("failed to read the DOGE ask volume size from the Poloniex response data: %s", err)
+	}
+
+	priceBid, err := jsonparser.GetString(responseData, "bids", "[0]", "[0]")
+	if err != nil {
+		return fmt.Errorf("failed to read the DOGE bid price from the Poloniex response data: %s", err)
+	}
+	pBid, _ := strconv.ParseFloat(priceBid, 64)
+
+	bidVolumeSize, err := jsonparser.GetFloat(responseData, "bids", "[0]", "[1]")
+	if err != nil {
+		return fmt.Errorf("failed to read the DOGE bid volume size from the Poloniex response data: %s", err)
+	}
+
+	dogeVolumes["PoloniexAsk"] = pAsk * askVolumeSize
+	dogeVolumes["PoloniexBid"] = pBid * bidVolumeSize
+	prices["PoloniexDOGEAsk"] = pAsk
+	prices["PoloniexDOGEBid"] = pBid
+
+	return nil
 }
 
 func getBittrexPrices() (map[string]Price, error) {
