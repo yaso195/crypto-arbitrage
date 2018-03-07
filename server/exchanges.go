@@ -22,6 +22,7 @@ const (
 	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
 	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=BTC-%s"
+	BITTREX_DOGE_VOLUME_URI = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
 
 	GDAX     = "GDAX"
 	PARIBU   = "Paribu"
@@ -409,4 +410,43 @@ func getBittrexPrices() (map[string]Price, error) {
 	}
 
 	return prices, nil
+}
+
+func getBittrexDOGEVolumes() error {
+	response, err := http.Get(BITTREX_DOGE_VOLUME_URI)
+	if err != nil {
+		return fmt.Errorf("failed to get Bittrex DOGE volume response : %s", err)
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read Bittrex DOGE volume response data : %s", err)
+	}
+
+	pAsk, err := jsonparser.GetFloat(responseData, "result", "sell", "[0]", "Rate")
+	if err != nil {
+		return fmt.Errorf("failed to read the DOGE ask price from the Bittrex response data: %s", err)
+	}
+
+	askVolumeSize, err := jsonparser.GetFloat(responseData, "result", "sell", "[0]", "Quantity")
+	if err != nil {
+		return fmt.Errorf("failed to read the DOGE ask volume size from the Bittrex response data: %s", err)
+	}
+
+	pBid, err := jsonparser.GetFloat(responseData, "result", "buy", "[0]", "Rate")
+	if err != nil {
+		return fmt.Errorf("failed to read the DOGE bid price from the Bittrex response data: %s", err)
+	}
+
+	bidVolumeSize, err := jsonparser.GetFloat(responseData, "result", "buy", "[0]", "Quantity")
+	if err != nil {
+		return fmt.Errorf("failed to read the DOGE bid volume size from the Bittrex response data: %s", err)
+	}
+
+	dogeVolumes["BittrexAsk"] = pAsk * askVolumeSize
+	dogeVolumes["BittrexBid"] = pBid * bidVolumeSize
+	prices["BittrexDOGEAsk"] = pAsk
+	prices["BittrexDOGEBid"] = pBid
+
+	return nil
 }

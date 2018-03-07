@@ -154,7 +154,12 @@ func calculatePrices() {
 	if err := getPoloniexDOGEVolumes(); err != nil {
 		fmt.Println("Error reading Poloniex DOGE volumes : ", err)
 		log.Println("Error reading Poloniex DOGE volumes : ", err)
-	}
+	}  
+
+  if err := getBittrexDOGEVolumes(); err != nil {
+    fmt.Println("Error reading Bittrex DOGE volumes : ", err)
+    log.Println("Error reading Bittrex DOGE volumes : ", err)
+  }
 
 	findPriceDifferences(gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, bitflyerPrices)
 
@@ -269,6 +274,10 @@ func PrintTable(c *gin.Context) {
 		"PoloniexDOGEBidPrice":  fmt.Sprintf("%.8f", prices["PoloniexDOGEBid"]),
 		"PoloniexDOGEAskVolume": fmt.Sprintf("%.2f", dogeVolumes["PoloniexAsk"]),
 		"PoloniexDOGEBidVolume": fmt.Sprintf("%.2f", dogeVolumes["PoloniexBid"]),
+    "BittrexDOGEAskPrice":  fmt.Sprintf("%.8f", prices["BittrexDOGEAsk"]),
+    "BittrexDOGEBidPrice":  fmt.Sprintf("%.8f", prices["BittrexDOGEBid"]),
+    "BittrexDOGEAskVolume": fmt.Sprintf("%.2f", dogeVolumes["BittrexAsk"]),
+    "BittrexDOGEBidVolume": fmt.Sprintf("%.2f", dogeVolumes["BittrexBid"]),
 	})
 }
 
