@@ -22,7 +22,7 @@ const (
 	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
 	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=BTC-%s"
-	BITTREX_DOGE_VOLUME_URI = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
+	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
 
 	GDAX     = "GDAX"
 	PARIBU   = "Paribu"

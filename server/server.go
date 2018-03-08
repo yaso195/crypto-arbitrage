@@ -154,16 +154,18 @@ func calculatePrices() {
 	if err := getPoloniexDOGEVolumes(); err != nil {
 		fmt.Println("Error reading Poloniex DOGE volumes : ", err)
 		log.Println("Error reading Poloniex DOGE volumes : ", err)
-	}  
+	}
 
-  if err := getBittrexDOGEVolumes(); err != nil {
-    fmt.Println("Error reading Bittrex DOGE volumes : ", err)
-    log.Println("Error reading Bittrex DOGE volumes : ", err)
-  }
+	if err := getBittrexDOGEVolumes(); err != nil {
+		fmt.Println("Error reading Bittrex DOGE volumes : ", err)
+		log.Println("Error reading Bittrex DOGE volumes : ", err)
+	}
 
 	findPriceDifferences(gdaxPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, bitflyerPrices)
 
 	sendMessages()
+
+	resetDiffsAndSymbols()
 }
 
 func PrintTable(c *gin.Context) {
@@ -274,10 +276,10 @@ func PrintTable(c *gin.Context) {
 		"PoloniexDOGEBidPrice":  fmt.Sprintf("%.8f", prices["PoloniexDOGEBid"]),
 		"PoloniexDOGEAskVolume": fmt.Sprintf("%.2f", dogeVolumes["PoloniexAsk"]),
 		"PoloniexDOGEBidVolume": fmt.Sprintf("%.2f", dogeVolumes["PoloniexBid"]),
-    "BittrexDOGEAskPrice":  fmt.Sprintf("%.8f", prices["BittrexDOGEAsk"]),
-    "BittrexDOGEBidPrice":  fmt.Sprintf("%.8f", prices["BittrexDOGEBid"]),
-    "BittrexDOGEAskVolume": fmt.Sprintf("%.2f", dogeVolumes["BittrexAsk"]),
-    "BittrexDOGEBidVolume": fmt.Sprintf("%.2f", dogeVolumes["BittrexBid"]),
+		"BittrexDOGEAskPrice":   fmt.Sprintf("%.8f", prices["BittrexDOGEAsk"]),
+		"BittrexDOGEBidPrice":   fmt.Sprintf("%.8f", prices["BittrexDOGEBid"]),
+		"BittrexDOGEAskVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexAsk"]),
+		"BittrexDOGEBidVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexBid"]),
 	})
 }
 
@@ -427,7 +429,10 @@ func setDiffsAndPrices(list []Price) {
 			prices[fmt.Sprintf("%s-%s-%s", p.Exchange, p.ID, "Bid")] = p.Bid
 
 			maxD := maxDiffs[p.Exchange]
-			minD := minDiffs[p.Exchange]
+			minD, ok := minDiffs[p.Exchange]
+			if !ok {
+				minD = 100
+			}
 
 			if askRound < minD {
 				minDiffs[p.Exchange] = askRound
@@ -467,5 +472,23 @@ func updateUSDPrices(priceLists ...[]Price) {
 				usdPrices[p.ID] = Price{Currency: "USD", ID: p.ID, Ask: p.Ask, Bid: p.Bid}
 			}
 		}
+	}
+}
+
+func resetDiffsAndSymbols() {
+	for key, _ := range minDiffs {
+		minDiffs[key] = 100
+	}
+
+	for key, _ := range maxDiffs {
+		maxDiffs[key] = -100
+	}
+
+	for key, _ := range minSymbol {
+		minSymbol[key] = ""
+	}
+
+	for key, _ := range maxSymbol {
+		maxSymbol[key] = ""
 	}
 }

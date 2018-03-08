@@ -78,13 +78,36 @@ func sendMessages() {
 			}
 
 			if strings.Contains(key, "BidAsk") {
-				if diff >= 1 && !notificationFlag && duration.Minutes() >= DURATION {
+				if diff >= PAIR_THRESHOLD && !notificationFlag && duration.Minutes() >= DURATION {
 					out += fmt.Sprintf("%s %%%.2f\n", key, diff)
 					notificationFlags[key] = true
 					notificationTimes[key] = time.Now()
 				}
 
-				if diff < 1 {
+				if diff < PAIR_THRESHOLD {
+					notificationFlags[key] = false
+				}
+			}
+		}
+
+		for exchange, minAsk := range minDiffs {
+			maxBid := maxDiffs[exchange]
+			minS := minSymbol[exchange]
+			maxS := maxSymbol[exchange]
+			pairDiff := maxBid - minAsk
+
+			if minS != maxS {
+				key := fmt.Sprintf("%s-%s-%s", exchange, minS, maxS)
+				notificationFlag := notificationFlags[key]
+				notificationTime := notificationTimes[key]
+				duration := time.Since(notificationTime)
+				if pairDiff > PAIR_THRESHOLD && !notificationFlag && duration.Minutes() >= DURATION {
+					out += fmt.Sprintf("%s %s %s %%%.2f\n", exchange, minS, maxS, pairDiff)
+					notificationFlags[key] = true
+					notificationTimes[key] = time.Now()
+				}
+
+				if pairDiff < PAIR_THRESHOLD {
 					notificationFlags[key] = false
 				}
 			}
