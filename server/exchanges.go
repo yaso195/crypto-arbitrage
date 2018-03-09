@@ -18,18 +18,20 @@ const (
 	BTCTURK_URI              = "https://www.btcturk.com/api/ticker"
 	KOINEKS_URI              = "https://koineks.com/ticker"
 	KOINIM_URI               = "https://koinim.com/ticker"
+	VEBITCOIN_URI            = "https://www.vebitcoin.com/Ticker/%s"
 	BITFLYER_URI             = "https://api.bitflyer.jp/v1/ticker"
 	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
 	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=BTC-%s"
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
 
-	GDAX     = "GDAX"
-	PARIBU   = "Paribu"
-	BTCTURK  = "BTCTurk"
-	KOINEKS  = "Koineks"
-	KOINIM   = "Koinim"
-	BITFLYER = "Bitflyer"
+	GDAX      = "GDAX"
+	PARIBU    = "Paribu"
+	BTCTURK   = "BTCTurk"
+	KOINEKS   = "Koineks"
+	KOINIM    = "Koinim"
+	VEBITCOIN = "Vebitcoin"
+	BITFLYER  = "Bitflyer"
 )
 
 var (
@@ -270,6 +272,34 @@ func getKoineksPrices() ([]Price, error) {
 			koineksLTCBTCAskBid = pAsk / btcPriceBid
 			koineksLTCBTCBidAsk = pBid / btcPriceAsk
 		}
+	}
+
+	return prices, nil
+}
+
+func getVebitcoinPrices() ([]Price, error) {
+	var prices []Price
+
+	ids := []string{"BTC", "XRP", "XLM"}
+	for _, id := range ids {
+
+		uri := fmt.Sprintf(VEBITCOIN_URI, id)
+		response, err := http.Get(uri)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get Vebitcoin response : %s", err)
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read Vebitcoin response data : %s", err)
+		}
+
+		pBid, err := jsonparser.GetFloat(responseData, "Bid")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the bid price from the Vebitcoin response data: %s", err)
+		}
+
+		prices = append(prices, Price{Exchange: VEBITCOIN, Currency: "TRY", ID: id, Ask: 0, Bid: pBid})
 	}
 
 	return prices, nil

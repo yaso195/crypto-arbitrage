@@ -26,11 +26,14 @@ th, td {
     <th colspan="2">BTCTurk</th>
     <th colspan="2">Koineks</th>
     <th colspan="2">Koinim</th>
+    <th colspan="2">Vebitcoin</th>
     <th colspan="2">Bitflyer</th>
   </tr>
   <tr>
   	<th>Symbol</th>
     <th>ASK</th>
+    <th>ASK</th>
+    <th>BID</th>
     <th>ASK</th>
     <th>BID</th>
     <th>ASK</th>
@@ -53,6 +56,8 @@ th, td {
     <td>%{{.KoineksBTCBid}} <br><small><i> ({{.KoineksBTCBidPrice}})</small></td>
     <td>%{{.KoinimBTCAsk}} <br><small><i> ({{.KoinimBTCAskPrice}})</small></td>
     <td>%{{.KoinimBTCBid}} <br><small><i> ({{.KoinimBTCBidPrice}})</small></td>
+    <td>%{{.VebitcoinBTCAsk}} <br><small><i> ({{.VebitcoinBTCAskPrice}})</small></td>
+    <td>%{{.VebitcoinBTCBid}} <br><small><i> ({{.VebitcoinBTCBidPrice}})</small></td>
     <td>%{{.BitflyerBTCAsk}} <br><small><i> ({{.BitflyerBTCAskPrice}})</small></td>
     <td>%{{.BitflyerBTCBid}} <br><small><i> ({{.BitflyerBTCBidPrice}})</small></td>
   </tr>
@@ -65,6 +70,8 @@ th, td {
     <td>%{{.BTCTurkETHBid}} <br><small><i> ({{.BTCTurkETHBidPrice}})</small></td>
     <td>%{{.KoineksETHAsk}} <br><small><i> ({{.KoineksETHAskPrice}})</small></td>
     <td>%{{.KoineksETHBid}} <br><small><i> ({{.KoineksETHBidPrice}})</small></td>
+    <td>-</td> 
+    <td>-</td>
     <td>-</td> 
     <td>-</td>
     <td>-</td> 
@@ -82,7 +89,9 @@ th, td {
     <td>%{{.KoinimLTCAsk}} <br><small><i> ({{.KoinimLTCAskPrice}})</small></td>
     <td>%{{.KoinimLTCBid}} <br><small><i> ({{.KoinimLTCBidPrice}})</small></td>
     <td>-</td> 
+    <td>-</td>
     <td>-</td> 
+    <td>-</td>
   </tr>
   <tr>
     <td>DOGE</td>
@@ -96,7 +105,9 @@ th, td {
     <td>-</td> 
     <td>-</td>
     <td>-</td> 
+    <td>-</td>
     <td>-</td> 
+    <td>-</td>
   </tr>
   <tr>
     <td>DASH</td>
@@ -110,7 +121,9 @@ th, td {
     <td>-</td> 
     <td>-</td>
     <td>-</td> 
+    <td>-</td>
     <td>-</td> 
+    <td>-</td>
   </tr>
   <tr>
     <td>XRP</td>
@@ -123,8 +136,10 @@ th, td {
     <td>%{{.KoineksXRPBid}} <br><small><i> ({{.KoineksXRPBidPrice}})</small></td>
     <td>-</td> 
     <td>-</td>
+    <td>%{{.VebitcoinXRPAsk}} <br><small><i> ({{.VebitcoinXRPAskPrice}})</small></td>
+    <td>%{{.VebitcoinXRPBid}} <br><small><i> ({{.VebitcoinXRPBidPrice}})</small></td>
     <td>-</td> 
-    <td>-</td> 
+    <td>-</td>
   </tr>
   <tr>
     <td>XLM</td>
@@ -137,6 +152,8 @@ th, td {
     <td>%{{.KoineksXLMBid}} <br><small><i> ({{.KoineksXLMBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
+    <td>%{{.VebitcoinXLMAsk}} <br><small><i> ({{.VebitcoinXLMAskPrice}})</small></td>
+    <td>%{{.VebitcoinXLMBid}} <br><small><i> ({{.VebitcoinXLMBidPrice}})</small></td>
     <td>-</td> 
     <td>-</td> 
   </tr>
