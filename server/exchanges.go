@@ -37,7 +37,7 @@ const (
 var (
 	symbolToExchangeNames map[string][]string
 
-	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, BITFLYER}
+	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN, BITFLYER}
 	poloniexCurrencies = []string{"DOGE", "DASH", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"DOGE", "DASH", "XRP", "XLM", "XEM"}
 )
