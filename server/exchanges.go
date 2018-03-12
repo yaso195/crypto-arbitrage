@@ -26,6 +26,8 @@ const (
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
 
 	GDAX      = "GDAX"
+	BITTREX   = "Bittrex"
+	POLONIEX  = "Poloniex"
 	PARIBU    = "Paribu"
 	BTCTURK   = "BTCTurk"
 	KOINEKS   = "Koineks"
@@ -362,7 +364,7 @@ func getPoloniexPrices() (map[string]Price, error) {
 		if currency == "STR" {
 			currency = "XLM"
 		}
-		prices[currency] = Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
+		prices[currency] = Price{Exchange: POLONIEX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
 		spreads[currency] = (pAsk - pBid) * 100 / pBid
 	}
 
@@ -435,7 +437,7 @@ func getBittrexPrices() (map[string]Price, error) {
 			return nil, fmt.Errorf("failed to read the bid price from the Bittrex response data: %s", err)
 		}
 
-		prices[currency] = Price{Exchange: GDAX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
+		prices[currency] = Price{Exchange: BITTREX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
 		spreads[currency] = (pAsk - pBid) * 100 / pBid
 	}
 
