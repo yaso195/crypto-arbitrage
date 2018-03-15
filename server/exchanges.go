@@ -301,7 +301,7 @@ func getVebitcoinPrices() ([]Price, error) {
 			return nil, fmt.Errorf("failed to read the bid price from the Vebitcoin response data: %s", err)
 		}
 
-		prices = append(prices, Price{Exchange: VEBITCOIN, Currency: "TRY", ID: id, Ask: 0, Bid: pBid})
+		prices = append(prices, Price{Exchange: VEBITCOIN, Currency: "TRY", ID: id, Ask: pBid, Bid: pBid})
 	}
 
 	return prices, nil
