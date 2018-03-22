@@ -42,6 +42,7 @@ var (
 	koineksETHBTCAskBid, koineksETHBTCBidAsk, koineksLTCBTCAskBid, koineksLTCBTCBidAsk float64
 	koinimLTCBTCAskBid, koinimLTCBTCBidAsk                                             float64
 	fiatNotificationEnabled, pairNotificationEnabled                                   = false, false
+	warning                                                                            string
 
 	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 )
@@ -121,48 +122,64 @@ func calculatePrices() {
 
 	paribuPrices, err := getParibuPrices()
 	if err != nil {
-		fmt.Println("Error reading Paribu prices : ", err)
-		log.Println("Error reading Paribu prices : ", err)
+		message := fmt.Sprintf("Error reading Paribu prices : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
 	}
 
 	btcTurkPrices, err := getBTCTurkPrices()
 	if err != nil {
-		fmt.Println("Error reading BTCTurk prices : ", err)
-		log.Println("Error reading BTCTurk prices : ", err)
+		message := fmt.Sprintf("Error reading BTCTurk prices : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
 	}
 
 	koineksPrices, err := getKoineksPrices()
 	if err != nil {
-		fmt.Println("Error reading Koineks prices : ", err)
-		log.Println("Error reading Koineks prices : ", err)
+		message := fmt.Sprintf("Error reading Koineks prices : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
 	}
 
 	koinimPrices, err := getKoinimPrices()
 	if err != nil {
-		fmt.Println("Error reading Koinim prices : ", err)
-		log.Println("Error reading Koinim prices : ", err)
+		message := fmt.Sprintf("Error reading Koinim prices : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
 	}
 
 	vebitcoinPrices, err := getVebitcoinPrices()
 	if err != nil {
-		fmt.Println("Error reading Vebitcoin prices : ", err)
-		log.Println("Error reading Vebitcoin prices : ", err)
+		message := fmt.Sprintf("Error reading Vebitcoin prices : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
 	}
 
 	bitflyerPrices, err := getBitflyerPrices()
 	if err != nil {
-		fmt.Println("Error reading Bitflyer prices : ", err)
-		log.Println("Error reading Bitflyer prices : ", err)
+		message := fmt.Sprintf("Error reading Bitflyer prices : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
 	}
 
 	if err := getPoloniexDOGEVolumes(); err != nil {
-		fmt.Println("Error reading Poloniex DOGE volumes : ", err)
-		log.Println("Error reading Poloniex DOGE volumes : ", err)
+		message := fmt.Sprintf("Error reading Poloniex DOGE volumes : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
 	}
 
 	if err := getBittrexDOGEVolumes(); err != nil {
-		fmt.Println("Error reading Bittrex DOGE volumes : ", err)
-		log.Println("Error reading Bittrex DOGE volumes : ", err)
+		message := fmt.Sprintf("Error reading Bittrex DOGE volumes : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
 	}
 
 	bitcoinPrice := gdaxPrices[0].Ask
@@ -324,6 +341,7 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BittrexDOGEBidPrice":   fmt.Sprintf("%.8f", prices["BittrexDOGEBid"]),
 		"BittrexDOGEAskVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexAsk"]),
 		"BittrexDOGEBidVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexBid"]),
+		"Warning":               warning,
 	})
 }
 
@@ -537,4 +555,6 @@ func resetDiffsAndSymbols() {
 	for key, _ := range maxSymbol {
 		maxSymbol[key] = ""
 	}
+
+	warning = ""
 }
