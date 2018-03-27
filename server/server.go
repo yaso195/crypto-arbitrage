@@ -44,7 +44,7 @@ var (
 	fiatNotificationEnabled, pairNotificationEnabled                                   = false, false
 	warning                                                                            string
 
-	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
+	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 )
 
 func Run() {
@@ -100,7 +100,7 @@ func getPrices() {
 func calculatePrices() {
 	var err error
 	gdaxPrices, err := getGdaxPrices()
-	if err != nil || len(gdaxPrices) != 5 {
+	if err != nil || len(gdaxPrices) != len(gdaxCurrencies) {
 		fmt.Println("Error reading GDAX prices : ", err)
 		log.Println("Error reading GDAX prices : ", err)
 		return
@@ -251,21 +251,20 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BTCTurkETHBid":         diffs["GDAX-BTCTurk-ETH-Bid"],
 		"KoineksETHAsk":         diffs["GDAX-Koineks-ETH-Ask"],
 		"KoineksETHBid":         diffs["GDAX-Koineks-ETH-Bid"],
+		"VebitcoinETHAsk":       diffs["GDAX-Vebitcoin-ETH-Ask"],
+		"VebitcoinETHBid":       diffs["GDAX-Vebitcoin-ETH-Bid"],
 		"GdaxLTC":               usdPrices["GDAXLTC"].Ask,
 		"KoineksLTCAsk":         diffs["GDAX-Koineks-LTC-Ask"],
 		"KoineksLTCBid":         diffs["GDAX-Koineks-LTC-Bid"],
 		"KoinimLTCAsk":          diffs["GDAX-Koinim-LTC-Ask"],
 		"KoinimLTCBid":          diffs["GDAX-Koinim-LTC-Bid"],
+		"VebitcoinLTCAsk":       diffs["GDAX-Vebitcoin-LTC-Ask"],
+		"VebitcoinLTCBid":       diffs["GDAX-Vebitcoin-LTC-Bid"],
+		"GdaxBCH":               usdPrices["GDAXBCH"].Ask,
+		"VebitcoinBCHAsk":       diffs["GDAX-Vebitcoin-BCH-Ask"],
+		"VebitcoinBCHBid":       diffs["GDAX-Vebitcoin-BCH-Bid"],
 		"GdaxETHBTC":            ethBTCPrice,
 		"GdaxLTCBTC":            ltcBTCPrice,
-		"BTCTurkETHBTCAskBid":   crossDiffs["BTCTurkETHBTCAskBid"],
-		"BTCTurkETHBTCBidAsk":   crossDiffs["BTCTurkETHBTCBidAsk"],
-		"KoineksETHBTCAskBid":   crossDiffs["KoineksETHBTCAskBid"],
-		"KoineksETHBTCBidAsk":   crossDiffs["KoineksETHBTCBidAsk"],
-		"KoineksLTCBTCAskBid":   crossDiffs["KoineksLTCBTCAskBid"],
-		"KoineksLTCBTCBidAsk":   crossDiffs["KoineksLTCBTCBidAsk"],
-		"KoinimLTCBTCAskBid":    crossDiffs["KoinimLTCBTCAskBid"],
-		"KoinimLTCBTCBidAsk":    crossDiffs["KoinimLTCBTCBidAsk"],
 		"ParibuBTCAskPrice":     prices["Paribu-BTC-Ask"],
 		"ParibuBTCBidPrice":     prices["Paribu-BTC-Bid"],
 		"BTCTurkBTCAskPrice":    prices["BTCTurk-BTC-Ask"],
@@ -282,10 +281,16 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BTCTurkETHBidPrice":    prices["BTCTurk-ETH-Bid"],
 		"KoineksETHAskPrice":    prices["Koineks-ETH-Ask"],
 		"KoineksETHBidPrice":    prices["Koineks-ETH-Bid"],
+		"VebitcoinETHAskPrice":  prices["Vebitcoin-ETH-Ask"],
+		"VebitcoinETHBidPrice":  prices["Vebitcoin-ETH-Bid"],
 		"KoineksLTCAskPrice":    prices["Koineks-LTC-Ask"],
 		"KoineksLTCBidPrice":    prices["Koineks-LTC-Bid"],
 		"KoinimLTCAskPrice":     prices["Koinim-LTC-Ask"],
 		"KoinimLTCBidPrice":     prices["Koinim-LTC-Bid"],
+		"VebitcoinLTCAskPrice":  prices["Vebitcoin-LTC-Ask"],
+		"VebitcoinLTCBidPrice":  prices["Vebitcoin-LTC-Bid"],
+		"VebitcoinBCHAskPrice":  prices["Vebitcoin-BCH-Ask"],
+		"VebitcoinBCHBidPrice":  prices["Vebitcoin-BCH-Bid"],
 		"KoineksDOGEAskPrice":   prices["Koineks-DOGE-Ask"],
 		"KoineksDOGEBidPrice":   prices["Koineks-DOGE-Bid"],
 		"KoineksDASHAskPrice":   prices["Koineks-DASH-Ask"],
@@ -341,6 +346,14 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BittrexDOGEBidPrice":   fmt.Sprintf("%.8f", prices["BittrexDOGEBid"]),
 		"BittrexDOGEAskVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexAsk"]),
 		"BittrexDOGEBidVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexBid"]),
+		"BTCTurkETHBTCAskBid":   crossDiffs["BTCTurkETHBTCAskBid"],
+		"BTCTurkETHBTCBidAsk":   crossDiffs["BTCTurkETHBTCBidAsk"],
+		"KoineksETHBTCAskBid":   crossDiffs["KoineksETHBTCAskBid"],
+		"KoineksETHBTCBidAsk":   crossDiffs["KoineksETHBTCBidAsk"],
+		"KoineksLTCBTCAskBid":   crossDiffs["KoineksLTCBTCAskBid"],
+		"KoineksLTCBTCBidAsk":   crossDiffs["KoineksLTCBTCBidAsk"],
+		"KoinimLTCBTCAskBid":    crossDiffs["KoinimLTCBTCAskBid"],
+		"KoinimLTCBTCBidAsk":    crossDiffs["KoinimLTCBTCBidAsk"],
 		"Warning":               warning,
 	})
 }

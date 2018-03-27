@@ -42,6 +42,7 @@ var (
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN, BITFLYER}
 	poloniexCurrencies = []string{"DOGE", "DASH", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"DOGE", "DASH", "XRP", "XLM", "XEM"}
+	gdaxCurrencies     = []string{"BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "ETH-BTC", "LTC-BTC"}
 )
 
 func init() {
@@ -74,9 +75,7 @@ func getGdaxPrices() ([]Price, error) {
 	client := gdax.NewClient("", "", "")
 	var prices []Price
 
-	ids := []string{"BTC-USD", "ETH-USD", "LTC-USD", "ETH-BTC", "LTC-BTC"}
-
-	for _, id := range ids {
+	for _, id := range gdaxCurrencies {
 		ticker, err := client.GetTicker(id)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading %s price : %s\n", id, err)
@@ -282,7 +281,7 @@ func getKoineksPrices() ([]Price, error) {
 func getVebitcoinPrices() ([]Price, error) {
 	var prices []Price
 
-	ids := []string{"BTC", "XRP", "XLM"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "XRP", "XLM"}
 	for _, id := range ids {
 
 		uri := fmt.Sprintf(VEBITCOIN_URI, id)
