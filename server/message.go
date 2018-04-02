@@ -36,11 +36,13 @@ func sendMessages() {
 				notificationTime := notificationTimes[exchangeSymbol]
 				duration := time.Since(notificationTime)
 
+				commissionFee := 0.0
 				var firstExchange string
-				if symbol == "BTC" || symbol == "ETH" || symbol == "LTC" {
+				if symbol == "BTC" || symbol == "ETH" || symbol == "LTC" || symbol == "BCH" {
 					firstExchange = GDAX
 				} else {
 					firstExchange = BITTREX
+					commissionFee = 0.25
 				}
 
 				askDiff := diffs[fmt.Sprintf("%s-%s-%s", firstExchange, exchangeSymbol, "Ask")]
@@ -50,12 +52,12 @@ func sendMessages() {
 					continue
 				}
 
-				if notificationFlag && askDiff > MIN_NOTI_PERC && bidDiff < MAX_NOTI_PERC {
+				if notificationFlag && askDiff > MIN_NOTI_PERC-commissionFee && bidDiff < MAX_NOTI_PERC+commissionFee {
 					notificationFlags[exchangeSymbol] = false
 				}
 
 				if !notificationFlag && duration.Minutes() >= DURATION &&
-					(askDiff <= MIN_NOTI_PERC || bidDiff >= MAX_NOTI_PERC) {
+					(askDiff <= MIN_NOTI_PERC-commissionFee || bidDiff >= MAX_NOTI_PERC+commissionFee) {
 					notificationFlags[exchangeSymbol] = true
 					notificationTimes[exchangeSymbol] = time.Now()
 					if askDiff <= MIN_NOTI_PERC {
