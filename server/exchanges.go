@@ -241,7 +241,7 @@ func getKoineksPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 
 	var btcPriceAsk, btcPriceBid float64
 	for _, id := range ids {
