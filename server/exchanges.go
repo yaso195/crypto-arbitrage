@@ -20,12 +20,14 @@ const (
 	KOINIM_URI               = "https://koinim.com/ticker"
 	VEBITCOIN_URI            = "https://www.vebitcoin.com/Ticker/%s"
 	BITFLYER_URI             = "https://api.bitflyer.jp/v1/ticker"
+	BINANCE_URI = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%sBTC"
 	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
 	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=BTC-%s"
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
 
 	GDAX      = "GDAX"
+	BINANCE   = "Binance"
 	BITTREX   = "Bittrex"
 	POLONIEX  = "Poloniex"
 	PARIBU    = "Paribu"
@@ -42,6 +44,7 @@ var (
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN, BITFLYER}
 	poloniexCurrencies = []string{"DOGE", "DASH", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"DOGE", "DASH", "XRP", "XLM", "XEM"}
+	binanceCurrencies  = []string{"DASH", "XRP", "XLM", "XEM"}
 	gdaxCurrencies     = []string{"BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "ETH-BTC", "LTC-BTC"}
 )
 
@@ -364,7 +367,7 @@ func getPoloniexPrices() (map[string]Price, error) {
 			currency = "XLM"
 		}
 		prices[currency] = Price{Exchange: POLONIEX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
-		spreads[currency] = (pAsk - pBid) * 100 / pBid
+		spreads[POLONIEX + currency] = (pAsk - pBid) * 100 / pBid
 	}
 
 	return prices, nil
@@ -437,7 +440,7 @@ func getBittrexPrices() (map[string]Price, error) {
 		}
 
 		prices[currency] = Price{Exchange: BITTREX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
-		spreads[currency] = (pAsk - pBid) * 100 / pBid
+		spreads[BITTREX + currency] = (pAsk - pBid) * 100 / pBid
 	}
 
 	return prices, nil
@@ -480,4 +483,39 @@ func getBittrexDOGEVolumes() error {
 	prices["BittrexDOGEBid"] = pBid
 
 	return nil
+}
+
+
+func getBinancePrices() (map[string]Price, error) {
+	prices := map[string]Price{}
+
+	for _, currency := range binanceCurrencies {
+
+		response, err := http.Get(fmt.Sprintf(BINANCE_URI, currency))
+		if err != nil {
+			return nil, fmt.Errorf("failed to get Binance response : %s", err)
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read Binance response data : %s", err)
+		}
+
+		priceAsk, err := jsonparser.GetString(responseData, "askPrice")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the ask price from the Binance response data: %s", err)
+		}
+		pAsk, _ := strconv.ParseFloat(priceAsk, 64)
+
+		priceBid, err := jsonparser.GetString(responseData, "bidPrice")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the bid price from the Binance response data: %s", err)
+		}
+		pBid, _ := strconv.ParseFloat(priceBid, 64)
+
+		prices[currency] = Price{Exchange: BINANCE, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
+		spreads[BINANCE + currency] = (pAsk - pBid) * 100 / pBid
+	}
+
+	return prices, nil
 }
