@@ -17,7 +17,7 @@ const (
 	PARIBU_URI               = "https://www.paribu.com/ticker"
 	BTCTURK_URI              = "https://www.btcturk.com/api/ticker"
 	KOINEKS_URI              = "https://koineks.com/ticker"
-	KOINIM_URI               = "https://koinim.com/ticker"
+	KOINIM_URI               = "http://koinim.com/api/v1/ticker/%s_TRY/"
 	VEBITCOIN_URI            = "https://www.vebitcoin.com/Ticker/%s"
 	BITFLYER_URI             = "https://api.bitflyer.jp/v1/ticker"
 	BINANCE_URI = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%sBTC"
@@ -181,52 +181,44 @@ func getBTCTurkPrices() ([]Price, error) {
 func getKoinimPrices() ([]Price, error) {
 	var prices []Price
 
-	response, err := http.Get(KOINIM_URI)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get Koinim response : %s", err)
+	ids := []string{"BTC", "LTC", "BCH"}
+	var ltcPriceAsk, ltcPriceBid, btcPriceAsk, btcPriceBid float64
+	for _, id := range ids {
+		uri := fmt.Sprintf(KOINIM_URI , id)
+
+		response, err := http.Get(uri)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get Koinim response for %s: %s", id, err)
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read Koinim response data for %s: %s", id, err)
+		}
+
+		koinimPriceAsk, err := jsonparser.GetFloat(responseData, "ask")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the BTC ask price from the Koinim response data: %s", err)
+		}
+
+		koinimPriceBid, err := jsonparser.GetFloat(responseData, "bid")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the BTC bid price from the Koinim response data: %s", err)
+		}
+
+		prices = append(prices, Price{Exchange: KOINIM, Currency: "TRY", ID: id, Ask: koinimPriceAsk, Bid: koinimPriceBid})
+
+		if id == "BTC" {
+			btcPriceAsk = koinimPriceAsk
+			btcPriceBid = koinimPriceBid
+		} else if id == "LTC" {
+			ltcPriceAsk = koinimPriceAsk
+			ltcPriceBid = koinimPriceBid
+		}
 	}
 
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read Koinim response data : %s", err)
-	}
-
-	koinimPriceAsk, err := jsonparser.GetFloat(responseData, "ask")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the BTC ask price from the Koinim response data: %s", err)
-	}
-
-	koinimPriceBid, err := jsonparser.GetFloat(responseData, "bid")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the BTC bid price from the Koinim response data: %s", err)
-	}
-
-	prices = append(prices, Price{Exchange: KOINIM, Currency: "TRY", ID: "BTC", Ask: koinimPriceAsk, Bid: koinimPriceBid})
-
-	response, err = http.Get(KOINIM_URI + "/ltc")
-	if err != nil {
-		return nil, fmt.Errorf("failed to get Koinim response : %s", err)
-	}
-
-	responseData, err = ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read Koinim response data : %s", err)
-	}
-
-	ltcPriceAsk, err := jsonparser.GetFloat(responseData, "ask")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the LTC ask price from the Koinim response data: %s", err)
-	}
-
-	ltcPriceBid, err := jsonparser.GetFloat(responseData, "bid")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the LTC bid price from the Koinim response data: %s", err)
-	}
-
-	prices = append(prices, Price{Exchange: KOINIM, Currency: "TRY", ID: "LTC", Ask: ltcPriceAsk, Bid: ltcPriceBid})
-
-	koinimLTCBTCAskBid = ltcPriceAsk / koinimPriceBid
-	koinimLTCBTCBidAsk = ltcPriceBid / koinimPriceAsk
+	koinimLTCBTCAskBid = ltcPriceAsk / btcPriceBid
+	koinimLTCBTCBidAsk = ltcPriceBid / btcPriceAsk
 
 	return prices, nil
 }
@@ -290,17 +282,17 @@ func getVebitcoinPrices() ([]Price, error) {
 		uri := fmt.Sprintf(VEBITCOIN_URI, id)
 		response, err := http.Get(uri)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get Vebitcoin response : %s", err)
+			return nil, fmt.Errorf("failed to get Vebitcoin response for %s: %s", id, err)
 		}
 
 		responseData, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read Vebitcoin response data : %s", err)
+			return nil, fmt.Errorf("failed to read Vebitcoin response data %s: %s", id, err)
 		}
 
 		pBid, err := jsonparser.GetFloat(responseData, "Bid")
 		if err != nil {
-			return nil, fmt.Errorf("failed to read the bid price from the Vebitcoin response data: %s", err)
+			return nil, fmt.Errorf("failed to read the bid price from the Vebitcoin response data for %s: %s", id, err)
 		}
 
 		prices = append(prices, Price{Exchange: VEBITCOIN, Currency: "TRY", ID: id, Ask: pBid, Bid: pBid})
