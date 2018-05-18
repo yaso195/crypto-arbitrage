@@ -102,30 +102,34 @@ func calculatePrices() {
 	var err error
 	gdaxPrices, err := getGdaxPrices()
 	if err != nil || len(gdaxPrices) != len(gdaxCurrencies) {
-		fmt.Println("Error reading GDAX prices : ", err)
-		log.Println("Error reading GDAX prices : ", err)
-		return
+    message := fmt.Sprintf("Error reading GDAX prices : %s", err)
+    warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
 	}
 
 	poloniexPrices, err = getPoloniexPrices()
 	if err != nil || len(poloniexPrices) != len(poloniexCurrencies) {
-		fmt.Println("Error reading Poloniex prices : ", err)
-		log.Println("Error reading Poloniex prices : ", err)
-		return
+    message := fmt.Sprintf("Error reading Poloniex prices : %s", err)
+    warning += message + "\n"
+    fmt.Println(message)
+    log.Println(message)
 	}
 
 	bittrexPrices, err = getBittrexPrices()
 	if err != nil || len(bittrexPrices) != len(bittrexCurrencies) {
-		fmt.Println("Error reading Bittrex prices : ", err)
-		log.Println("Error reading Bittrex prices : ", err)
-		return
+    message := fmt.Sprintf("Error reading Bittrex prices : %s", err)
+    warning += message + "\n"
+    fmt.Println(message)
+    log.Println(message)
 	}
 
   binancePrices, err = getBinancePrices()
   if err != nil || len(binancePrices) != len(binanceCurrencies) {
-    fmt.Println("Error reading Binance prices : ", err)
-    log.Println("Error reading Binance prices : ", err)
-    return
+    message := fmt.Sprintf("Error reading Binance prices : %s", err)
+    warning += message + "\n"
+    fmt.Println(message)
+    log.Println(message)
   }
 
 	paribuPrices, err := getParibuPrices()
