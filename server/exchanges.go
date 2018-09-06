@@ -46,7 +46,7 @@ var (
 	poloniexCurrencies = []string{"DOGE", "DASH", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"DOGE", "DASH", "XRP", "XLM", "XEM"}
 	binanceCurrencies  = []string{"DASH", "XRP", "XLM", "XEM"}
-	gdaxCurrencies     = []string{"BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "ETC-USD", "ETH-BTC", "LTC-BTC"}
+	gdaxCurrencies     = []string{"BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "ETC-USD"}
 )
 
 func init() {
@@ -61,7 +61,6 @@ func init() {
 	}
 
 	diffs = map[string]float64{}
-	crossDiffs = map[string]float64{}
 	prices = map[string]float64{}
 	spreads = map[string]float64{}
 	dogeVolumes = map[string]float64{}
@@ -170,9 +169,6 @@ func getBTCTurkPrices() ([]Price, error) {
 		return nil, returnError
 	}
 
-	//btcTurkETHBTCAskBid = ethPriceAsk / btcPriceBid
-	//btcTurkETHBTCBidAsk = ethPriceBid / btcPriceAsk
-
 	return prices, nil
 }
 
@@ -180,7 +176,6 @@ func getKoinimPrices() ([]Price, error) {
 	var prices []Price
 
 	ids := []string{"BTC", "LTC", "BCH"}
-	var ltcPriceAsk, ltcPriceBid, btcPriceAsk, btcPriceBid float64
 	for _, id := range ids {
 		uri := fmt.Sprintf(KOINIM_URI, id)
 
@@ -205,18 +200,7 @@ func getKoinimPrices() ([]Price, error) {
 		}
 
 		prices = append(prices, Price{Exchange: KOINIM, Currency: "TRY", ID: id, Ask: koinimPriceAsk, Bid: koinimPriceBid})
-
-		if id == "BTC" {
-			btcPriceAsk = koinimPriceAsk
-			btcPriceBid = koinimPriceBid
-		} else if id == "LTC" {
-			ltcPriceAsk = koinimPriceAsk
-			ltcPriceBid = koinimPriceBid
-		}
 	}
-
-	koinimLTCBTCAskBid = ltcPriceAsk / btcPriceBid
-	koinimLTCBTCBidAsk = ltcPriceBid / btcPriceAsk
 
 	return prices, nil
 }
@@ -236,7 +220,6 @@ func getKoineksPrices() ([]Price, error) {
 
 	ids := []string{"BTC", "ETH", "LTC", "BCH", "ETC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 
-	var btcPriceAsk, btcPriceBid float64
 	for _, id := range ids {
 
 		priceAsk, err := jsonparser.GetString(responseData, id, "ask")
@@ -255,17 +238,6 @@ func getKoineksPrices() ([]Price, error) {
 
 		prices = append(prices, Price{Exchange: KOINEKS, Currency: "TRY", ID: id, Ask: pAsk, Bid: pBid})
 
-		switch id {
-		case "BTC":
-			btcPriceAsk = pAsk
-			btcPriceBid = pBid
-		case "ETH":
-			koineksETHBTCAskBid = pAsk / btcPriceBid
-			koineksETHBTCBidAsk = pBid / btcPriceAsk
-		case "LTC":
-			koineksLTCBTCAskBid = pAsk / btcPriceBid
-			koineksLTCBTCBidAsk = pBid / btcPriceAsk
-		}
 	}
 
 	return prices, nil

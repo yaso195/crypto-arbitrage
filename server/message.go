@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -65,60 +64,6 @@ func sendMessages() {
 					} else {
 						out += fmt.Sprintf("%s %s %%%.2f\n", exchange, symbol, bidDiff)
 					}
-				}
-			}
-		}
-	}
-
-	if pairNotificationEnabled {
-		for key, diff := range crossDiffs {
-			notificationFlag := notificationFlags[key]
-			notificationTime := notificationTimes[key]
-			duration := time.Since(notificationTime)
-			if strings.Contains(key, "AskBid") {
-				if diff <= -1*PAIR_THRESHOLD && !notificationFlag && duration.Minutes() >= DURATION {
-					out += fmt.Sprintf("%s %%%.2f\n", key, diff)
-					notificationFlags[key] = true
-					notificationTimes[key] = time.Now()
-				}
-
-				if diff > -1*PAIR_THRESHOLD {
-					notificationFlags[key] = false
-				}
-			}
-
-			if strings.Contains(key, "BidAsk") {
-				if diff >= PAIR_THRESHOLD && !notificationFlag && duration.Minutes() >= DURATION {
-					out += fmt.Sprintf("%s %%%.2f\n", key, diff)
-					notificationFlags[key] = true
-					notificationTimes[key] = time.Now()
-				}
-
-				if diff < PAIR_THRESHOLD {
-					notificationFlags[key] = false
-				}
-			}
-		}
-
-		for exchange, minAsk := range minDiffs {
-			maxBid := maxDiffs[exchange]
-			minS := minSymbol[exchange]
-			maxS := maxSymbol[exchange]
-			pairDiff := maxBid - minAsk
-
-			if minS != maxS {
-				key := fmt.Sprintf("%s-%s-%s", exchange, minS, maxS)
-				notificationFlag := notificationFlags[key]
-				notificationTime := notificationTimes[key]
-				duration := time.Since(notificationTime)
-				if pairDiff > PAIR_THRESHOLD && !notificationFlag && duration.Minutes() >= DURATION {
-					out += fmt.Sprintf("%s %s %s %%%.2f\n", exchange, minS, maxS, pairDiff)
-					notificationFlags[key] = true
-					notificationTimes[key] = time.Now()
-				}
-
-				if pairDiff < PAIR_THRESHOLD {
-					notificationFlags[key] = false
 				}
 			}
 		}

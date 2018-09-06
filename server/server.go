@@ -32,7 +32,6 @@ var (
 	jpyRate = 0.0
 
 	diffs                                                                              map[string]float64
-	crossDiffs                                                                         map[string]float64
 	prices, spreads                                                                    map[string]float64
 	minDiffs, maxDiffs                                                                 map[string]float64
 	dogeVolumes                                                                        map[string]float64
@@ -235,17 +234,6 @@ func PrintTableWithBinance(c *gin.Context) {
 
 func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 
-	ethBTCPrice := usdPrices["GDAXETH-BTC"].Ask
-	ltcBTCPrice := usdPrices["GDAXLTC-BTC"].Ask
-	crossDiffs["BTCTurkETHBTCAskBid"] = Round((btcTurkETHBTCAskBid-ethBTCPrice)*100/ethBTCPrice, .5, 2)
-	crossDiffs["BTCTurkETHBTCBidAsk"] = Round((btcTurkETHBTCBidAsk-ethBTCPrice)*100/ethBTCPrice, .5, 2)
-	crossDiffs["KoineksETHBTCAskBid"] = Round((koineksETHBTCAskBid-ethBTCPrice)*100/ethBTCPrice, .5, 2)
-	crossDiffs["KoineksETHBTCBidAsk"] = Round((koineksETHBTCBidAsk-ethBTCPrice)*100/ethBTCPrice, .5, 2)
-	crossDiffs["KoineksLTCBTCAskBid"] = Round((koineksLTCBTCAskBid-ltcBTCPrice)*100/ltcBTCPrice, .5, 2)
-	crossDiffs["KoineksLTCBTCBidAsk"] = Round((koineksLTCBTCBidAsk-ltcBTCPrice)*100/ltcBTCPrice, .5, 2)
-	crossDiffs["KoinimLTCBTCAskBid"] = Round((koinimLTCBTCAskBid-ltcBTCPrice)*100/ltcBTCPrice, .5, 2)
-	crossDiffs["KoinimLTCBTCBidAsk"] = Round((koinimLTCBTCBidAsk-ltcBTCPrice)*100/ltcBTCPrice, .5, 2)
-
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"USDTRY":                tryRate,
 		"USDJPY":                jpyRate,
@@ -289,9 +277,7 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
     "KoineksETCAsk":         diffs["GDAX-Koineks-ETC-Ask"],
     "KoineksETCBid":         diffs["GDAX-Koineks-ETC-Bid"],
     "VebitcoinETCAsk":       diffs["GDAX-Vebitcoin-ETC-Ask"],
-    "VebitcoinETCBid":       diffs["GDAX-Vebitcoin-ETC-Bid"],
-		"GdaxETHBTC":            ethBTCPrice,
-		"GdaxLTCBTC":            ltcBTCPrice,
+    "VebitcoinETCBid":       diffs["GDAX-Vebitcoin-ETC-Bid"],		
 		"ParibuBTCAskPrice":     prices["Paribu-BTC-Ask"],
 		"ParibuBTCBidPrice":     prices["Paribu-BTC-Bid"],
 		"BTCTurkBTCAskPrice":    prices["BTCTurk-BTC-Ask"],
@@ -383,14 +369,6 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BittrexDOGEBidPrice":   fmt.Sprintf("%.8f", prices["BittrexDOGEBid"]),
 		"BittrexDOGEAskVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexAsk"]),
 		"BittrexDOGEBidVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexBid"]),
-		"BTCTurkETHBTCAskBid":   crossDiffs["BTCTurkETHBTCAskBid"],
-		"BTCTurkETHBTCBidAsk":   crossDiffs["BTCTurkETHBTCBidAsk"],
-		"KoineksETHBTCAskBid":   crossDiffs["KoineksETHBTCAskBid"],
-		"KoineksETHBTCBidAsk":   crossDiffs["KoineksETHBTCBidAsk"],
-		"KoineksLTCBTCAskBid":   crossDiffs["KoineksLTCBTCAskBid"],
-		"KoineksLTCBTCBidAsk":   crossDiffs["KoineksLTCBTCBidAsk"],
-		"KoinimLTCBTCAskBid":    crossDiffs["KoinimLTCBTCAskBid"],
-		"KoinimLTCBTCBidAsk":    crossDiffs["KoinimLTCBTCBidAsk"],
 		"Warning":               warning,
 	})
 }
@@ -400,7 +378,6 @@ func SetNotificationLimits(c *gin.Context) {
 	maximumStr := c.Query("maximum")
 	durationStr := c.Query("duration")
 	fiatEnable := c.Query("fiatEnable")
-	pairEnable := c.Query("pairEnable")
 	pThresholdStr := c.Query("pThreshold")
 
 	if minimumStr != "" {
@@ -450,15 +427,6 @@ func SetNotificationLimits(c *gin.Context) {
 		fiatNotificationEnabled = false
 	default:
 		fiatNotificationEnabled = false
-	}
-
-	switch pairEnable {
-	case "true":
-		pairNotificationEnabled = true
-	case "false":
-		pairNotificationEnabled = false
-	default:
-		pairNotificationEnabled = false
 	}
 
 	c.HTML(http.StatusOK, "notification.tmpl", gin.H{
