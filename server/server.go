@@ -44,7 +44,7 @@ var (
 	fiatNotificationEnabled, pairNotificationEnabled                                   = false, false
 	warning                                                                            string
 
-	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "DASH", "XRP", "XLM", "XEM"}
+	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 )
 
 func Run() {
@@ -285,6 +285,11 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"KoinimBCHBid":          diffs["GDAX-Koinim-BCH-Bid"],
 		"VebitcoinBCHAsk":       diffs["GDAX-Vebitcoin-BCH-Ask"],
 		"VebitcoinBCHBid":       diffs["GDAX-Vebitcoin-BCH-Bid"],
+    "GdaxETC":               usdPrices["GDAXETC"].Ask,
+    "KoineksETCAsk":         diffs["GDAX-Koineks-ETC-Ask"],
+    "KoineksETCBid":         diffs["GDAX-Koineks-ETC-Bid"],
+    "VebitcoinETCAsk":       diffs["GDAX-Vebitcoin-ETC-Ask"],
+    "VebitcoinETCBid":       diffs["GDAX-Vebitcoin-ETC-Bid"],
 		"GdaxETHBTC":            ethBTCPrice,
 		"GdaxLTCBTC":            ltcBTCPrice,
 		"ParibuBTCAskPrice":     prices["Paribu-BTC-Ask"],
@@ -319,6 +324,10 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"KoinimBCHBidPrice":     prices["Koinim-BCH-Bid"],
 		"VebitcoinBCHAskPrice":  prices["Vebitcoin-BCH-Ask"],
 		"VebitcoinBCHBidPrice":  prices["Vebitcoin-BCH-Bid"],
+    "KoineksETCAskPrice":    prices["Koineks-ETC-Ask"],
+    "KoineksETCBidPrice":    prices["Koineks-ETC-Bid"],
+    "VebitcoinETCAskPrice":  prices["Vebitcoin-ETC-Ask"],
+    "VebitcoinETCBidPrice":  prices["Vebitcoin-ETC-Bid"],
 		"KoineksDOGEAskPrice":   prices["Koineks-DOGE-Ask"],
 		"KoineksDOGEBidPrice":   prices["Koineks-DOGE-Bid"],
 		"KoineksDASHAskPrice":   prices["Koineks-DASH-Ask"],

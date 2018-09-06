@@ -46,7 +46,7 @@ var (
 	poloniexCurrencies = []string{"DOGE", "DASH", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"DOGE", "DASH", "XRP", "XLM", "XEM"}
 	binanceCurrencies  = []string{"DASH", "XRP", "XLM", "XEM"}
-	gdaxCurrencies     = []string{"BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "ETH-BTC", "LTC-BTC"}
+	gdaxCurrencies     = []string{"BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "ETC-USD", "ETH-BTC", "LTC-BTC"}
 )
 
 func init() {
@@ -234,7 +234,7 @@ func getKoineksPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "DASH", "XRP", "XLM", "XEM"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "ETC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 
 	var btcPriceAsk, btcPriceBid float64
 	for _, id := range ids {
@@ -274,7 +274,7 @@ func getKoineksPrices() ([]Price, error) {
 func getVebitcoinPrices() ([]Price, error) {
 	var prices []Price
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "XRP", "XLM"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "ETC", "XRP", "XLM"}
 	for _, id := range ids {
 
 		uri := fmt.Sprintf(VEBITCOIN_URI, id)
