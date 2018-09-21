@@ -24,7 +24,7 @@ const (
 	BINANCE_URI              = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%sBTC"
 	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
 	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
-	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=BTC-%s"
+	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s"
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
 
 	GDAX      = "GDAX"
@@ -43,8 +43,8 @@ var (
 	symbolToExchangeNames map[string][]string
 
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN, BITFLYER}
-	poloniexCurrencies = []string{"DOGE", "DASH", "XRP", "STR", "XEM"}
-	bittrexCurrencies  = []string{"DOGE", "DASH", "XRP", "XLM", "XEM"}
+	poloniexCurrencies = []string{"USDT", "DOGE", "DASH", "XRP", "STR", "XEM"}
+	bittrexCurrencies  = []string{"USDT", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 	binanceCurrencies  = []string{"DASH", "XRP", "XLM", "XEM"}
 	gdaxCurrencies     = []string{"BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "ETC-USD"}
 )
@@ -148,7 +148,12 @@ func getBTCTurkPrices() ([]Price, error) {
 			return
 		}
 
-		pair := pairName[0:3]
+		var pair string
+		if pairName != "USDTTRY" {
+			pair = pairName[0:3]
+		} else {
+			pair = pairName[0:4]
+		}
 
 		priceAsk, err := jsonparser.GetFloat(value, "ask")
 		if err != nil {
@@ -218,7 +223,7 @@ func getKoineksPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "ETC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 
 	for _, id := range ids {
 
@@ -237,7 +242,6 @@ func getKoineksPrices() ([]Price, error) {
 		pBid, _ := strconv.ParseFloat(priceBid, 64)
 
 		prices = append(prices, Price{Exchange: KOINEKS, Currency: "TRY", ID: id, Ask: pAsk, Bid: pBid})
-
 	}
 
 	return prices, nil
@@ -313,13 +317,19 @@ func getPoloniexPrices() (map[string]Price, error) {
 	}
 
 	for _, currency := range poloniexCurrencies {
-		priceAsk, err := jsonparser.GetString(responseData, fmt.Sprintf("BTC_%s", currency), "lowestAsk")
+		var responseSymbol string
+		if currency == "USDT" {
+			responseSymbol = fmt.Sprintf("%s_BTC", currency)
+		} else {
+			responseSymbol = fmt.Sprintf("BTC_%s", currency)
+		}
+		priceAsk, err := jsonparser.GetString(responseData, responseSymbol, "lowestAsk")
 		if err != nil {
 			return nil, fmt.Errorf("failed to read the ask price from the Poloniex response data: %s", err)
 		}
 		pAsk, _ := strconv.ParseFloat(priceAsk, 64)
 
-		priceBid, err := jsonparser.GetString(responseData, fmt.Sprintf("BTC_%s", currency), "highestBid")
+		priceBid, err := jsonparser.GetString(responseData, responseSymbol, "highestBid")
 		if err != nil {
 			return nil, fmt.Errorf("failed to read the bid price from the Poloniex response data: %s", err)
 		}
@@ -381,7 +391,14 @@ func getBittrexPrices() (map[string]Price, error) {
 
 	for _, currency := range bittrexCurrencies {
 
-		response, err := http.Get(fmt.Sprintf(BITTREX_URI, currency))
+		var uri string
+		if currency == "USDT" {
+			uri = fmt.Sprintf(BITTREX_URI, currency, "BTC")
+		} else {
+			uri = fmt.Sprintf(BITTREX_URI, "BTC", currency)
+		}
+
+		response, err := http.Get(uri)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get Bittrex response : %s", err)
 		}
