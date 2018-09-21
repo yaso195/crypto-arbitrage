@@ -21,7 +21,7 @@ const (
 	KOINIM_URI               = "http://koinim.com/api/v1/ticker/%s_TRY/"
 	VEBITCOIN_URI            = "https://www.vebitcoin.com/Ticker/%s"
 	BITFLYER_URI             = "https://api.bitflyer.jp/v1/ticker"
-	BINANCE_URI              = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%sBTC"
+	BINANCE_URI              = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%s%s"
 	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
 	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s"
@@ -45,7 +45,7 @@ var (
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN, BITFLYER}
 	poloniexCurrencies = []string{"USDT", "DOGE", "DASH", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"USDT", "DOGE", "DASH", "XRP", "XLM", "XEM"}
-	binanceCurrencies  = []string{"DASH", "XRP", "XLM", "XEM"}
+	binanceCurrencies  = []string{"USDT", "DASH", "XRP", "XLM", "XEM"}
 	gdaxCurrencies     = []string{"BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "ETC-USD"}
 )
 
@@ -468,8 +468,14 @@ func getBinancePrices() (map[string]Price, error) {
 	prices := map[string]Price{}
 
 	for _, currency := range binanceCurrencies {
+		var uri string
+		if currency == "USDT" {
+			uri = fmt.Sprintf(BINANCE_URI, "BTC", currency)
+		} else {
+			uri = fmt.Sprintf(BINANCE_URI, currency, "BTC")
+		}
 
-		response, err := http.Get(fmt.Sprintf(BINANCE_URI, currency))
+		response, err := http.Get(uri)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get Binance response : %s", err)
 		}
