@@ -393,7 +393,7 @@ func getBittrexPrices() (map[string]Price, error) {
 
 		var uri string
 		if currency == "USDT" {
-			uri = fmt.Sprintf(BITTREX_URI, currency, "BTC")
+			uri = fmt.Sprintf(BITTREX_URI, "USD", currency)
 		} else {
 			uri = fmt.Sprintf(BITTREX_URI, "BTC", currency)
 		}

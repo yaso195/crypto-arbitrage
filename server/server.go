@@ -209,8 +209,10 @@ func findAltcoinPrices(gdaxPrices []Price, exchangePrices map[string]Price, sell
 	for _, p := range exchangePrices {
 		tempP := p
 		if p.ID == "USDT" {
-			tempP.Ask = bitcoinPrice / tempP.Ask
-			tempP.Bid = bitcoinPrice / tempP.Bid
+			if p.Exchange != BITTREX {
+				tempP.Ask = bitcoinPrice / tempP.Ask
+				tempP.Bid = bitcoinPrice / tempP.Bid
+			}
 		} else {
 			tempP.Ask *= bitcoinPrice
 			tempP.Bid *= bitcoinPrice
@@ -341,8 +343,7 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinXLMBidPrice":  prices["Vebitcoin-XLM-Bid"],
 		"KoineksXEMAskPrice":    prices["Koineks-XEM-Ask"],
 		"KoineksXEMBidPrice":    prices["Koineks-XEM-Bid"],
-		"GdaxUSDT":              fmt.Sprintf("%.8f", usdPrices[exchange+"USDT"].Ask),
-		"BittrexUSDTAsk":        fmt.Sprintf("%.8f", crossPrices["USDT"].Ask),
+		"BittrexUSDT":           fmt.Sprintf("%.8f", usdPrices[exchange+"USDT"].Ask),
 		"BittrexUSDTSpread":     fmt.Sprintf("%.2f", spreads[exchange+"USDT"]),
 		"BTCTurkUSDTAsk":        diffs[exchange+"-BTCTurk-USDT-Ask"],
 		"BTCTurkUSDTBid":        diffs[exchange+"-BTCTurk-USDT-Bid"],
