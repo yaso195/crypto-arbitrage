@@ -209,8 +209,8 @@ func findAltcoinPrices(gdaxPrices []Price, exchangePrices map[string]Price, sell
 	for _, p := range exchangePrices {
 		tempP := p
 		if p.ID == "USDT" {
-			tempP.Ask /= bitcoinPrice
-			tempP.Bid /= bitcoinPrice
+			tempP.Ask = bitcoinPrice / tempP.Ask
+			tempP.Bid = bitcoinPrice / tempP.Bid
 		} else {
 			tempP.Ask *= bitcoinPrice
 			tempP.Bid *= bitcoinPrice
