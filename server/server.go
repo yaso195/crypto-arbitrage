@@ -321,8 +321,6 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinBCHBidPrice":  prices["Vebitcoin-BCH-Bid"],
 		"KoineksETCAskPrice":    prices["Koineks-ETC-Ask"],
 		"KoineksETCBidPrice":    prices["Koineks-ETC-Bid"],
-		"VebitcoinETCAskPrice":  prices["Vebitcoin-ETC-Ask"],
-		"VebitcoinETCBidPrice":  prices["Vebitcoin-ETC-Bid"],
 		"BTCTurkUSDTAskPrice":   prices["BTCTurk-USDT-Ask"],
 		"BTCTurkUSDTBidPrice":   prices["BTCTurk-USDT-Bid"],
 		"KoineksUSDTAskPrice":   prices["Koineks-USDT-Ask"],

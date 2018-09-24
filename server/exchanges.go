@@ -19,7 +19,7 @@ const (
 	BTCTURK_URI              = "https://www.btcturk.com/api/ticker"
 	KOINEKS_URI              = "https://koineks.com/ticker"
 	KOINIM_URI               = "http://koinim.com/api/v1/ticker/%s_TRY/"
-	VEBITCOIN_URI            = "https://www.vebitcoin.com/Ticker/%s"
+	VEBITCOIN_URI            = "https://us-central1-vebitcoin-market.cloudfunctions.net/app/api/ticker"
 	BITFLYER_URI             = "https://api.bitflyer.jp/v1/ticker"
 	BINANCE_URI              = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%s%s"
 	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
@@ -250,29 +250,41 @@ func getKoineksPrices() ([]Price, error) {
 func getVebitcoinPrices() ([]Price, error) {
 	var prices []Price
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "ETC", "XRP", "XLM"}
-	for _, id := range ids {
-
-		uri := fmt.Sprintf(VEBITCOIN_URI, id)
-		response, err := http.Get(uri)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get Vebitcoin response for %s: %s", id, err)
-		}
-
-		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read Vebitcoin response data %s: %s", id, err)
-		}
-
-		pBid, err := jsonparser.GetFloat(responseData, "Bid")
-		if err != nil {
-			return nil, fmt.Errorf("failed to read the bid price from the Vebitcoin response data for %s: %s", id, err)
-		}
-
-		prices = append(prices, Price{Exchange: VEBITCOIN, Currency: "TRY", ID: id, Ask: pBid, Bid: pBid})
+	response, err := http.Get(VEBITCOIN_URI)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get Vebitcoin response: %s", err)
 	}
 
-	return prices, nil
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read Vebitcoin response data: %s", err)
+	}
+
+	jsonparser.ArrayEach(responseData, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+		targetCoin, errRet := jsonparser.GetString(value, "TargetCoinCode")
+		if errRet != nil {
+			err = fmt.Errorf("failed to find the code for target coin name in Vebitcoin: %s", errRet)
+		}
+		if targetCoin == "TRY" {
+			sourceCoin, errRet := jsonparser.GetString(value, "SourceCoinCode")
+			if errRet != nil {
+				err = fmt.Errorf("failed to find the code for source coin name in Vebitcoin: %s", errRet)
+			}
+			// Vebitcoin has a bug in their API, the ask price is given in the "Bid" field, bid price is given in their
+			// "Ask" field.
+			pAsk, errRet := jsonparser.GetFloat(value, "Bid")
+			if errRet != nil {
+				err = fmt.Errorf("failed to find the ask price for %s in Vebitcoin: %s", sourceCoin, errRet)
+			}
+			pBid, errRet := jsonparser.GetFloat(value, "Ask")
+			if errRet != nil {
+				err = fmt.Errorf("failed to find the bid price for %s in Vebitcoin: %s", sourceCoin, errRet)
+			}
+			prices = append(prices, Price{Exchange: VEBITCOIN, Currency: "TRY", ID: sourceCoin, Ask: pAsk, Bid: pBid})
+		}
+	})
+
+	return prices, err
 }
 
 func getBitflyerPrices() ([]Price, error) {
