@@ -194,6 +194,13 @@ func calculatePrices() {
 		log.Println(message)
 	}
 
+	if err := getCoineggDOGEPrices(); err != nil {
+		message := fmt.Sprintf("Error reading Coinegg DOGE prices : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
+	}
+
 	findAltcoinPrices(gdaxPrices, bittrexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitflyerPrices)
 	findAltcoinPrices(gdaxPrices, poloniexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitflyerPrices)
 	findAltcoinPrices(gdaxPrices, binancePrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitflyerPrices)
@@ -386,6 +393,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BittrexDOGEBidPrice":   fmt.Sprintf("%.8f", prices["BittrexDOGEBid"]),
 		"BittrexDOGEAskVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexAsk"]),
 		"BittrexDOGEBidVolume":  fmt.Sprintf("%.2f", dogeVolumes["BittrexBid"]),
+		"CoineggDOGEAskPrice":   fmt.Sprintf("%.10f", prices["CoineggDOGEAsk"]),
+		"CoineggDOGEBidPrice":   fmt.Sprintf("%.10f", prices["CoineggDOGEBid"]),
 		"Warning":               warning,
 	})
 }
