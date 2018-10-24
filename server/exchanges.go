@@ -181,7 +181,7 @@ func getBTCTurkPrices() ([]Price, error) {
 func getKoinimPrices() ([]Price, error) {
 	var prices []Price
 
-	ids := []string{"BTC", "LTC", "BCH"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE"}
 	for _, id := range ids {
 		uri := fmt.Sprintf(KOINIM_URI, id)
 
