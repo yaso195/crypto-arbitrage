@@ -24,12 +24,11 @@ type Price struct {
 }
 
 const (
-	BASE_CURRENCY_URI = "http://free.currencyconverterapi.com/api/v3/convert?q=USD_%s,USD_%s&compact=ultra"
+	BASE_CURRENCY_URI = "https://www.doviz.com/api/v1/currencies/all/latest"
 )
 
 var (
 	tryRate = 0.0
-	jpyRate = 0.0
 
 	diffs                                                                              map[string]float64
 	prices, spreads                                                                    map[string]float64
@@ -86,7 +85,7 @@ func Run() {
 func getCurrencies() {
 	for {
 		getCurrencyRates()
-		time.Sleep(1 * time.Hour)
+		time.Sleep(1 * time.Minute)
 	}
 }
 
@@ -172,14 +171,6 @@ func calculatePrices() {
 		log.Println(message)
 	}
 
-	bitflyerPrices, err := getBitflyerPrices()
-	if err != nil {
-		message := fmt.Sprintf("Error reading Bitflyer prices : %s", err)
-		warning += message + "\n"
-		fmt.Println(message)
-		log.Println(message)
-	}
-
 	if err := getPoloniexDOGEVolumes(); err != nil {
 		message := fmt.Sprintf("Error reading Poloniex DOGE volumes : %s", err)
 		warning += message + "\n"
@@ -201,9 +192,9 @@ func calculatePrices() {
 		log.Println(message)
 	}
 
-	findAltcoinPrices(gdaxPrices, bittrexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitflyerPrices)
-	findAltcoinPrices(gdaxPrices, poloniexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitflyerPrices)
-	findAltcoinPrices(gdaxPrices, binancePrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitflyerPrices)
+	findAltcoinPrices(gdaxPrices, bittrexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices)
+	findAltcoinPrices(gdaxPrices, poloniexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices)
+	findAltcoinPrices(gdaxPrices, binancePrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices)
 
 	sendMessages()
 
@@ -252,7 +243,6 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"USDTRY":                tryRate,
-		"USDJPY":                jpyRate,
 		"GdaxBTC":               usdPrices["GDAXBTC"].Ask,
 		"ParibuBTCAsk":          diffs["GDAX-Paribu-BTC-Ask"],
 		"ParibuBTCBid":          diffs["GDAX-Paribu-BTC-Bid"],
@@ -264,8 +254,6 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"KoinimBTCBid":          diffs["GDAX-Koinim-BTC-Bid"],
 		"VebitcoinBTCAsk":       diffs["GDAX-Vebitcoin-BTC-Ask"],
 		"VebitcoinBTCBid":       diffs["GDAX-Vebitcoin-BTC-Bid"],
-		"BitflyerBTCAsk":        diffs["GDAX-Bitflyer-BTC-Ask"],
-		"BitflyerBTCBid":        diffs["GDAX-Bitflyer-BTC-Bid"],
 		"GdaxETH":               usdPrices["GDAXETH"].Ask,
 		"BTCTurkETHAsk":         diffs["GDAX-BTCTurk-ETH-Ask"],
 		"BTCTurkETHBid":         diffs["GDAX-BTCTurk-ETH-Bid"],
@@ -306,8 +294,6 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"KoinimBTCBidPrice":     prices["Koinim-BTC-Bid"],
 		"VebitcoinBTCAskPrice":  prices["Vebitcoin-BTC-Ask"],
 		"VebitcoinBTCBidPrice":  prices["Vebitcoin-BTC-Bid"],
-		"BitflyerBTCAskPrice":   fmt.Sprintf("%.2f", prices["Bitflyer-BTC-Ask"]),
-		"BitflyerBTCBidPrice":   fmt.Sprintf("%.2f", prices["Bitflyer-BTC-Bid"]),
 		"BTCTurkETHAskPrice":    prices["BTCTurk-ETH-Ask"],
 		"BTCTurkETHBidPrice":    prices["BTCTurk-ETH-Bid"],
 		"KoineksETHAskPrice":    prices["Koineks-ETH-Ask"],
@@ -472,7 +458,7 @@ func SetNotificationLimits(c *gin.Context) {
 }
 
 func getCurrencyRates() {
-	response, err := http.Get(fmt.Sprintf(BASE_CURRENCY_URI, "TRY", "JPY"))
+	response, err := http.Get(BASE_CURRENCY_URI)
 	if err != nil {
 		fmt.Println("failed to get response for currencies : ", err)
 		log.Println("failed to get response for currencies : ", err)
@@ -484,44 +470,49 @@ func getCurrencyRates() {
 		log.Println("failed to read currency response data : ", err)
 	}
 
-	tryRate, err = jsonparser.GetFloat(responseData, "USD_TRY")
-	if err != nil {
-		fmt.Println("failed to read the TRY currency price from the response data: ", err)
-		log.Println("failed to read the TRY currency price from the response data: ", err)
-	}
+	var returnError error
+	jsonparser.ArrayEach(responseData, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+		currency, err := jsonparser.GetString(value, "code")
+		if err != nil {
+			returnError = fmt.Errorf("failed to read currency from Doviz.com : %s", err)
+			return
+		}
 
-	jpyRate, err = jsonparser.GetFloat(responseData, "USD_JPY")
-	if err != nil {
-		fmt.Println("failed to read the TRY currency price from the response data: ", err)
-		log.Println("failed to read the TRY currency price from the response data: ", err)
+		if currency != "USD" {
+			return
+		}
+
+		tryRate, err = jsonparser.GetFloat(value, "selling")
+		if err != nil {
+			returnError = fmt.Errorf("failed to read the USD/TRY ask price from Doviz.com : %s", err)
+			return
+		}
+	})
+
+	if returnError != nil {
+		fmt.Println("failed to read the TRY currency price from the response data: ", returnError)
+		log.Println("failed to read the TRY currency price from the response data: ", returnError)
 	}
 }
 
 func findPriceDifferences(priceLists ...[]Price) {
 	for _, symbol := range ALL_SYMBOLS {
 		var tryList []Price
-		var jpyList []Price
 		for _, list := range priceLists {
 			for _, p := range list {
 				if p.ID == symbol {
 					switch p.Currency {
 					case "USD":
 						tryP := Price{Currency: "TRY", Exchange: p.Exchange, ID: p.ID, Bid: p.Bid * tryRate, Ask: p.Ask * tryRate}
-						jpyP := Price{Currency: "JPY", Exchange: p.Exchange, ID: p.ID, Bid: p.Bid * jpyRate, Ask: p.Ask * jpyRate}
 						tryList = append(tryList, tryP)
-						jpyList = append(jpyList, jpyP)
 					case "TRY":
 						tryList = append(tryList, p)
-					case "JPY":
-						jpyList = append(jpyList, p)
 					}
 				}
 			}
 		}
 
 		setDiffsAndPrices(tryList)
-		setDiffsAndPrices(jpyList)
-
 	}
 }
 

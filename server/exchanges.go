@@ -20,7 +20,6 @@ const (
 	KOINEKS_URI              = "https://koineks.com/ticker"
 	KOINIM_URI               = "http://koinim.com/api/v1/ticker/%s_TRY/"
 	VEBITCOIN_URI            = "https://us-central1-vebitcoin-market.cloudfunctions.net/app/api/ticker"
-	BITFLYER_URI             = "https://api.bitflyer.jp/v1/ticker"
 	BINANCE_URI              = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%s%s"
 	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
 	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
@@ -37,13 +36,12 @@ const (
 	KOINEKS   = "Koineks"
 	KOINIM    = "Koinim"
 	VEBITCOIN = "Vebitcoin"
-	BITFLYER  = "Bitflyer"
 )
 
 var (
 	symbolToExchangeNames map[string][]string
 
-	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN, BITFLYER}
+	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN}
 	poloniexCurrencies = []string{"USDT", "DOGE", "DASH", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"USDT", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 	binanceCurrencies  = []string{"USDT", "DASH", "XRP", "XLM", "XEM"}
@@ -286,34 +284,6 @@ func getVebitcoinPrices() ([]Price, error) {
 	})
 
 	return prices, err
-}
-
-func getBitflyerPrices() ([]Price, error) {
-	var prices []Price
-
-	response, err := http.Get(BITFLYER_URI)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get Bitflyer response : %s", err)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read Bitflyer response data : %s", err)
-	}
-
-	priceAsk, err := jsonparser.GetFloat(responseData, "best_ask")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the ask price from the Bitflyer response data: %s", err)
-	}
-
-	priceBid, err := jsonparser.GetFloat(responseData, "best_bid")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the bid price from the Bitflyer response data: %s", err)
-	}
-
-	prices = append(prices, Price{Exchange: BITFLYER, Currency: "JPY", ID: "BTC", Ask: priceAsk, Bid: priceBid})
-
-	return prices, nil
 }
 
 func getPoloniexPrices() (map[string]Price, error) {
