@@ -85,7 +85,7 @@ func Run() {
 func getCurrencies() {
 	for {
 		getCurrencyRates()
-		time.Sleep(1 * time.Minute)
+		time.Sleep(5 * time.Minute)
 	}
 }
 
