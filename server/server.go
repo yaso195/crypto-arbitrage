@@ -24,7 +24,7 @@ type Price struct {
 }
 
 const (
-	BASE_CURRENCY_URI = "https://www.doviz.com/api/v1/currencies/all/latest"
+	BASE_CURRENCY_URI = "http://free.currencyconverterapi.com/api/v3/convert?q=USD_%s&compact=ultra"
 )
 
 var (
@@ -85,7 +85,7 @@ func Run() {
 func getCurrencies() {
 	for {
 		getCurrencyRates()
-		time.Sleep(5 * time.Minute)
+		time.Sleep(1 * time.Hour)
 	}
 }
 
@@ -458,7 +458,7 @@ func SetNotificationLimits(c *gin.Context) {
 }
 
 func getCurrencyRates() {
-	response, err := http.Get(BASE_CURRENCY_URI)
+	response, err := http.Get(fmt.Sprintf(BASE_CURRENCY_URI, "TRY"))
 	if err != nil {
 		fmt.Println("failed to get response for currencies : ", err)
 		log.Println("failed to get response for currencies : ", err)
@@ -470,28 +470,10 @@ func getCurrencyRates() {
 		log.Println("failed to read currency response data : ", err)
 	}
 
-	var returnError error
-	jsonparser.ArrayEach(responseData, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		currency, err := jsonparser.GetString(value, "code")
-		if err != nil {
-			returnError = fmt.Errorf("failed to read currency from Doviz.com : %s", err)
-			return
-		}
-
-		if currency != "USD" {
-			return
-		}
-
-		tryRate, err = jsonparser.GetFloat(value, "selling")
-		if err != nil {
-			returnError = fmt.Errorf("failed to read the USD/TRY ask price from Doviz.com : %s", err)
-			return
-		}
-	})
-
-	if returnError != nil {
-		fmt.Println("failed to read the TRY currency price from the response data: ", returnError)
-		log.Println("failed to read the TRY currency price from the response data: ", returnError)
+	tryRate, err = jsonparser.GetFloat(responseData, "USD_TRY")
+	if err != nil {
+		fmt.Println("failed to read the TRY currency price from the response data: ", err)
+		log.Println("failed to read the TRY currency price from the response data: ", err)
 	}
 }
 
