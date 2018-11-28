@@ -45,7 +45,7 @@ var (
 	poloniexCurrencies = []string{"USDT", "DOGE", "DASH", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"USDT", "DOGE", "DASH", "XRP", "XLM", "XEM"}
 	binanceCurrencies  = []string{"USDT", "DASH", "XRP", "XLM", "XEM"}
-	gdaxCurrencies     = []string{"BTC-USD", "ETH-USD", "LTC-USD", "ETC-USD"}
+	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD"}
 )
 
 func init() {
