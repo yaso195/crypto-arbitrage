@@ -42,9 +42,9 @@ var (
 	symbolToExchangeNames map[string][]string
 
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN}
-	poloniexCurrencies = []string{"USDT", "DOGE", "DASH", "XRP", "STR", "XEM"}
-	bittrexCurrencies  = []string{"USDT", "DOGE", "DASH", "XRP", "XLM", "XEM"}
-	binanceCurrencies  = []string{"USDT", "DASH", "XRP", "XLM", "XEM"}
+	poloniexCurrencies = []string{"USDT", "DOGE", "XRP", "STR", "XEM"}
+	bittrexCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
+	binanceCurrencies  = []string{"USDT", "XRP", "XLM", "XEM"}
 	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD"}
 )
 
@@ -222,7 +222,7 @@ func getKoineksPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "DASH", "XRP", "XLM", "XEM"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XRP", "XLM", "XEM"}
 
 	for _, id := range ids {
 
