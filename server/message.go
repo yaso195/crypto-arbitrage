@@ -37,7 +37,7 @@ func sendMessages() {
 
 				commissionFee := 0.0
 				var firstExchange string
-				if symbol == "BTC" || symbol == "ETH" || symbol == "LTC" || symbol == "BCH" {
+				if symbol == "BTC" || symbol == "ETH" || symbol == "LTC" || symbol == "BCH" || symbol == "ETC" {
 					firstExchange = GDAX
 				} else {
 					firstExchange = BITTREX
