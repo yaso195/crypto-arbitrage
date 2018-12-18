@@ -39,7 +39,7 @@ var (
 	btcTurkETHBTCAskBid, btcTurkETHBTCBidAsk                                           float64
 	koineksETHBTCAskBid, koineksETHBTCBidAsk, koineksLTCBTCAskBid, koineksLTCBTCBidAsk float64
 	koinimLTCBTCAskBid, koinimLTCBTCBidAsk                                             float64
-	fiatNotificationEnabled, pairNotificationEnabled                                   = false, false
+	fiatNotificationEnabled							                                   = true
 	warning                                                                            string
 
 	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "USDT", "DOGE", "XRP", "XLM", "XEM"}
