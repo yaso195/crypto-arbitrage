@@ -94,7 +94,7 @@ th, td {
   </tr>
   <tr>
     <td>BCH</td>
-    <td>{{.GdaxBCH}}</td>
+    <td>{{.GdaxBCH}} <br><small><i> (%{{.BCHSpread}})</small></td>
     <td>-</td> 
     <td>-</td>
     <td>%{{.KoineksBCHAsk}} <br><small><i> ({{.KoineksBCHAskPrice}})</small></td>
@@ -106,7 +106,7 @@ th, td {
   </tr>
   <tr>
     <td>ETC</td>
-    <td>{{.GdaxETC}}</td>
+    <td>{{.GdaxETC}}<br><small><i> (%{{.ETCSpread}})</small></td>
     <td>-</td>
     <td>-</td>
     <td>%{{.KoineksETCAsk}} <br><small><i> ({{.KoineksETCAskPrice}})</small></td>
@@ -115,6 +115,42 @@ th, td {
     <td>-</td>
     <td>-</td>
     <td>-</td>
+  </tr>
+  <tr>
+    <td>ZRX</td>
+    <td>{{.GdaxZRX}}<br><small><i> (%{{.ZRXSpread}})</small></td>
+    <td>-</td>
+    <td>-</td>
+    <td>-</td>
+    <td>-</td>
+    <td>-</td>
+    <td>-</td>
+    <td>%{{.VebitcoinZRXAsk}} <br><small><i> ({{.VebitcoinZRXAskPrice}})</small></td>
+    <td>%{{.VebitcoinZRXBid}} <br><small><i> ({{.VebitcoinZRXBidPrice}})</small></td>
+  </tr>
+  <tr>
+    <td>XRP</td>
+    <td>{{.GdaxXRP}} <br><small><i> (%{{.XRPSpread}})</small></td>
+    <td>%{{.BTCTurkXRPAsk}} <br><small><i> ({{.BTCTurkXRPAskPrice}})</small></td>
+    <td>%{{.BTCTurkXRPBid}} <br><small><i> ({{.BTCTurkXRPBidPrice}})</small></td>
+    <td>%{{.KoineksXRPAsk}} <br><small><i> ({{.KoineksXRPAskPrice}})</small></td>
+    <td>%{{.KoineksXRPBid}} <br><small><i> ({{.KoineksXRPBidPrice}})</small></td>
+    <td>-</td> 
+    <td>-</td>
+    <td>%{{.VebitcoinXRPAsk}} <br><small><i> ({{.VebitcoinXRPAskPrice}})</small></td>
+    <td>%{{.VebitcoinXRPBid}} <br><small><i> ({{.VebitcoinXRPBidPrice}})</small></td>
+  </tr>
+  <tr>
+    <td>XLM</td>
+    <td>{{.GdaxXLM}} <br><small><i> (%{{.XLMSpread}})</small></td>
+    <td>%{{.BTCTurkXLMAsk}} <br><small><i> ({{.BTCTurkXLMAskPrice}})</small></td>
+    <td>%{{.BTCTurkXLMBid}} <br><small><i> ({{.BTCTurkXLMBidPrice}})</small></td>
+    <td>%{{.KoineksXLMAsk}} <br><small><i> ({{.KoineksXLMAskPrice}})</small></td>
+    <td>%{{.KoineksXLMBid}} <br><small><i> ({{.KoineksXLMBidPrice}})</small></td>
+    <td>-</td>
+    <td>-</td>
+    <td>%{{.VebitcoinXLMAsk}} <br><small><i> ({{.VebitcoinXLMAskPrice}})</small></td>
+    <td>%{{.VebitcoinXLMBid}} <br><small><i> ({{.VebitcoinXLMBidPrice}})</small></td> 
   </tr>
   <tr>
     <td>USDT</td>
@@ -139,30 +175,6 @@ th, td {
     <td>%{{.KoinimDOGEBid}} <br><small><i> ({{.KoinimDOGEBidPrice}})</small></td>
     <td>-</td> 
     <td>-</td>
-  </tr>
-  <tr>
-    <td>XRP</td>
-    <td>{{.GdaxXRP}} <br><small><i> ({{.BittrexXRPAsk}}) (%{{.BittrexXRPSpread}})</small></td>
-    <td>%{{.BTCTurkXRPAsk}} <br><small><i> ({{.BTCTurkXRPAskPrice}})</small></td>
-    <td>%{{.BTCTurkXRPBid}} <br><small><i> ({{.BTCTurkXRPBidPrice}})</small></td>
-    <td>%{{.KoineksXRPAsk}} <br><small><i> ({{.KoineksXRPAskPrice}})</small></td>
-    <td>%{{.KoineksXRPBid}} <br><small><i> ({{.KoineksXRPBidPrice}})</small></td>
-    <td>-</td> 
-    <td>-</td>
-    <td>%{{.VebitcoinXRPAsk}} <br><small><i> ({{.VebitcoinXRPAskPrice}})</small></td>
-    <td>%{{.VebitcoinXRPBid}} <br><small><i> ({{.VebitcoinXRPBidPrice}})</small></td>
-  </tr>
-  <tr>
-    <td>XLM</td>
-    <td>{{.GdaxXLM}} <br><small><i> ({{.BittrexXLMAsk}}) (%{{.BittrexXLMSpread}})</small></td>
-    <td>%{{.BTCTurkXLMAsk}} <br><small><i> ({{.BTCTurkXLMAskPrice}})</small></td>
-    <td>%{{.BTCTurkXLMBid}} <br><small><i> ({{.BTCTurkXLMBidPrice}})</small></td>
-    <td>%{{.KoineksXLMAsk}} <br><small><i> ({{.KoineksXLMAskPrice}})</small></td>
-    <td>%{{.KoineksXLMBid}} <br><small><i> ({{.KoineksXLMBidPrice}})</small></td>
-    <td>-</td>
-    <td>-</td>
-    <td>%{{.VebitcoinXLMAsk}} <br><small><i> ({{.VebitcoinXLMAskPrice}})</small></td>
-    <td>%{{.VebitcoinXLMBid}} <br><small><i> ({{.VebitcoinXLMBidPrice}})</small></td> 
   </tr>
   <tr>
     <td>XEM</td>
@@ -207,13 +219,6 @@ th, td {
     <td>{{.BittrexDOGEAskVolume}}</td>
     <td>{{.BittrexDOGEBidPrice}}</td>
     <td>{{.BittrexDOGEBidVolume}}</td>
-  </tr>
-  <tr>
-    <td>Coinegg</td>
-    <td>{{.CoineggDOGEAskPrice}}</td>
-    <td>-</td>
-    <td>{{.CoineggDOGEBidPrice}}</td>
-    <td>-</td>
   </tr>
   </table>
 

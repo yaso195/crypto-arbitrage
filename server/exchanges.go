@@ -25,7 +25,6 @@ const (
 	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s"
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
-	COINEGG_DOGE_VOLUME_URI  = "https://api.coinegg.im/api/v1/ticker/region/btc?coin=doge"
 
 	GDAX      = "GDAX"
 	BINANCE   = "Binance"
@@ -45,7 +44,7 @@ var (
 	poloniexCurrencies = []string{"USDT", "DOGE", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
 	binanceCurrencies  = []string{"USDT", "XRP", "XLM", "XEM"}
-	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD"}
+	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD"}
 )
 
 func init() {
@@ -90,6 +89,7 @@ func getGdaxPrices() ([]Price, error) {
 
 		p := Price{Exchange: GDAX, Currency: "USD", ID: tempID, Ask: ticker.Ask, Bid: ticker.Bid}
 		prices = append(prices, p)
+		spreads[GDAX+tempID] = (p.Ask - p.Bid) * 100 / p.Bid
 	}
 
 	return prices, nil
@@ -447,35 +447,6 @@ func getBittrexDOGEVolumes() error {
 	return nil
 }
 
-func getCoineggDOGEPrices() error {
-	response, err := http.Get(COINEGG_DOGE_VOLUME_URI)
-	if err != nil {
-		return fmt.Errorf("failed to get Coinegg DOGE price response : %s", err)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read Coinegg DOGE price response data : %s", err)
-	}
-
-	pBidStr, err := jsonparser.GetString(responseData, "buy")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE bid price from the Coinegg response data: %s", err)
-	}
-	pBid, _ := strconv.ParseFloat(pBidStr, 64)
-
-	pAskStr, err := jsonparser.GetString(responseData, "sell")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE ask price from the Coinegg response data: %s", err)
-	}
-	pAsk, _ := strconv.ParseFloat(pAskStr, 64)
-
-	prices["CoineggDOGEAsk"] = pAsk
-	prices["CoineggDOGEBid"] = pBid
-
-	return nil
-}
-
 func getBinancePrices() (map[string]Price, error) {
 	prices := map[string]Price{}
 
@@ -483,6 +454,8 @@ func getBinancePrices() (map[string]Price, error) {
 		var uri string
 		if currency == "USDT" {
 			uri = fmt.Sprintf(BINANCE_URI, "BTC", currency)
+		} else if currency == "XRP" || currency == "XLM" {
+			uri = fmt.Sprintf(BINANCE_URI, currency, "USDC")
 		} else {
 			uri = fmt.Sprintf(BINANCE_URI, currency, "BTC")
 		}

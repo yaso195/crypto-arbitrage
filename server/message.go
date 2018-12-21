@@ -19,7 +19,7 @@ var (
 	PUSHOVER_USER      = ""
 	PUSHOVER_APP_TOKEN = ""
 
-	MIN_NOTI_PERC  = -1.0
+	MIN_NOTI_PERC  = -1.5
 	MAX_NOTI_PERC  = 3.0
 	PAIR_THRESHOLD = 1.0
 	DURATION       = 10.0
@@ -37,8 +37,11 @@ func sendMessages() {
 
 				commissionFee := 0.0
 				var firstExchange string
-				if symbol == "BTC" || symbol == "ETH" || symbol == "LTC" || symbol == "BCH" || symbol == "ETC" {
+				if symbol == "BTC" || symbol == "ETH" || symbol == "LTC" || symbol == "BCH" || symbol == "ETC" || symbol == "ZRX" {
 					firstExchange = GDAX
+				} else if symbol == "XRP" || symbol == "XLM" {
+					firstExchange = BINANCE
+					commissionFee = 0.1
 				} else {
 					firstExchange = BITTREX
 					commissionFee = 0.25
