@@ -25,9 +25,11 @@ const (
 	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s"
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
+	BITOASIS_URI             = "https://api.bitoasis.net/v1/exchange/ticker/%s-AED"
 
 	GDAX      = "GDAX"
 	BINANCE   = "Binance"
+	BITOASIS   = "Bitoasis"
 	BITTREX   = "Bittrex"
 	POLONIEX  = "Poloniex"
 	PARIBU    = "Paribu"
@@ -44,6 +46,7 @@ var (
 	poloniexCurrencies = []string{"USDT", "DOGE", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
 	binanceCurrencies  = []string{"USDT", "XRP", "XLM", "XEM"}
+	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
 	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD"}
 )
 
@@ -484,6 +487,41 @@ func getBinancePrices() (map[string]Price, error) {
 
 		prices[currency] = Price{Exchange: BINANCE, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
 		spreads[BINANCE+currency] = (pAsk - pBid) * 100 / pBid
+	}
+
+	return prices, nil
+}
+
+func getBitoasisPrices() ([]Price, error) {
+	prices := []Price{}
+
+	for _, currency := range bitoasisCurrencies {
+		
+		uri := fmt.Sprintf(BITOASIS_URI, currency)
+
+		response, err := http.Get(uri)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get BitoasIs response : %s", err)
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read Bitoasis response data : %s", err)
+		}
+
+		priceAsk, err := jsonparser.GetString(responseData,	"ticker", "ask")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the ask price from the Bitoasis response data: %s", err)
+		}
+		pAsk, _ := strconv.ParseFloat(priceAsk, 64)
+
+		priceBid, err := jsonparser.GetString(responseData, "ticker", "bid")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the bid price from the Bitoasis response data: %s", err)
+		}
+		pBid, _ := strconv.ParseFloat(priceBid, 64)
+
+		prices = append(prices, Price{Exchange: BITOASIS, Currency: "AED", ID: currency, Ask: pAsk, Bid: pBid})
 	}
 
 	return prices, nil
