@@ -39,7 +39,7 @@ func sendMessages() {
 				var firstExchange string
 				if symbol == "BTC" || symbol == "ETH" || symbol == "LTC" || symbol == "BCH" || symbol == "ETC" || symbol == "ZRX" {
 					firstExchange = GDAX
-				} else if symbol == "XRP" || symbol == "XLM" {
+				} else if symbol == "XRP" || symbol == "XLM" || symbol == "USDT" {
 					firstExchange = BINANCE
 					commissionFee = 0.1
 				} else {

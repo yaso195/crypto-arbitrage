@@ -36,11 +36,11 @@ var (
 	minDiffs, maxDiffs                                                                 map[string]float64
 	dogeVolumes                                                                        map[string]float64
 	minSymbol, maxSymbol                                                               map[string]string
-	usdPrices, poloniexPrices, bittrexPrices, binancePrices            			   map[string]Price
+	usdPrices, poloniexPrices, bittrexPrices, binancePrices                            map[string]Price
 	btcTurkETHBTCAskBid, btcTurkETHBTCBidAsk                                           float64
 	koineksETHBTCAskBid, koineksETHBTCBidAsk, koineksLTCBTCAskBid, koineksLTCBTCBidAsk float64
 	koinimLTCBTCAskBid, koinimLTCBTCBidAsk                                             float64
-	fiatNotificationEnabled							                                   = true
+	fiatNotificationEnabled                                                            = true
 	warning                                                                            string
 
 	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XRP", "XLM", "USDT", "DOGE", "XEM"}
@@ -180,6 +180,14 @@ func calculatePrices() {
 		log.Println(message)
 	}
 
+	bitfinexPrices, err := getBitfinexPrices()
+	if err != nil {
+		message := fmt.Sprintf("Error reading Bitfinex prices : %s", err)
+		warning += message + "\n"
+		fmt.Println(message)
+		log.Println(message)
+	}
+
 	if err := getPoloniexDOGEVolumes(); err != nil {
 		message := fmt.Sprintf("Error reading Poloniex DOGE volumes : %s", err)
 		warning += message + "\n"
@@ -194,9 +202,9 @@ func calculatePrices() {
 		log.Println(message)
 	}
 
-	findAltcoinPrices(gdaxPrices, bittrexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices)
-	findAltcoinPrices(gdaxPrices, poloniexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices)
-	findAltcoinPrices(gdaxPrices, binancePrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices)
+	findAltcoinPrices(gdaxPrices, bittrexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices, bitfinexPrices)
+	findAltcoinPrices(gdaxPrices, poloniexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices, bitfinexPrices)
+	findAltcoinPrices(gdaxPrices, binancePrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices, bitfinexPrices)
 
 	sendMessages()
 
@@ -208,12 +216,7 @@ func findAltcoinPrices(gdaxPrices []Price, exchangePrices map[string]Price, sell
 	tempPrices := gdaxPrices
 	for _, p := range exchangePrices {
 		tempP := p
-		if p.ID == "USDT" {
-			if p.Exchange != BITTREX {
-				tempP.Ask = bitcoinPrice / tempP.Ask
-				tempP.Bid = bitcoinPrice / tempP.Bid
-			}
-		} else if p.Exchange == BINANCE && (p.ID == "XRP" || p.ID == "XLM") {
+		if p.Exchange == BINANCE && (p.ID == "XRP" || p.ID == "XLM" || p.ID == "USDT") {
 			tempPrices = append(tempPrices, tempP)
 			continue
 		} else {
@@ -248,7 +251,7 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"USDTRY":                tryRate,
-		"USDAED":				 aedRate,
+		"USDAED":                aedRate,
 		"GdaxBTC":               usdPrices["GDAXBTC"].Ask,
 		"ParibuBTCAsk":          diffs["GDAX-Paribu-BTC-Ask"],
 		"ParibuBTCBid":          diffs["GDAX-Paribu-BTC-Bid"],
@@ -262,6 +265,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinBTCBid":       diffs["GDAX-Vebitcoin-BTC-Bid"],
 		"BitoasisBTCAsk":        diffs["GDAX-Bitoasis-BTC-Ask"],
 		"BitoasisBTCBid":        diffs["GDAX-Bitoasis-BTC-Bid"],
+		"BitfinexBTCAsk":        diffs["GDAX-Bitfinex-BTC-Ask"],
+		"BitfinexBTCBid":        diffs["GDAX-Bitfinex-BTC-Bid"],
 		"GdaxETH":               usdPrices["GDAXETH"].Ask,
 		"BTCTurkETHAsk":         diffs["GDAX-BTCTurk-ETH-Ask"],
 		"BTCTurkETHBid":         diffs["GDAX-BTCTurk-ETH-Bid"],
@@ -273,6 +278,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinETHBid":       diffs["GDAX-Vebitcoin-ETH-Bid"],
 		"BitoasisETHAsk":        diffs["GDAX-Bitoasis-ETH-Ask"],
 		"BitoasisETHBid":        diffs["GDAX-Bitoasis-ETH-Bid"],
+		"BitfinexETHAsk":        diffs["GDAX-Bitfinex-ETH-Ask"],
+		"BitfinexETHBid":        diffs["GDAX-Bitfinex-ETH-Bid"],
 		"GdaxLTC":               usdPrices["GDAXLTC"].Ask,
 		"BTCTurkLTCAsk":         diffs["GDAX-BTCTurk-LTC-Ask"],
 		"BTCTurkLTCBid":         diffs["GDAX-BTCTurk-LTC-Bid"],
@@ -284,8 +291,10 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinLTCBid":       diffs["GDAX-Vebitcoin-LTC-Bid"],
 		"BitoasisLTCAsk":        diffs["GDAX-Bitoasis-LTC-Ask"],
 		"BitoasisLTCBid":        diffs["GDAX-Bitoasis-LTC-Bid"],
+		"BitfinexLTCAsk":        diffs["GDAX-Bitfinex-LTC-Ask"],
+		"BitfinexLTCBid":        diffs["GDAX-Bitfinex-LTC-Bid"],
 		"GdaxBCH":               usdPrices["GDAXBCH"].Ask,
-		"BCHSpread":      fmt.Sprintf("%.2f", spreads[GDAX+"BCH"]),
+		"BCHSpread":             fmt.Sprintf("%.2f", spreads[GDAX+"BCH"]),
 		"KoineksBCHAsk":         diffs["GDAX-Koineks-BCH-Ask"],
 		"KoineksBCHBid":         diffs["GDAX-Koineks-BCH-Bid"],
 		"KoinimBCHAsk":          diffs["GDAX-Koinim-BCH-Ask"],
@@ -295,11 +304,11 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BitoasisBCHAsk":        diffs["GDAX-Bitoasis-BCH-Ask"],
 		"BitoasisBCHBid":        diffs["GDAX-Bitoasis-BCH-Bid"],
 		"GdaxETC":               usdPrices["GDAXETC"].Ask,
-		"ETCSpread":      fmt.Sprintf("%.2f", spreads[GDAX+"ETC"]),
+		"ETCSpread":             fmt.Sprintf("%.2f", spreads[GDAX+"ETC"]),
 		"KoineksETCAsk":         diffs["GDAX-Koineks-ETC-Ask"],
 		"KoineksETCBid":         diffs["GDAX-Koineks-ETC-Bid"],
 		"GdaxZRX":               usdPrices["GDAXZRX"].Ask,
-		"ZRXSpread":      fmt.Sprintf("%.2f", spreads[GDAX+"ZRX"]),
+		"ZRXSpread":             fmt.Sprintf("%.2f", spreads[GDAX+"ZRX"]),
 		"VebitcoinZRXAsk":       diffs["GDAX-Vebitcoin-ZRX-Ask"],
 		"VebitcoinZRXBid":       diffs["GDAX-Vebitcoin-ZRX-Bid"],
 		"ParibuBTCAskPrice":     prices["Paribu-BTC-Ask"],
@@ -314,6 +323,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinBTCBidPrice":  prices["Vebitcoin-BTC-Bid"],
 		"BitoasisBTCAskPrice":   prices["Bitoasis-BTC-Ask"],
 		"BitoasisBTCBidPrice":   prices["Bitoasis-BTC-Bid"],
+		"BitfinexBTCAskPrice":   prices["Bitfinex-BTC-Ask"],
+		"BitfinexBTCBidPrice":   prices["Bitfinex-BTC-Bid"],
 		"BTCTurkETHAskPrice":    prices["BTCTurk-ETH-Ask"],
 		"BTCTurkETHBidPrice":    prices["BTCTurk-ETH-Bid"],
 		"KoineksETHAskPrice":    prices["Koineks-ETH-Ask"],
@@ -324,6 +335,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinETHBidPrice":  prices["Vebitcoin-ETH-Bid"],
 		"BitoasisETHAskPrice":   prices["Bitoasis-ETH-Ask"],
 		"BitoasisETHBidPrice":   prices["Bitoasis-ETH-Bid"],
+		"BitfinexETHAskPrice":   prices["Bitfinex-ETH-Ask"],
+		"BitfinexETHBidPrice":   prices["Bitfinex-ETH-Bid"],
 		"BTCTurkLTCAskPrice":    prices["BTCTurk-LTC-Ask"],
 		"BTCTurkLTCBidPrice":    prices["BTCTurk-LTC-Bid"],
 		"KoineksLTCAskPrice":    prices["Koineks-LTC-Ask"],
@@ -334,6 +347,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinLTCBidPrice":  prices["Vebitcoin-LTC-Bid"],
 		"BitoasisLTCAskPrice":   prices["Bitoasis-LTC-Ask"],
 		"BitoasisLTCBidPrice":   prices["Bitoasis-LTC-Bid"],
+		"BitfinexLTCAskPrice":   prices["Bitfinex-LTC-Ask"],
+		"BitfinexLTCBidPrice":   prices["Bitfinex-LTC-Bid"],
 		"KoineksBCHAskPrice":    prices["Koineks-BCH-Ask"],
 		"KoineksBCHBidPrice":    prices["Koineks-BCH-Bid"],
 		"KoinimBCHAskPrice":     prices["Koinim-BCH-Ask"],
@@ -362,6 +377,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinXRPBidPrice":  prices["Vebitcoin-XRP-Bid"],
 		"BitoasisXRPAskPrice":   prices["Bitoasis-XRP-Ask"],
 		"BitoasisXRPBidPrice":   prices["Bitoasis-XRP-Bid"],
+		"BitfinexXRPAskPrice":   prices["Bitfinex-XRP-Ask"],
+		"BitfinexXRPBidPrice":   prices["Bitfinex-XRP-Bid"],
 		"BTCTurkXLMAskPrice":    prices["BTCTurk-XLM-Ask"],
 		"BTCTurkXLMBidPrice":    prices["BTCTurk-XLM-Bid"],
 		"KoineksXLMAskPrice":    prices["Koineks-XLM-Ask"],
@@ -370,10 +387,12 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinXLMBidPrice":  prices["Vebitcoin-XLM-Bid"],
 		"BitoasisXLMAskPrice":   prices["Bitoasis-XLM-Ask"],
 		"BitoasisXLMBidPrice":   prices["Bitoasis-XLM-Bid"],
+		"BitfinexXLMAskPrice":   prices["Bitfinex-XLM-Ask"],
+		"BitfinexXLMBidPrice":   prices["Bitfinex-XLM-Bid"],
 		"KoineksXEMAskPrice":    prices["Koineks-XEM-Ask"],
 		"KoineksXEMBidPrice":    prices["Koineks-XEM-Bid"],
 		"GdaxXRP":               fmt.Sprintf("%.5f", usdPrices[BINANCE+"XRP"].Ask),
-		"XRPSpread":      fmt.Sprintf("%.2f", spreads[BINANCE+"XRP"]),
+		"XRPSpread":             fmt.Sprintf("%.2f", spreads[BINANCE+"XRP"]),
 		"BTCTurkXRPAsk":         diffs[BINANCE+"-BTCTurk-XRP-Ask"],
 		"BTCTurkXRPBid":         diffs[BINANCE+"-BTCTurk-XRP-Bid"],
 		"KoineksXRPAsk":         diffs[BINANCE+"-Koineks-XRP-Ask"],
@@ -382,8 +401,10 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinXRPBid":       diffs[BINANCE+"-Vebitcoin-XRP-Bid"],
 		"BitoasisXRPAsk":        diffs[BINANCE+"-Bitoasis-XRP-Ask"],
 		"BitoasisXRPBid":        diffs[BINANCE+"-Bitoasis-XRP-Bid"],
+		"BitfinexXRPAsk":        diffs[BINANCE+"-Bitfinex-XRP-Ask"],
+		"BitfinexXRPBid":        diffs[BINANCE+"-Bitfinex-XRP-Bid"],
 		"GdaxXLM":               fmt.Sprintf("%.5f", usdPrices[BINANCE+"XLM"].Ask),
-		"XLMSpread":      fmt.Sprintf("%.2f", spreads[BINANCE+"XLM"]),
+		"XLMSpread":             fmt.Sprintf("%.2f", spreads[BINANCE+"XLM"]),
 		"BTCTurkXLMAsk":         diffs[BINANCE+"-BTCTurk-XLM-Ask"],
 		"BTCTurkXLMBid":         diffs[BINANCE+"-BTCTurk-XLM-Bid"],
 		"KoineksXLMAsk":         diffs[BINANCE+"-Koineks-XLM-Ask"],
@@ -392,12 +413,14 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinXLMBid":       diffs[BINANCE+"-Vebitcoin-XLM-Bid"],
 		"BitoasisXLMAsk":        diffs[BINANCE+"-Bitoasis-XLM-Ask"],
 		"BitoasisXLMBid":        diffs[BINANCE+"-Bitoasis-XLM-Bid"],
-		"BittrexUSDT":           fmt.Sprintf("%.8f", usdPrices[exchange+"USDT"].Ask),
-		"BittrexUSDTSpread":     fmt.Sprintf("%.2f", spreads[exchange+"USDT"]),
-		"BTCTurkUSDTAsk":        diffs[exchange+"-BTCTurk-USDT-Ask"],
-		"BTCTurkUSDTBid":        diffs[exchange+"-BTCTurk-USDT-Bid"],
-		"KoineksUSDTAsk":        diffs[exchange+"-Koineks-USDT-Ask"],
-		"KoineksUSDTBid":        diffs[exchange+"-Koineks-USDT-Bid"],
+		"BitfinexXLMAsk":        diffs[BINANCE+"-Bitfinex-XLM-Ask"],
+		"BitfinexXLMBid":        diffs[BINANCE+"-Bitfinex-XLM-Bid"],
+		"GdaxUSDT":              fmt.Sprintf("%.8f", usdPrices[BINANCE+"USDT"].Ask),
+		"USDTSpread":            fmt.Sprintf("%.2f", spreads[BINANCE+"USDT"]),
+		"BTCTurkUSDTAsk":        diffs[BINANCE+"-BTCTurk-USDT-Ask"],
+		"BTCTurkUSDTBid":        diffs[BINANCE+"-BTCTurk-USDT-Bid"],
+		"KoineksUSDTAsk":        diffs[BINANCE+"-Koineks-USDT-Ask"],
+		"KoineksUSDTBid":        diffs[BINANCE+"-Koineks-USDT-Bid"],
 		"GdaxDOGE":              fmt.Sprintf("%.8f", usdPrices[exchange+"DOGE"].Ask),
 		"BittrexDOGEAsk":        fmt.Sprintf("%.8f", crossPrices["DOGE"].Ask),
 		"BittrexDOGESpread":     fmt.Sprintf("%.2f", spreads[exchange+"DOGE"]),
@@ -405,11 +428,10 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"KoineksDOGEBid":        diffs[exchange+"-Koineks-DOGE-Bid"],
 		"KoinimDOGEAsk":         diffs[exchange+"-Koinim-DOGE-Ask"],
 		"KoinimDOGEBid":         diffs[exchange+"-Koinim-DOGE-Bid"],
-		"GdaxXEM":               fmt.Sprintf("%.5f", usdPrices[exchange+"XEM"].Ask),
-		"BittrexXEMAsk":         fmt.Sprintf("%.8f", crossPrices["XEM"].Ask),
-		"BittrexXEMSpread":      fmt.Sprintf("%.2f", spreads[exchange+"XEM"]),
-		"KoineksXEMAsk":         diffs[exchange+"-Koineks-XEM-Ask"],
-		"KoineksXEMBid":         diffs[exchange+"-Koineks-XEM-Bid"],
+		"GdaxXEM":               fmt.Sprintf("%.5f", usdPrices[BINANCE+"XEM"].Ask),
+		"XEMSpread":             fmt.Sprintf("%.2f", spreads[BINANCE+"XEM"]),
+		"KoineksXEMAsk":         diffs[BINANCE+"-Koineks-XEM-Ask"],
+		"KoineksXEMBid":         diffs[BINANCE+"-Koineks-XEM-Bid"],
 		"PoloniexDOGEAskPrice":  fmt.Sprintf("%.8f", prices["PoloniexDOGEAsk"]),
 		"PoloniexDOGEBidPrice":  fmt.Sprintf("%.8f", prices["PoloniexDOGEBid"]),
 		"PoloniexDOGEAskVolume": fmt.Sprintf("%.2f", dogeVolumes["PoloniexAsk"]),
@@ -528,15 +550,19 @@ func findPriceDifferences(priceLists ...[]Price) {
 	for _, symbol := range ALL_SYMBOLS {
 		var tryList []Price
 		var aedList []Price
+		var usdList []Price
 		for _, list := range priceLists {
 			for _, p := range list {
 				if p.ID == symbol {
 					switch p.Currency {
 					case "USD":
-						tryP := Price{Currency: "TRY", Exchange: p.Exchange, ID: p.ID, Bid: p.Bid * tryRate, Ask: p.Ask * tryRate}
-						aedP := Price{Currency: "AED", Exchange: p.Exchange, ID: p.ID, Bid: p.Bid * aedRate, Ask: p.Ask * aedRate}
-						tryList = append(tryList, tryP)
-						aedList = append(aedList, aedP)
+						usdList = append(usdList, p)
+						if p.Exchange == GDAX || p.Exchange == BINANCE || p.Exchange == BITTREX {
+							tryP := Price{Currency: "TRY", Exchange: p.Exchange, ID: p.ID, Bid: p.Bid * tryRate, Ask: p.Ask * tryRate}
+							aedP := Price{Currency: "AED", Exchange: p.Exchange, ID: p.ID, Bid: p.Bid * aedRate, Ask: p.Ask * aedRate}
+							tryList = append(tryList, tryP)
+							aedList = append(aedList, aedP)
+						}
 					case "TRY":
 						tryList = append(tryList, p)
 					case "AED":
@@ -548,6 +574,7 @@ func findPriceDifferences(priceLists ...[]Price) {
 
 		setDiffsAndPrices(tryList)
 		setDiffsAndPrices(aedList)
+		setDiffsAndPrices(usdList)
 	}
 }
 

@@ -26,11 +26,13 @@ const (
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s"
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
 	BITOASIS_URI             = "https://api.bitoasis.net/v1/exchange/ticker/%s-AED"
+	BITFINEX_URI             = "https://api.bitfinex.com/v1/pubticker/%sUSD"
 
 	GDAX      = "GDAX"
 	BINANCE   = "Binance"
-	BITOASIS   = "Bitoasis"
+	BITOASIS  = "Bitoasis"
 	BITTREX   = "Bittrex"
+	BITFINEX  = "Bitfinex"
 	POLONIEX  = "Poloniex"
 	PARIBU    = "Paribu"
 	BTCTURK   = "BTCTurk"
@@ -48,6 +50,7 @@ var (
 	binanceCurrencies  = []string{"USDT", "XRP", "XLM", "XEM"}
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
 	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD"}
+	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
 )
 
 func init() {
@@ -456,7 +459,7 @@ func getBinancePrices() (map[string]Price, error) {
 	for _, currency := range binanceCurrencies {
 		var uri string
 		if currency == "USDT" {
-			uri = fmt.Sprintf(BINANCE_URI, "BTC", currency)
+			uri = fmt.Sprintf(BINANCE_URI, "USDC", currency)
 		} else if currency == "XRP" || currency == "XLM" {
 			uri = fmt.Sprintf(BINANCE_URI, currency, "USDC")
 		} else {
@@ -485,7 +488,11 @@ func getBinancePrices() (map[string]Price, error) {
 		}
 		pBid, _ := strconv.ParseFloat(priceBid, 64)
 
-		prices[currency] = Price{Exchange: BINANCE, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
+		if currency == "USDT" {
+			prices[currency] = Price{Exchange: BINANCE, Currency: "USD", ID: currency, Ask: 1 / pAsk, Bid: 1 / pBid}
+		} else {
+			prices[currency] = Price{Exchange: BINANCE, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
+		}
 		spreads[BINANCE+currency] = (pAsk - pBid) * 100 / pBid
 	}
 
@@ -496,7 +503,7 @@ func getBitoasisPrices() ([]Price, error) {
 	prices := []Price{}
 
 	for _, currency := range bitoasisCurrencies {
-		
+
 		uri := fmt.Sprintf(BITOASIS_URI, currency)
 
 		response, err := http.Get(uri)
@@ -509,7 +516,7 @@ func getBitoasisPrices() ([]Price, error) {
 			return nil, fmt.Errorf("failed to read Bitoasis response data : %s", err)
 		}
 
-		priceAsk, err := jsonparser.GetString(responseData,	"ticker", "ask")
+		priceAsk, err := jsonparser.GetString(responseData, "ticker", "ask")
 		if err != nil {
 			return nil, fmt.Errorf("failed to read the ask price from the Bitoasis response data: %s", err)
 		}
@@ -522,6 +529,39 @@ func getBitoasisPrices() ([]Price, error) {
 		pBid, _ := strconv.ParseFloat(priceBid, 64)
 
 		prices = append(prices, Price{Exchange: BITOASIS, Currency: "AED", ID: currency, Ask: pAsk, Bid: pBid})
+	}
+
+	return prices, nil
+}
+
+func getBitfinexPrices() ([]Price, error) {
+	prices := []Price{}
+
+	for _, currency := range bitfinexCurrencies {
+		uri := fmt.Sprintf(BITFINEX_URI, currency)
+		response, err := http.Get(uri)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get Bitfinex response : %s", err)
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read Bitfinex response data : %s", err)
+		}
+
+		priceAsk, err := jsonparser.GetString(responseData, "ask")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the ask price from the Bitfinex response data: %s", err)
+		}
+		pAsk, _ := strconv.ParseFloat(priceAsk, 64)
+
+		priceBid, err := jsonparser.GetString(responseData, "bid")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the bid price from the Bitfinex response data: %s", err)
+		}
+		pBid, _ := strconv.ParseFloat(priceBid, 64)
+
+		prices = append(prices, Price{Exchange: BITFINEX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid})
 	}
 
 	return prices, nil
