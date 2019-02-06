@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -11,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/buger/jsonparser"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,13 +22,10 @@ type Price struct {
 }
 
 const (
-	BASE_CURRENCY_URI = "http://free.currencyconverterapi.com/api/v3/convert?q=USD_%s&compact=ultra"
+	BASE_CURRENCY_URI = "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=%s&apikey=GOJHTH53I4S9GPIV"
 )
 
 var (
-	tryRate = 0.0
-	aedRate = 0.0
-
 	diffs                                                                              map[string]float64
 	prices, spreads                                                                    map[string]float64
 	minDiffs, maxDiffs                                                                 map[string]float64
@@ -81,13 +76,6 @@ func Run() {
 	}()
 
 	wg.Wait()
-}
-
-func getCurrencies() {
-	for {
-		getCurrencyRates()
-		time.Sleep(1 * time.Hour)
-	}
 }
 
 func getPrices() {
@@ -506,44 +494,6 @@ func SetNotificationLimits(c *gin.Context) {
 		"Duration":   DURATION,
 		"PThreshold": PAIR_THRESHOLD,
 	})
-}
-
-func getCurrencyRates() {
-	response, err := http.Get(fmt.Sprintf(BASE_CURRENCY_URI, "TRY"))
-	if err != nil {
-		fmt.Println("failed to get response for currencies : ", err)
-		log.Println("failed to get response for currencies : ", err)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		fmt.Println("failed to read currency response data : ", err)
-		log.Println("failed to read currency response data : ", err)
-	}
-
-	tryRate, err = jsonparser.GetFloat(responseData, "USD_TRY")
-	if err != nil {
-		fmt.Println("failed to read the TRY currency price from the response data: ", err)
-		log.Println("failed to read the TRY currency price from the response data: ", err)
-	}
-
-	response, err = http.Get(fmt.Sprintf(BASE_CURRENCY_URI, "AED"))
-	if err != nil {
-		fmt.Println("failed to get response for currencies : ", err)
-		log.Println("failed to get response for currencies : ", err)
-	}
-
-	responseData, err = ioutil.ReadAll(response.Body)
-	if err != nil {
-		fmt.Println("failed to read currency response data : ", err)
-		log.Println("failed to read currency response data : ", err)
-	}
-
-	aedRate, err = jsonparser.GetFloat(responseData, "USD_AED")
-	if err != nil {
-		fmt.Println("failed to read the AED currency price from the response data: ", err)
-		log.Println("failed to read the AED currency price from the response data: ", err)
-	}
 }
 
 func findPriceDifferences(priceLists ...[]Price) {
