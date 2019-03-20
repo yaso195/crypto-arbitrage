@@ -27,12 +27,14 @@ const (
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
 	BITOASIS_URI             = "https://api.bitoasis.net/v1/exchange/ticker/%s-AED"
 	BITFINEX_URI             = "https://api.bitfinex.com/v1/pubticker/%sUSD"
+	CEXIO_URI                = "https://cex.io/api/ticker/%s/USD"
 
 	GDAX      = "GDAX"
 	BINANCE   = "Binance"
 	BITOASIS  = "Bitoasis"
 	BITTREX   = "Bittrex"
 	BITFINEX  = "Bitfinex"
+	CEXIO     = "Cexio"
 	POLONIEX  = "Poloniex"
 	PARIBU    = "Paribu"
 	BTCTURK   = "BTCTurk"
@@ -51,6 +53,7 @@ var (
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
 	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD"}
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
+	cexioCurrencies    = []string{"BTC", "ETH", "LTC", "BCH", "XRP", "XLM"}
 )
 
 func init() {
@@ -562,6 +565,37 @@ func getBitfinexPrices() ([]Price, error) {
 		pBid, _ := strconv.ParseFloat(priceBid, 64)
 
 		prices = append(prices, Price{Exchange: BITFINEX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid})
+	}
+
+	return prices, nil
+}
+
+func getCexioPrices() ([]Price, error) {
+	prices := []Price{}
+
+	for _, currency := range cexioCurrencies {
+		uri := fmt.Sprintf(CEXIO_URI, currency)
+		response, err := http.Get(uri)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get Cexio response : %s", err)
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read Cexio response data : %s", err)
+		}
+
+		pAsk, err := jsonparser.GetFloat(responseData, "ask")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the ask price from the Cexio response data: %s", err)
+		}
+
+		pBid, err := jsonparser.GetFloat(responseData, "bid")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the bid price from the Cexio response data: %s", err)
+		}
+
+		prices = append(prices, Price{Exchange: CEXIO, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid})
 	}
 
 	return prices, nil

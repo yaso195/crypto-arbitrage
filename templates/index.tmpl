@@ -41,11 +41,14 @@ th, td {
     <th colspan="2">Vebitcoin</th>
     <th colspan="2">Bitoasis</th>
     <th colspan="2">Bitfinex</th>
+    <th colspan="2">Cexio</th>
     <th colspan="2">Paribu</th>
   </tr>
   <tr>
   	<th>Symbol</th>
     <th>ASK</th>
+    <th>ASK</th>
+    <th>BID</th>
     <th>ASK</th>
     <th>BID</th>
     <th>ASK</th>
@@ -76,6 +79,8 @@ th, td {
     <td>%{{.BitoasisBTCBid}} <br><small><i> ({{.BitoasisBTCBidPrice}})</small></td>
     <td>%{{.BitfinexBTCAsk}} <br><small><i> ({{.BitfinexBTCAskPrice}})</small></td>
     <td>%{{.BitfinexBTCBid}} <br><small><i> ({{.BitfinexBTCBidPrice}})</small></td>
+    <td>%{{.CexioBTCAsk}} <br><small><i> ({{.CexioBTCAskPrice}})</small></td>
+    <td>%{{.CexioBTCBid}} <br><small><i> ({{.CexioBTCBidPrice}})</small></td>
     <td>%{{.ParibuBTCAsk}} <br><small><i> ({{.ParibuBTCAskPrice}})</small></td>
     <td>%{{.ParibuBTCBid}} <br><small><i> ({{.ParibuBTCBidPrice}})</small></td> 
   </tr>
@@ -94,6 +99,8 @@ th, td {
     <td>%{{.BitoasisETHBid}} <br><small><i> ({{.BitoasisETHBidPrice}})</small></td>
     <td>%{{.BitfinexETHAsk}} <br><small><i> ({{.BitfinexETHAskPrice}})</small></td>
     <td>%{{.BitfinexETHBid}} <br><small><i> ({{.BitfinexETHBidPrice}})</small></td>
+    <td>%{{.CexioETHAsk}} <br><small><i> ({{.CexioETHAskPrice}})</small></td>
+    <td>%{{.CexioETHBid}} <br><small><i> ({{.CexioETHBidPrice}})</small></td>
   </tr>
   <tr>
   	<td>LTC</td>
@@ -110,6 +117,8 @@ th, td {
     <td>%{{.BitoasisLTCBid}} <br><small><i> ({{.BitoasisLTCBidPrice}})</small></td>
     <td>%{{.BitfinexLTCAsk}} <br><small><i> ({{.BitfinexLTCAskPrice}})</small></td>
     <td>%{{.BitfinexLTCBid}} <br><small><i> ({{.BitfinexLTCBidPrice}})</small></td>
+    <td>%{{.CexioLTCAsk}} <br><small><i> ({{.CexioLTCAskPrice}})</small></td>
+    <td>%{{.CexioLTCBid}} <br><small><i> ({{.CexioLTCBidPrice}})</small></td>
   </tr>
   <tr>
     <td>BCH</td>
@@ -126,6 +135,8 @@ th, td {
     <td>%{{.BitoasisBCHBid}} <br><small><i> ({{.BitoasisBCHBidPrice}})</small></td>
     <td>-</td> 
     <td>-</td>
+    <td>%{{.CexioBCHAsk}} <br><small><i> ({{.CexioBCHAskPrice}})</small></td>
+    <td>%{{.CexioBCHBid}} <br><small><i> ({{.CexioBCHBidPrice}})</small></td>
   </tr>
   <tr>
     <td>ETC</td>
@@ -134,6 +145,8 @@ th, td {
     <td>-</td>
     <td>%{{.KoineksETCAsk}} <br><small><i> ({{.KoineksETCAskPrice}})</small></td>
     <td>%{{.KoineksETCBid}} <br><small><i> ({{.KoineksETCBidPrice}})</small></td>
+    <td>-</td>
+    <td>-</td>
     <td>-</td>
     <td>-</td>
     <td>-</td>
@@ -158,6 +171,8 @@ th, td {
     <td>-</td>
     <td>-</td>
     <td>-</td>
+    <td>-</td>
+    <td>-</td>
   </tr>
   <tr>
     <td>XRP</td>
@@ -174,6 +189,8 @@ th, td {
     <td>%{{.BitoasisXRPBid}} <br><small><i> ({{.BitoasisXRPBidPrice}})</small></td>
     <td>%{{.BitfinexXRPAsk}} <br><small><i> ({{.BitfinexXRPAskPrice}})</small></td>
     <td>%{{.BitfinexXRPBid}} <br><small><i> ({{.BitfinexXRPBidPrice}})</small></td>
+    <td>%{{.CexioXRPAsk}} <br><small><i> ({{.CexioXRPAskPrice}})</small></td>
+    <td>%{{.CexioXRPBid}} <br><small><i> ({{.CexioXRPBidPrice}})</small></td>
   </tr>
   <tr>
     <td>XLM</td>
@@ -190,6 +207,8 @@ th, td {
     <td>%{{.BitoasisXLMBid}} <br><small><i> ({{.BitoasisXLMBidPrice}})</small></td>
     <td>%{{.BitfinexXLMAsk}} <br><small><i> ({{.BitfinexXLMAskPrice}})</small></td>
     <td>%{{.BitfinexXLMBid}} <br><small><i> ({{.BitfinexXLMBidPrice}})</small></td>
+    <td>%{{.CexioXLMAsk}} <br><small><i> ({{.CexioXLMAskPrice}})</small></td>
+    <td>%{{.CexioXLMBid}} <br><small><i> ({{.CexioXLMBidPrice}})</small></td>
   </tr>
   <tr>
     <td>USDT</td>
@@ -198,6 +217,8 @@ th, td {
     <td>%{{.BTCTurkUSDTBid}} <br><small><i> ({{.BTCTurkUSDTBidPrice}})</small></td>
     <td>%{{.KoineksUSDTAsk}} <br><small><i> ({{.KoineksUSDTAskPrice}})</small></td>
     <td>%{{.KoineksUSDTBid}} <br><small><i> ({{.KoineksUSDTBidPrice}})</small></td>
+    <td>-</td>
+    <td>-</td>
     <td>-</td>
     <td>-</td>
     <td>-</td>
@@ -222,6 +243,8 @@ th, td {
     <td>-</td>
     <td>-</td>
     <td>-</td>
+    <td>-</td>
+    <td>-</td>
   </tr>
   <tr>
     <td>XEM</td>
@@ -234,6 +257,8 @@ th, td {
     <td>-</td>
     <td>-</td> 
     <td>-</td> 
+    <td>-</td>
+    <td>-</td>
     <td>-</td>
     <td>-</td>
     <td>-</td>
