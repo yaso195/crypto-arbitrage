@@ -51,7 +51,7 @@ var (
 	bittrexCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
 	binanceCurrencies  = []string{"USDT", "XRP", "XLM", "XEM"}
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
-	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD"}
+	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XRP-USD", "XLM-USD",}
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
 	cexioCurrencies    = []string{"BTC", "ETH", "LTC", "BCH", "XRP", "XLM"}
 )
