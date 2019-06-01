@@ -51,7 +51,8 @@ var (
 	bittrexCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
 	binanceCurrencies  = []string{"USDT", "XRP", "XLM", "XEM"}
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
-	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XRP-USD", "XLM-USD",}
+	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD"}
+	gdax2Currencies    = []string{"XRP-USD", "XLM-USD"}
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
 	cexioCurrencies    = []string{"BTC", "ETH", "LTC", "BCH", "XRP", "XLM"}
 )
@@ -86,6 +87,24 @@ func getGdaxPrices() ([]Price, error) {
 	var prices []Price
 
 	for _, id := range gdaxCurrencies {
+		ticker, err := client.GetTicker(id)
+		if err != nil {
+			return nil, fmt.Errorf("Error reading %s price : %s\n", id, err)
+		}
+
+		tempID := id
+		if id[4:] == "USD" {
+			tempID = id[0:3]
+		}
+
+		p := Price{Exchange: GDAX, Currency: "USD", ID: tempID, Ask: ticker.Ask, Bid: ticker.Bid}
+		prices = append(prices, p)
+		spreads[GDAX+tempID] = (p.Ask - p.Bid) * 100 / p.Bid
+	}
+
+	time.Sleep(1 * time.Second)
+
+	for _, id := range gdax2Currencies {
 		ticker, err := client.GetTicker(id)
 		if err != nil {
 			return nil, fmt.Errorf("Error reading %s price : %s\n", id, err)

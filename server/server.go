@@ -81,14 +81,14 @@ func Run() {
 func getPrices() {
 	for {
 		calculatePrices()
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 
 func calculatePrices() {
 	var err error
 	gdaxPrices, err := getGdaxPrices()
-	if err != nil || len(gdaxPrices) != len(gdaxCurrencies) {
+	if err != nil || len(gdaxPrices) != len(gdaxCurrencies) + len(gdax2Currencies) {
 		message := fmt.Sprintf("Error reading GDAX prices : %s", err)
 		warning += message + "\n"
 		fmt.Println(message)
