@@ -52,7 +52,7 @@ var (
 	binanceCurrencies  = []string{"USDT", "XRP", "XLM", "XEM"}
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
 	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD"}
-	gdax2Currencies    = []string{"XRP-USD", "XLM-USD"}
+	gdax2Currencies    = []string{"XRP-USD", "XLM-USD", "EOS-USD"}
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
 	cexioCurrencies    = []string{"BTC", "ETH", "LTC", "BCH", "XRP", "XLM"}
 )
@@ -250,7 +250,7 @@ func getKoineksPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XRP", "XLM", "XEM"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XRP", "XLM", "EOS", "XEM"}
 
 	for _, id := range ids {
 

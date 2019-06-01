@@ -38,7 +38,7 @@ var (
 	fiatNotificationEnabled                                                            = true
 	warning                                                                            string
 
-	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XRP", "XLM", "USDT", "DOGE", "XEM"}
+	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XRP", "XLM", "EOS", "USDT", "DOGE", "XEM"}
 )
 
 func Run() {
@@ -343,6 +343,10 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BitfinexXLMBid":		 diffs[GDAX+"-Bitfinex-XLM-Bid"],
 		"CexioXLMAsk":           diffs[GDAX+"-Cexio-XLM-Ask"],
 		"CexioXLMBid":           diffs[GDAX+"-Cexio-XLM-Bid"],
+		"GdaxEOS":               usdPrices[GDAX+"EOS"].Ask,
+		"EOSSpread":             fmt.Sprintf("%.2f", spreads[GDAX+"EOS"]),
+		"KoineksEOSAsk":         diffs[GDAX+"-Koineks-EOS-Ask"],
+		"KoineksEOSBid":         diffs[GDAX+"-Koineks-EOS-Bid"],
 		"ParibuBTCAskPrice":     prices["Paribu-BTC-Ask"],
 		"ParibuBTCBidPrice":     prices["Paribu-BTC-Bid"],
 		"BTCTurkBTCAskPrice":    prices["BTCTurk-BTC-Ask"],
@@ -433,6 +437,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BitfinexXLMBidPrice":   prices["Bitfinex-XLM-Bid"],
 		"CexioXLMAskPrice":      prices["Cexio-XLM-Ask"],
 		"CexioXLMBidPrice":      prices["Cexio-XLM-Bid"],
+		"KoineksEOSAskPrice":    prices["Koineks-EOS-Ask"],
+		"KoineksEOSBidPrice":    prices["Koineks-EOS-Bid"],
 		"KoineksXEMAskPrice":    prices["Koineks-XEM-Ask"],
 		"KoineksXEMBidPrice":    prices["Koineks-XEM-Bid"],
 		"GdaxUSDT":              fmt.Sprintf("%.8f", usdPrices[BINANCE+"USDT"].Ask),
