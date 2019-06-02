@@ -36,13 +36,11 @@ func sendMessages() {
 				duration := time.Since(notificationTime)
 
 				commissionFee := 0.0
-				var firstExchange string
-				if symbol == "BTC" || symbol == "ETH" || symbol == "LTC" || symbol == "BCH" || symbol == "ETC" || symbol == "ZRX" {
-					firstExchange = GDAX
-				} else if symbol == "XRP" || symbol == "XLM" || symbol == "USDT" {
+				firstExchange := GDAX
+				if symbol == "USDT" {
 					firstExchange = BINANCE
 					commissionFee = 0.1
-				} else {
+				} else if symbol == "DOGE" || symbol == "XEM" {
 					firstExchange = BITTREX
 					commissionFee = 0.25
 				}
