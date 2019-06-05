@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -45,8 +46,10 @@ func sendMessages() {
 					commissionFee = 0.25
 				}
 
-				askDiff := diffs[fmt.Sprintf("%s-%s-%s", firstExchange, exchangeSymbol, "Ask")]
-				bidDiff := diffs[fmt.Sprintf("%s-%s-%s", firstExchange, exchangeSymbol, "Bid")]
+				exchangeSymbolAsk := fmt.Sprintf("%s-%s", exchangeSymbol, "Ask")
+				exchangeSymbolBid := fmt.Sprintf("%s-%s", exchangeSymbol, "Bid")
+				askDiff := diffs[fmt.Sprintf("%s-%s", firstExchange, exchangeSymbolAsk)]
+				bidDiff := diffs[fmt.Sprintf("%s-%s", firstExchange, exchangeSymbolBid)]
 
 				if bidDiff > askDiff {
 					continue
@@ -60,10 +63,13 @@ func sendMessages() {
 					(askDiff <= MIN_NOTI_PERC-commissionFee || bidDiff >= MAX_NOTI_PERC+commissionFee) {
 					notificationFlags[exchangeSymbol] = true
 					notificationTimes[exchangeSymbol] = time.Now()
+					
 					if askDiff <= MIN_NOTI_PERC {
-						out += fmt.Sprintf("%s %s %%%.2f\n", exchange, symbol, askDiff)
+						askPrice := strings.TrimRight(strings.TrimRight(fmt.Sprintf("%f", prices[exchangeSymbolAsk]), "0"), ".")
+						out += fmt.Sprintf("%s %s %%%.2f %s\n", exchange, symbol, askDiff, askPrice)
 					} else {
-						out += fmt.Sprintf("%s %s %%%.2f\n", exchange, symbol, bidDiff)
+						bidPrice := strings.TrimRight(strings.TrimRight(fmt.Sprintf("%f", prices[exchangeSymbolBid]), "0"), ".")
+						out += fmt.Sprintf("%s %s %%%.2f %s\n", exchange, symbol, bidDiff, bidPrice)
 					}
 				}
 			}
