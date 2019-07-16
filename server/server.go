@@ -168,22 +168,6 @@ func calculatePrices() {
 		log.Println(message)
 	}
 
-	bitfinexPrices, err := getBitfinexPrices()
-	if err != nil {
-		message := fmt.Sprintf("Error reading Bitfinex prices : %s", err)
-		warning += message + "\n"
-		fmt.Println(message)
-		log.Println(message)
-	}
-
-	cexioPrices, err := getCexioPrices()
-	if err != nil {
-		message := fmt.Sprintf("Error reading Cexio prices : %s", err)
-		warning += message + "\n"
-		fmt.Println(message)
-		log.Println(message)
-	}
-
 	if err := getPoloniexDOGEVolumes(); err != nil {
 		message := fmt.Sprintf("Error reading Poloniex DOGE volumes : %s", err)
 		warning += message + "\n"
@@ -198,9 +182,9 @@ func calculatePrices() {
 		log.Println(message)
 	}
 
-	findAltcoinPrices(gdaxPrices, bittrexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices, bitfinexPrices, cexioPrices)
-	findAltcoinPrices(gdaxPrices, poloniexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices, bitfinexPrices, cexioPrices)
-	findAltcoinPrices(gdaxPrices, binancePrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices, bitfinexPrices, cexioPrices)
+	findAltcoinPrices(gdaxPrices, bittrexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices)
+	findAltcoinPrices(gdaxPrices, poloniexPrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices)
+	findAltcoinPrices(gdaxPrices, binancePrices, paribuPrices, btcTurkPrices, koineksPrices, koinimPrices, vebitcoinPrices, bitoasisPrices)
 
 	sendMessages()
 
