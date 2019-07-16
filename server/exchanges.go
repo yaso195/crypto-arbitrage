@@ -136,17 +136,20 @@ func getParibuPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Paribu response data : %s", err)
 	}
 
-	priceAsk, err := jsonparser.GetFloat(responseData, "BTC_TL", "lowestAsk")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the ask price from the Paribu response data: %s", err)
-	}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "XRP", "XLM", "EOS", "USDT"}
+	for _, id := range ids {
+		priceAsk, err := jsonparser.GetFloat(responseData, fmt.Sprintf("%s_TL", id), "lowestAsk")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the ask price from the Paribu response data: %s", err)
+		}
 
-	priceBid, err := jsonparser.GetFloat(responseData, "BTC_TL", "highestBid")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the bid price from the Paribu response data: %s", err)
-	}
+		priceBid, err := jsonparser.GetFloat(responseData, fmt.Sprintf("%s_TL", id), "highestBid")
+		if err != nil {
+			return nil, fmt.Errorf("failed to read the bid price from the Paribu response data: %s", err)
+		}
 
-	prices = append(prices, Price{Exchange: PARIBU, Currency: "TRY", ID: "BTC", Ask: priceAsk, Bid: priceBid})
+		prices = append(prices, Price{Exchange: PARIBU, Currency: "TRY", ID: id, Ask: priceAsk, Bid: priceBid})
+	}
 	return prices, nil
 }
 
