@@ -302,11 +302,11 @@ func getVebitcoinPrices() ([]Price, error) {
 			}
 			// Vebitcoin has a bug in their API, the ask price is given in the "Bid" field, bid price is given in their
 			// "Ask" field.
-			pAsk, errRet := jsonparser.GetFloat(value, "Bid")
+			pAsk, errRet := jsonparser.GetFloat(value, "Ask")
 			if errRet != nil {
 				err = fmt.Errorf("failed to find the ask price for %s in Vebitcoin: %s", sourceCoin, errRet)
 			}
-			pBid, errRet := jsonparser.GetFloat(value, "Ask")
+			pBid, errRet := jsonparser.GetFloat(value, "Bid")
 			if errRet != nil {
 				err = fmt.Errorf("failed to find the bid price for %s in Vebitcoin: %s", sourceCoin, errRet)
 			}
