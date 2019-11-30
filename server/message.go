@@ -30,6 +30,10 @@ func sendMessages() {
 	var out string
 	if fiatNotificationEnabled {
 		for _, exchange := range ALL_EXCHANGES {
+			if exchange == PARIBU || exchange == BTCTURK {
+				continue
+			}
+			
 			for _, symbol := range ALL_SYMBOLS {
 				exchangeSymbol := fmt.Sprintf("%s-%s", exchange, symbol)
 				notificationFlag := notificationFlags[exchangeSymbol]
@@ -38,12 +42,9 @@ func sendMessages() {
 
 				commissionFee := 0.0
 				firstExchange := GDAX
-				if symbol == "USDT" {
+				if symbol == "USDT" || symbol == "DOGE" || symbol == "XEM"{
 					firstExchange = BINANCE
 					commissionFee = 0.1
-				} else if symbol == "DOGE" || symbol == "XEM" {
-					firstExchange = BITTREX
-					commissionFee = 0.25
 				}
 
 				exchangeSymbolAsk := fmt.Sprintf("%s-%s", exchangeSymbol, "Ask")
