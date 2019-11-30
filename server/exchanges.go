@@ -49,7 +49,7 @@ var (
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN}
 	poloniexCurrencies = []string{"USDT", "DOGE", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
-	binanceCurrencies  = []string{"USDT", "XRP", "XLM", "XEM"}
+	binanceCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
 	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD"}
 	gdax2Currencies    = []string{"XRP-USD", "XLM-USD", "EOS-USD"}
