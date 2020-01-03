@@ -11,7 +11,9 @@ import (
 
 	"github.com/buger/jsonparser"
 
-	gdax "github.com/preichenberger/go-gdax"
+	coinbasepro "github.com/preichenberger/go-coinbasepro"
+	ws "github.com/gorilla/websocket"
+
 )
 
 const (
@@ -21,8 +23,6 @@ const (
 	KOINIM_URI               = "http://koinim.com/api/v1/ticker/%s_TRY/"
 	VEBITCOIN_URI            = "https://us-central1-vebitcoin-market.cloudfunctions.net/app/api/ticker"
 	BINANCE_URI              = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%s%s"
-	POLONIEX_URI             = "https://poloniex.com/public?command=returnTicker"
-	POLONIEX_DOGE_VOLUME_URI = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_DOGE&depth=1"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s"
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
 	BITOASIS_URI             = "https://api.bitoasis.net/v1/exchange/ticker/%s-AED"
@@ -35,7 +35,6 @@ const (
 	BITTREX   = "Bittrex"
 	BITFINEX  = "Bitfinex"
 	CEXIO     = "Cexio"
-	POLONIEX  = "Poloniex"
 	PARIBU    = "Paribu"
 	BTCTURK   = "BTCTurk"
 	KOINEKS   = "Koineks"
@@ -47,14 +46,19 @@ var (
 	symbolToExchangeNames map[string][]string
 
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN}
-	poloniexCurrencies = []string{"USDT", "DOGE", "XRP", "STR", "XEM"}
 	bittrexCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
-	binanceCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
+	binanceCurrencies  = []string{"USDT", "DOGE", "XEM"}
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
-	gdaxCurrencies     = []string{"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD"}
+	coinbaseProCurrencies = []string{
+		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XRP-USD", "XLM-USD", "EOS-USD",
+	}
+
+	gdaxCurrencies    = []string{"XRP-USD", "XLM-USD", "EOS-USD"}
 	gdax2Currencies    = []string{"XRP-USD", "XLM-USD", "EOS-USD"}
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
 	cexioCurrencies    = []string{"BTC", "ETH", "LTC", "BCH", "XRP", "XLM"}
+
+	wsDialer ws.Dialer
 )
 
 func init() {
@@ -68,11 +72,29 @@ func init() {
 		}
 	}
 
+	coinbaseProPrices = map[string]*Price{}
+	for _, symbol := range ALL_SYMBOLS {
+
+		binanceCurrency := false
+		for _, c := range binanceCurrencies {
+			if c == symbol {
+				binanceCurrency = true
+				break
+			}
+		}
+		exchange := GDAX
+		if binanceCurrency {
+			exchange = BINANCE
+		}
+
+		coinbaseProPrices[symbol] = &Price{Exchange: exchange, Currency: "USD", ID: symbol}
+
+	}
+
 	diffs = map[string]float64{}
 	prices = map[string]float64{}
 	spreads = map[string]float64{}
 	dogeVolumes = map[string]float64{}
-	usdPrices = map[string]Price{}
 
 	minDiffs, maxDiffs = map[string]float64{}, map[string]float64{}
 	minSymbol, maxSymbol = map[string]string{}, map[string]string{}
@@ -81,46 +103,57 @@ func init() {
 	PUSHOVER_APP_TOKEN = os.Getenv("PUSHOVER_APP_TOKEN")
 }
 
-func getGdaxPrices() ([]Price, error) {
+func startCoinbaseProWS() error {
+	var wsDialer ws.Dialer
+  wsConn, _, err := wsDialer.Dial("wss://ws-feed.pro.coinbase.com", nil)
+  if err != nil {
+    println(err.Error())
+    return err
+  }
 
-	client := gdax.NewClient("", "", "")
-	var prices []Price
+  subscribe := coinbasepro.Message{
+    Type:      "subscribe",
+    Channels: []coinbasepro.MessageChannel{
+      coinbasepro.MessageChannel{
+        Name: "ticker",
+        ProductIds: coinbaseProCurrencies,
+      },
+    },
+  }
+  if err := wsConn.WriteJSON(subscribe); err != nil {
+    println(err.Error())
+    return err
+  }
 
-	for _, id := range gdaxCurrencies {
-		ticker, err := client.GetTicker(id)
-		if err != nil {
-			return nil, fmt.Errorf("Error reading %s price : %s\n", id, err)
+  for true {
+    message := coinbasepro.Message{}
+    if err := wsConn.ReadJSON(&message); err != nil {
+      println(err.Error())
+      break
+    }
+
+		if message.ProductID !=  "" {
+	    id := message.ProductID
+	    tempID := ""
+			if id[4:] == "USD" {
+				tempID = id[0:3]
+			}
+
+			pAsk, _ := strconv.ParseFloat(message.BestAsk, 64)
+			pBid, _ := strconv.ParseFloat(message.BestBid, 64)
+			spreads[GDAX+tempID] = (pAsk - pBid) * 100 / pBid
+
+			p, ok := coinbaseProPrices[tempID]
+			if !ok {
+				coinbaseProPrices[tempID] = &Price{Exchange: GDAX, Currency: "USD", ID: tempID, Ask: pAsk, Bid: pBid}
+			} else {
+				p.Ask = pAsk
+				p.Bid = pBid
+			}
 		}
+  }
 
-		tempID := id
-		if id[4:] == "USD" {
-			tempID = id[0:3]
-		}
-
-		p := Price{Exchange: GDAX, Currency: "USD", ID: tempID, Ask: ticker.Ask, Bid: ticker.Bid}
-		prices = append(prices, p)
-		spreads[GDAX+tempID] = (p.Ask - p.Bid) * 100 / p.Bid
-	}
-
-	time.Sleep(1 * time.Second)
-
-	for _, id := range gdax2Currencies {
-		ticker, err := client.GetTicker(id)
-		if err != nil {
-			return nil, fmt.Errorf("Error reading %s price : %s\n", id, err)
-		}
-
-		tempID := id
-		if id[4:] == "USD" {
-			tempID = id[0:3]
-		}
-
-		p := Price{Exchange: GDAX, Currency: "USD", ID: tempID, Ask: ticker.Ask, Bid: ticker.Bid}
-		prices = append(prices, p)
-		spreads[GDAX+tempID] = (p.Ask - p.Bid) * 100 / p.Bid
-	}
-
-	return prices, nil
+  return nil
 }
 
 func getParibuPrices() ([]Price, error) {
@@ -315,128 +348,6 @@ func getVebitcoinPrices() ([]Price, error) {
 	})
 
 	return prices, err
-}
-
-func getPoloniexPrices() (map[string]Price, error) {
-	prices := map[string]Price{}
-
-	response, err := http.Get(POLONIEX_URI)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get Poloniex response : %s", err)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read Poloniex response data : %s", err)
-	}
-
-	for _, currency := range poloniexCurrencies {
-		var responseSymbol string
-		if currency == "USDT" {
-			responseSymbol = fmt.Sprintf("%s_BTC", currency)
-		} else {
-			responseSymbol = fmt.Sprintf("BTC_%s", currency)
-		}
-		priceAsk, err := jsonparser.GetString(responseData, responseSymbol, "lowestAsk")
-		if err != nil {
-			return nil, fmt.Errorf("failed to read the ask price from the Poloniex response data: %s", err)
-		}
-		pAsk, _ := strconv.ParseFloat(priceAsk, 64)
-
-		priceBid, err := jsonparser.GetString(responseData, responseSymbol, "highestBid")
-		if err != nil {
-			return nil, fmt.Errorf("failed to read the bid price from the Poloniex response data: %s", err)
-		}
-		pBid, _ := strconv.ParseFloat(priceBid, 64)
-
-		if currency == "STR" {
-			currency = "XLM"
-		}
-		prices[currency] = Price{Exchange: POLONIEX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
-		spreads[POLONIEX+currency] = (pAsk - pBid) * 100 / pBid
-	}
-
-	return prices, nil
-}
-
-func getPoloniexDOGEVolumes() error {
-	response, err := http.Get(POLONIEX_DOGE_VOLUME_URI)
-	if err != nil {
-		return fmt.Errorf("failed to get Poloniex DOGE volume response : %s", err)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read Poloniex DOGE volume response data : %s", err)
-	}
-
-	priceAsk, err := jsonparser.GetString(responseData, "asks", "[0]", "[0]")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE ask price from the Poloniex response data: %s", err)
-	}
-	pAsk, _ := strconv.ParseFloat(priceAsk, 64)
-
-	askVolumeSize, err := jsonparser.GetFloat(responseData, "asks", "[0]", "[1]")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE ask volume size from the Poloniex response data: %s", err)
-	}
-
-	priceBid, err := jsonparser.GetString(responseData, "bids", "[0]", "[0]")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE bid price from the Poloniex response data: %s", err)
-	}
-	pBid, _ := strconv.ParseFloat(priceBid, 64)
-
-	bidVolumeSize, err := jsonparser.GetFloat(responseData, "bids", "[0]", "[1]")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE bid volume size from the Poloniex response data: %s", err)
-	}
-
-	dogeVolumes["PoloniexAsk"] = pAsk * askVolumeSize
-	dogeVolumes["PoloniexBid"] = pBid * bidVolumeSize
-	prices["PoloniexDOGEAsk"] = pAsk
-	prices["PoloniexDOGEBid"] = pBid
-
-	return nil
-}
-
-func getBittrexPrices() (map[string]Price, error) {
-	prices := map[string]Price{}
-
-	for _, currency := range bittrexCurrencies {
-
-		var uri string
-		if currency == "USDT" {
-			uri = fmt.Sprintf(BITTREX_URI, "USD", currency)
-		} else {
-			uri = fmt.Sprintf(BITTREX_URI, "BTC", currency)
-		}
-
-		response, err := http.Get(uri)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get Bittrex response : %s", err)
-		}
-
-		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read Bittrex response data : %s", err)
-		}
-
-		pAsk, err := jsonparser.GetFloat(responseData, "result", "Ask")
-		if err != nil {
-			return nil, fmt.Errorf("failed to read the ask price from the Bittrex response data: %s", err)
-		}
-
-		pBid, err := jsonparser.GetFloat(responseData, "result", "Bid")
-		if err != nil {
-			return nil, fmt.Errorf("failed to read the bid price from the Bittrex response data: %s", err)
-		}
-
-		prices[currency] = Price{Exchange: BITTREX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
-		spreads[BITTREX+currency] = (pAsk - pBid) * 100 / pBid
-	}
-
-	return prices, nil
 }
 
 func getBittrexDOGEVolumes() error {
