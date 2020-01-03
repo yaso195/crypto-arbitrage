@@ -111,6 +111,12 @@
 			"revisionTime": "2017-06-12T17:47:53Z"
 		},
 		{
+			"checksumSHA1": "MS90sumd+9T+oLd42tAa2criFXE=",
+			"path": "github.com/gorilla/websocket",
+			"revision": "c3e18be99d19e6b3e8f1559eea2c161a665c4b6b",
+			"revisionTime": "2019-08-25T01:20:11Z"
+		},
+		{
 			"checksumSHA1": "vViUQwIXmCDUPXMXthCW8N9Tn8E=",
 			"path": "github.com/json-iterator/go",
 			"revision": "002b5ae34214fdc0bad508c2ed6f572fa96dfdda",
@@ -127,6 +133,12 @@
 			"path": "github.com/pmezard/go-difflib/difflib",
 			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
 			"revisionTime": "2016-01-10T10:55:54Z"
+		},
+		{
+			"checksumSHA1": "5beVHwDI99WHmt8XlxhLKs94VBU=",
+			"path": "github.com/preichenberger/go-coinbasepro",
+			"revision": "5e035a24116612967ad4d681fea82e171f9cc323",
+			"revisionTime": "2019-12-12T14:16:08Z"
 		},
 		{
 			"checksumSHA1": "U+ST8UgCvne/SJMq3UcXI4IdUd4=",
