@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -129,7 +130,8 @@ func startCoinbaseProWS() error {
     message := coinbasepro.Message{}
     if err := wsConn.ReadJSON(&message); err != nil {
       println(err.Error())
-      break
+      log.Println(fmt.Sprintf("Cannot read coinbase pro messages : ", err.Error()))
+      continue
     }
 
 		if message.ProductID !=  "" {
