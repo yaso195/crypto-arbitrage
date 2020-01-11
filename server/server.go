@@ -487,7 +487,7 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"KoinimDOGEAsk":         diffs[exchange+"-Koinim-DOGE-Ask"],
 		"KoinimDOGEBid":         diffs[exchange+"-Koinim-DOGE-Bid"],
 		"GdaxXEM":               fmt.Sprintf("%.5f", coinbaseProPrices["XEM"].Ask),
-		"BittrexXEMAsk":         fmt.Sprintf("%.8f", crossPrices["XEM"].Ask),
+		"XEMAsk":         			 fmt.Sprintf("%.8f", crossPrices["XEM"].Ask),
 		"XEMSpread":             fmt.Sprintf("%.2f", spreads[BINANCE+"XEM"]),
 		"KoineksXEMAsk":         diffs[BINANCE+"-Koineks-XEM-Ask"],
 		"KoineksXEMBid":         diffs[BINANCE+"-Koineks-XEM-Bid"],
