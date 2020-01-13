@@ -33,9 +33,10 @@ func sendMessages() {
 			if exchange == PARIBU || exchange == BTCTURK {
 				continue
 			}
-			
+
 			for _, symbol := range ALL_SYMBOLS {
 				exchangeSymbol := fmt.Sprintf("%s-%s", exchange, symbol)
+
 				notificationFlag := notificationFlags[exchangeSymbol]
 				notificationTime := notificationTimes[exchangeSymbol]
 				duration := time.Since(notificationTime)
@@ -46,6 +47,7 @@ func sendMessages() {
 					firstExchange = BINANCE
 					commissionFee = 0.1
 				}
+				spread := spreads[fmt.Sprintf("%s%s", firstExchange, symbol)]
 
 				exchangeSymbolAsk := fmt.Sprintf("%s-%s", exchangeSymbol, "Ask")
 				exchangeSymbolBid := fmt.Sprintf("%s-%s", exchangeSymbol, "Bid")
@@ -56,15 +58,15 @@ func sendMessages() {
 					continue
 				}
 
-				if notificationFlag && askDiff > MIN_NOTI_PERC-commissionFee && bidDiff < MAX_NOTI_PERC+commissionFee {
+				if notificationFlag && askDiff > MIN_NOTI_PERC-commissionFee - spread && bidDiff < MAX_NOTI_PERC+commissionFee {
 					notificationFlags[exchangeSymbol] = false
 				}
 
 				if !notificationFlag && duration.Minutes() >= DURATION &&
-					(askDiff <= MIN_NOTI_PERC-commissionFee || bidDiff >= MAX_NOTI_PERC+commissionFee) {
+					(askDiff <= MIN_NOTI_PERC-commissionFee - spread || bidDiff >= MAX_NOTI_PERC+commissionFee) {
 					notificationFlags[exchangeSymbol] = true
 					notificationTimes[exchangeSymbol] = time.Now()
-					
+
 					if askDiff <= MIN_NOTI_PERC {
 						askPrice := strings.TrimRight(strings.TrimRight(fmt.Sprintf("%f", prices[exchangeSymbolAsk]), "0"), ".")
 						out += fmt.Sprintf("%s %s %%%.2f %s\n", exchange, symbol, askDiff, askPrice)
