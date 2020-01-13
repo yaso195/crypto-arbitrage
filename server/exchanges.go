@@ -19,7 +19,7 @@ import (
 
 const (
 	PARIBU_URI               = "https://www.paribu.com/ticker"
-	BTCTURK_URI              = "https://www.btcturk.com/api/ticker"
+	BTCTURK_URI              = "https://api.btcturk.com/api/v2/ticker"
 	KOINEKS_URI              = "https://koineks.com/ticker"
 	KOINIM_URI               = "http://koinim.com/api/v1/ticker/%s_TRY/"
 	VEBITCOIN_URI            = "https://us-central1-vebitcoin-market.cloudfunctions.net/app/api/ticker"
@@ -51,11 +51,9 @@ var (
 	binanceCurrencies  = []string{"USDT", "DOGE", "XEM"}
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
 	coinbaseProCurrencies = []string{
-		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XRP-USD", "XLM-USD", "EOS-USD",
+		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XRP-USD", "XLM-USD", "EOS-USD", "LINK-USD",
 	}
 
-	gdaxCurrencies    = []string{"XRP-USD", "XLM-USD", "EOS-USD"}
-	gdax2Currencies    = []string{"XRP-USD", "XLM-USD", "EOS-USD"}
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
 	cexioCurrencies    = []string{"BTC", "ETH", "LTC", "BCH", "XRP", "XLM"}
 
@@ -137,8 +135,8 @@ func startCoinbaseProWS() error {
 		if message.ProductID !=  "" {
 	    id := message.ProductID
 	    tempID := ""
-			if id[4:] == "USD" {
-				tempID = id[0:3]
+			if strings.HasSuffix(id, "-USD") {
+				tempID = id[0:len(id)-4]
 			}
 
 			pAsk, _ := strconv.ParseFloat(message.BestAsk, 64)
@@ -171,7 +169,7 @@ func getParibuPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Paribu response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "XRP", "XLM", "EOS", "USDT"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "XRP", "XLM", "EOS", "USDT", "LINK"}
 	for _, id := range ids {
 		priceAsk, err := jsonparser.GetFloat(responseData, fmt.Sprintf("%s_TL", id), "lowestAsk")
 		if err != nil {
@@ -209,15 +207,15 @@ func getBTCTurkPrices() ([]Price, error) {
 			return
 		}
 
-		if !strings.Contains(pairName, "TRY") {
+		if !strings.HasSuffix(pairName, "TRY") {
 			return
 		}
 
 		var pair string
-		if pairName != "USDTTRY" {
-			pair = pairName[0:3]
-		} else {
+		if pairName == "USDTTRY" || pairName == "LINKTRY" {
 			pair = pairName[0:4]
+		} else {
+			pair = pairName[0:3]
 		}
 
 		priceAsk, err := jsonparser.GetFloat(value, "ask")
@@ -233,7 +231,7 @@ func getBTCTurkPrices() ([]Price, error) {
 		}
 		prices = append(prices, Price{Exchange: BTCTURK, Currency: "TRY", ID: pair, Ask: priceAsk, Bid: priceBid})
 
-	})
+	}, "data")
 
 	if returnError != nil {
 		return nil, returnError
