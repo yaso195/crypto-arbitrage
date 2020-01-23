@@ -42,7 +42,10 @@ func getCurrencyRates() {
 		log.Println("failed to read the TRY currency price from the response data: ", err)
 	}
 
-	tryRate, _ = strconv.ParseFloat(tryRateFloat, 64)
+	tempTryRate, _ := strconv.ParseFloat(tryRateFloat, 64)
+	if tempTryRate != 0.0 {
+		tryRate = tempTryRate
+	}
 
 	response, err = http.Get(fmt.Sprintf(BASE_CURRENCY_URI, "AED"))
 	if err != nil {
@@ -61,5 +64,8 @@ func getCurrencyRates() {
 		fmt.Println("failed to read the AED currency price from the response data: ", err)
 		log.Println("failed to read the AED currency price from the response data: ", err)
 	}
-	aedRate, _ = strconv.ParseFloat(aedRateFloat, 64)
+	tempAedRate, _ := strconv.ParseFloat(aedRateFloat, 64)
+	if tempAedRate != 0.0 {
+		aedRate = tempAedRate
+	}
 }
