@@ -40,7 +40,7 @@ var (
 	fiatNotificationEnabled                                                            = true
 	warning                                                                            string
 
-	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XRP", "XLM", "EOS", "USDT", "DOGE", "XEM", "LINK"}
+	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XRP", "XLM", "EOS", "USDT", "DOGE", "XEM", "LINK", "DASH"}
 )
 
 func Run() {
@@ -367,6 +367,14 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinLINKBid":       diffs[GDAX+"-Vebitcoin-LINK-Bid"],
 		"BTCTurkLINKAsk":         diffs[GDAX+"-BTCTurk-LINK-Ask"],
 		"BTCTurkLINKBid":         diffs[GDAX+"-BTCTurk-LINK-Bid"],
+		"GdaxDASH":              coinbaseProPrices["DASH"].Ask,
+		"DASHSpread":            fmt.Sprintf("%.2f", spreads[GDAX+"DASH"]),
+		"KoineksDASHAsk":        diffs[GDAX+"-Koineks-DASH-Ask"],
+		"KoineksDASHBid":        diffs[GDAX+"-Koineks-DASH-Bid"],
+		"KoinimDASHAsk":      	 diffs[GDAX+"-Koinim-DASH-Ask"],
+		"KoinimDASHBid":      	 diffs[GDAX+"-Koinim-DASH-Bid"],
+		"VebitcoinDASHAsk":      diffs[GDAX+"-Vebitcoin-DASH-Ask"],
+		"VebitcoinDASHBid":      diffs[GDAX+"-Vebitcoin-DASH-Bid"],
 		"ParibuBTCAskPrice":     prices["Paribu-BTC-Ask"],
 		"ParibuBTCBidPrice":     prices["Paribu-BTC-Bid"],
 		"BTCTurkBTCAskPrice":    prices["BTCTurk-BTC-Ask"],
@@ -481,6 +489,12 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BTCTurkLINKBidPrice":    prices["BTCTurk-LINK-Bid"],
 		"VebitcoinLINKAskPrice":  prices["Vebitcoin-LINK-Ask"],
 		"VebitcoinLINKBidPrice":  prices["Vebitcoin-LINK-Bid"],
+		"KoineksDASHAskPrice":    prices["Koineks-DASH-Ask"],
+		"KoineksDASHBidPrice":    prices["Koineks-DASH-Bid"],
+		"KoinimDASHAskPrice":    prices["Koinim-DASH-Ask"],
+		"KoinimDASHBidPrice":    prices["Koinim-DASH-Bid"],
+		"VebitcoinDASHAskPrice":  prices["Vebitcoin-DASH-Ask"],
+		"VebitcoinDASHBidPrice":  prices["Vebitcoin-DASH-Bid"],
 		"KoineksXEMAskPrice":    prices["Koineks-XEM-Ask"],
 		"KoineksXEMBidPrice":    prices["Koineks-XEM-Bid"],
 		"GdaxUSDT":              fmt.Sprintf("%.8f", coinbaseProPrices["USDT"].Ask),

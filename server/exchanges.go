@@ -52,6 +52,7 @@ var (
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
 	coinbaseProCurrencies = []string{
 		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XRP-USD", "XLM-USD", "EOS-USD", "LINK-USD",
+		"DASH-USD",
 	}
 
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
@@ -243,7 +244,7 @@ func getBTCTurkPrices() ([]Price, error) {
 func getKoinimPrices() ([]Price, error) {
 	var prices []Price
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "DASH"}
 	for _, id := range ids {
 		uri := fmt.Sprintf(KOINIM_URI, id)
 
@@ -286,7 +287,7 @@ func getKoineksPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XRP", "XLM", "EOS", "XEM"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XRP", "XLM", "EOS", "XEM", "DASH"}
 
 	for _, id := range ids {
 
