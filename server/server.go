@@ -40,6 +40,8 @@ var (
 	fiatNotificationEnabled                                                            = true
 	warning                                                                            string
 
+	mux sync.Mutex
+
 	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XRP", "XLM", "EOS", "USDT", "DOGE", "XEM", "LINK", "DASH"}
 )
 
@@ -644,8 +646,11 @@ func setDiffsAndPrices(list []Price) {
 
 			diffs[fmt.Sprintf("%s-%s-%s-%s", firstExchange, p.Exchange, p.ID, "Ask")] = askRound
 			diffs[fmt.Sprintf("%s-%s-%s-%s", firstExchange, p.Exchange, p.ID, "Bid")] = bidRound
+
+			mux.Lock()
 			prices[fmt.Sprintf("%s-%s-%s", p.Exchange, p.ID, "Ask")] = p.Ask
 			prices[fmt.Sprintf("%s-%s-%s", p.Exchange, p.ID, "Bid")] = p.Bid
+			mux.Unlock()
 
 			maxD := maxDiffs[p.Exchange]
 			minD, ok := minDiffs[p.Exchange]

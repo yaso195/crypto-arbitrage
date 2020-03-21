@@ -384,8 +384,11 @@ func getBittrexDOGEVolumes() error {
 
 	dogeVolumes["BittrexAsk"] = pAsk * askVolumeSize
 	dogeVolumes["BittrexBid"] = pBid * bidVolumeSize
+
+	mux.Lock()
 	prices["BittrexDOGEAsk"] = pAsk
 	prices["BittrexDOGEBid"] = pBid
+	mux.Unlock()
 
 	return nil
 }
@@ -428,8 +431,11 @@ func getBinanceDOGEVolumes() error {
 
 	dogeVolumes["BinanceAsk"] = pAsk * askVolumeSize
 	dogeVolumes["BinanceBid"] = pBid * bidVolumeSize
+
+	mux.Lock()
 	prices["BinanceDOGEAsk"] = pAsk
 	prices["BinanceDOGEBid"] = pBid
+	mux.Unlock()
 
 	return nil
 }
