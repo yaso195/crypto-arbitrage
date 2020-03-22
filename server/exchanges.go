@@ -480,7 +480,10 @@ func getBinancePrices() (map[string]Price, error) {
 		} else {
 			prices[currency] = Price{Exchange: BINANCE, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
 		}
+
+		mux.Lock()
 		spreads[BINANCE+currency] = (pAsk - pBid) * 100 / pBid
+		mux.Unlock()
 	}
 
 	return prices, nil

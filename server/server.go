@@ -246,7 +246,7 @@ func PrintTableWithBinance(c *gin.Context) {
 }
 
 func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
-
+	mux.Lock()
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"USDTRY":                tryRate,
 		"USDAED":                aedRate,
@@ -535,6 +535,7 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"BinanceDOGEBidVolume":  fmt.Sprintf("%.2f", dogeVolumes["BinanceBid"]),
 		"Warning":               warning,
 	})
+	mux.Unlock()
 }
 
 func SetNotificationLimits(c *gin.Context) {
@@ -644,10 +645,10 @@ func setDiffsAndPrices(list []Price) {
 			askRound := Round(askPercentage, .5, 2)
 			bidRound := Round(bidPercentage, .5, 2)
 
+			mux.Lock()
 			diffs[fmt.Sprintf("%s-%s-%s-%s", firstExchange, p.Exchange, p.ID, "Ask")] = askRound
 			diffs[fmt.Sprintf("%s-%s-%s-%s", firstExchange, p.Exchange, p.ID, "Bid")] = bidRound
 
-			mux.Lock()
 			prices[fmt.Sprintf("%s-%s-%s", p.Exchange, p.ID, "Ask")] = p.Ask
 			prices[fmt.Sprintf("%s-%s-%s", p.Exchange, p.ID, "Bid")] = p.Bid
 			mux.Unlock()

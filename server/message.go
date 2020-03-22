@@ -47,12 +47,14 @@ func sendMessages() {
 					firstExchange = BINANCE
 					commissionFee = 0.1
 				}
+				mux.Lock()
 				spread := spreads[fmt.Sprintf("%s%s", firstExchange, symbol)]
 
 				exchangeSymbolAsk := fmt.Sprintf("%s-%s", exchangeSymbol, "Ask")
 				exchangeSymbolBid := fmt.Sprintf("%s-%s", exchangeSymbol, "Bid")
 				askDiff := diffs[fmt.Sprintf("%s-%s", firstExchange, exchangeSymbolAsk)]
 				bidDiff := diffs[fmt.Sprintf("%s-%s", firstExchange, exchangeSymbolBid)]
+				mux.Unlock()
 
 				if bidDiff > askDiff {
 					continue
