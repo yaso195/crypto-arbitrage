@@ -20,7 +20,7 @@ import (
 const (
 	PARIBU_URI               = "https://www.paribu.com/ticker"
 	BTCTURK_URI              = "https://api.btcturk.com/api/v2/ticker"
-	KOINEKS_URI              = "https://koineks.com/ticker"
+	KOINEKS_URI              = "https://api.thodex.com/v1/public/order-depth?market=%sTRY&limit=1"
 	KOINIM_URI               = "http://koinim.com/api/v1/ticker/%s_TRY/"
 	VEBITCOIN_URI            = "https://us-central1-vebitcoin-market.cloudfunctions.net/app/api/ticker"
 	BINANCE_URI              = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%s%s"
@@ -277,28 +277,28 @@ func getKoinimPrices() ([]Price, error) {
 func getKoineksPrices() ([]Price, error) {
 	var prices []Price
 
-	response, err := http.Get(KOINEKS_URI)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get Koineks response : %s", err)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
-	}
-
 	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XRP", "XLM", "EOS", "XEM", "DASH"}
 
 	for _, id := range ids {
 
-		priceAsk, err := jsonparser.GetString(responseData, id, "ask")
+		response, err := http.Get(fmt.Sprintf(KOINEKS_URI, id))
+		if err != nil {
+			return nil, fmt.Errorf("failed to get Koineks response : %s", err)
+		}
+
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read Koineks response data : %s", err)
+		}
+
+		priceAsk, err := jsonparser.GetString(responseData, "result", "asks", "[0]", "[0]")
 		if err != nil {
 			return nil, fmt.Errorf("failed to read the ask price from the Koineks response data: %s", err)
 		}
 
 		pAsk, _ := strconv.ParseFloat(priceAsk, 64)
 
-		priceBid, err := jsonparser.GetString(responseData, id, "bid")
+		priceBid, err := jsonparser.GetString(responseData, "result", "bids", "[0]", "[0]")
 		if err != nil {
 			return nil, fmt.Errorf("failed to read the bid price from the Koineks response data: %s", err)
 		}
