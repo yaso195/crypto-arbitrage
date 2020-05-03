@@ -22,7 +22,7 @@ const (
 	BTCTURK_URI              = "https://api.btcturk.com/api/v2/ticker"
 	KOINEKS_URI              = "https://api.thodex.com/v1/public/order-depth?market=%sTRY&limit=1"
 	KOINIM_URI               = "http://koinim.com/api/v1/ticker/%s_TRY/"
-	VEBITCOIN_URI            = "https://us-central1-vebitcoin-market.cloudfunctions.net/app/api/ticker"
+	VEBITCOIN_URI            = "https://prod-data-publisher.azurewebsites.net/api/ticker"
 	BINANCE_URI              = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%s%s"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s"
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
