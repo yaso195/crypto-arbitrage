@@ -1,1 +1,1 @@
-web: crypto-arbitrage
+web: bin/crypto-arbitrage
