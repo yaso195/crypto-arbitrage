@@ -142,6 +142,7 @@ func startCoinbaseProWS() error {
 
 			pAsk, _ := strconv.ParseFloat(message.BestAsk, 64)
 			pBid, _ := strconv.ParseFloat(message.BestBid, 64)
+			mux.Lock()
 			spreads[GDAX+tempID] = (pAsk - pBid) * 100 / pBid
 
 			p, ok := coinbaseProPrices[tempID]
@@ -151,6 +152,7 @@ func startCoinbaseProWS() error {
 				p.Ask = pAsk
 				p.Bid = pBid
 			}
+			mux.Unlock()
 		}
   }
 
@@ -382,10 +384,11 @@ func getBittrexDOGEVolumes() error {
 		return fmt.Errorf("failed to read the DOGE bid volume size from the Bittrex response data: %s", err)
 	}
 
+	mux.Lock()
 	dogeVolumes["BittrexAsk"] = pAsk * askVolumeSize
 	dogeVolumes["BittrexBid"] = pBid * bidVolumeSize
 
-	mux.Lock()
+
 	prices["BittrexDOGEAsk"] = pAsk
 	prices["BittrexDOGEBid"] = pBid
 	mux.Unlock()
@@ -429,10 +432,10 @@ func getBinanceDOGEVolumes() error {
 	}
 	bidVolumeSize, _ := strconv.ParseFloat(bidVolumeSizeStr, 64)
 
+	mux.Lock()
 	dogeVolumes["BinanceAsk"] = pAsk * askVolumeSize
 	dogeVolumes["BinanceBid"] = pBid * bidVolumeSize
 
-	mux.Lock()
 	prices["BinanceDOGEAsk"] = pAsk
 	prices["BinanceDOGEBid"] = pBid
 	mux.Unlock()
