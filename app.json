@@ -8,5 +8,6 @@
   "image": "heroku/go:1.6",
   "mount_dir": "src/github.com/yaso195/crypto-arbitrage",
   "website": "http://github.com/yaso195/crypto-arbitrage",
-  "repository": "http://github.com/yaso195/crypto-arbitrage"
+  "repository": "http://github.com/yaso195/crypto-arbitrage",
+  "stack": "heroku-20"
 }
