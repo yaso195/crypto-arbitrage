@@ -52,7 +52,7 @@ var (
 	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
 	coinbaseProCurrencies = []string{
 		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XRP-USD", "XLM-USD", "EOS-USD", "LINK-USD",
-		"DASH-USD",
+		"DASH-USD", "ZEC-USD",
 	}
 
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
@@ -279,7 +279,7 @@ func getKoinimPrices() ([]Price, error) {
 func getKoineksPrices() ([]Price, error) {
 	var prices []Price
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XRP", "XLM", "EOS", "XEM", "DASH"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XRP", "XLM", "EOS", "LINK", "XEM", "DASH", "ZEC"}
 
 	for _, id := range ids {
 

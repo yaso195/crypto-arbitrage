@@ -42,7 +42,7 @@ var (
 
 	mux sync.Mutex
 
-	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XRP", "XLM", "EOS", "USDT", "DOGE", "XEM", "LINK", "DASH"}
+	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XRP", "XLM", "EOS", "USDT", "DOGE", "XEM", "LINK", "DASH", "ZEC"}
 )
 
 func Run() {
@@ -365,6 +365,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"VebitcoinLINKBid":       diffs[GDAX+"-Vebitcoin-LINK-Bid"],
 		"BTCTurkLINKAsk":         diffs[GDAX+"-BTCTurk-LINK-Ask"],
 		"BTCTurkLINKBid":         diffs[GDAX+"-BTCTurk-LINK-Bid"],
+		"KoineksLINKAsk":         diffs[GDAX+"-Koineks-LINK-Ask"],
+		"KoineksLINKBid":         diffs[GDAX+"-Koineks-LINK-Bid"],
 		"GdaxDASH":              coinbaseProPrices["DASH"].Ask,
 		"DASHSpread":            fmt.Sprintf("%.2f", spreads[GDAX+"DASH"]),
 		"KoineksDASHAsk":        diffs[GDAX+"-Koineks-DASH-Ask"],
@@ -373,6 +375,12 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"KoinimDASHBid":      	 diffs[GDAX+"-Koinim-DASH-Bid"],
 		"VebitcoinDASHAsk":      diffs[GDAX+"-Vebitcoin-DASH-Ask"],
 		"VebitcoinDASHBid":      diffs[GDAX+"-Vebitcoin-DASH-Bid"],
+		"GdaxZEC":              coinbaseProPrices["ZEC"].Ask,
+		"ZECSpread":            fmt.Sprintf("%.2f", spreads[GDAX+"ZEC"]),
+		"KoineksZECAsk":        diffs[GDAX+"-Koineks-DASH-Ask"],
+		"KoineksZECBid":        diffs[GDAX+"-Koineks-DASH-Bid"],
+		"VebitcoinZECAsk":      diffs[GDAX+"-Vebitcoin-ZEC-Ask"],
+		"VebitcoinZECBid":      diffs[GDAX+"-Vebitcoin-ZEC-Bid"],
 		"ParibuBTCAskPrice":     prices["Paribu-BTC-Ask"],
 		"ParibuBTCBidPrice":     prices["Paribu-BTC-Bid"],
 		"BTCTurkBTCAskPrice":    prices["BTCTurk-BTC-Ask"],
@@ -485,6 +493,8 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"ParibuLINKBidPrice":     prices["Paribu-LINK-Bid"],
 		"BTCTurkLINKAskPrice":    prices["BTCTurk-LINK-Ask"],
 		"BTCTurkLINKBidPrice":    prices["BTCTurk-LINK-Bid"],
+		"KoineksLINKAskPrice":    prices["Koineks-LINK-Ask"],
+		"KoineksLINKBidPrice":    prices["Koineks-LINK-Bid"],
 		"VebitcoinLINKAskPrice":  prices["Vebitcoin-LINK-Ask"],
 		"VebitcoinLINKBidPrice":  prices["Vebitcoin-LINK-Bid"],
 		"KoineksDASHAskPrice":    prices["Koineks-DASH-Ask"],
@@ -493,6 +503,10 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"KoinimDASHBidPrice":    prices["Koinim-DASH-Bid"],
 		"VebitcoinDASHAskPrice":  prices["Vebitcoin-DASH-Ask"],
 		"VebitcoinDASHBidPrice":  prices["Vebitcoin-DASH-Bid"],
+		"KoineksZECAskPrice":    prices["Koineks-ZEC-Ask"],
+		"KoineksZECBidPrice":    prices["Koineks-ZEC-Bid"],
+		"VebitcoinZECAskPrice":  prices["Vebitcoin-ZEC-Ask"],
+		"VebitcoinZECBidPrice":  prices["Vebitcoin-ZEC-Bid"],
 		"KoineksXEMAskPrice":    prices["Koineks-XEM-Ask"],
 		"KoineksXEMBidPrice":    prices["Koineks-XEM-Bid"],
 		"GdaxUSDT":              fmt.Sprintf("%.8f", coinbaseProPrices["USDT"].Ask),
