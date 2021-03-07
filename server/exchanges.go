@@ -26,16 +26,12 @@ const (
 	BINANCE_URI              = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=%s%s"
 	BITTREX_URI              = "https://bittrex.com/api/v1.1/public/getticker?market=%s-%s"
 	BITTREX_DOGE_VOLUME_URI  = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-DOGE&type=both"
-	BITOASIS_URI             = "https://api.bitoasis.net/v1/exchange/ticker/%s-AED"
 	BITFINEX_URI             = "https://api.bitfinex.com/v1/pubticker/%sUSD"
-	CEXIO_URI                = "https://cex.io/api/ticker/%s/USD"
 
 	GDAX      = "GDAX"
 	BINANCE   = "Binance"
-	BITOASIS  = "Bitoasis"
 	BITTREX   = "Bittrex"
 	BITFINEX  = "Bitfinex"
-	CEXIO     = "Cexio"
 	PARIBU    = "Paribu"
 	BTCTURK   = "BTCTurk"
 	KOINEKS   = "Koineks"
@@ -47,16 +43,14 @@ var (
 	symbolToExchangeNames map[string][]string
 
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN}
-	bittrexCurrencies  = []string{"USDT", "DOGE", "XRP", "XLM", "XEM"}
+	bittrexCurrencies  = []string{"USDT", "DOGE", "XLM", "XEM"}
 	binanceCurrencies  = []string{"USDT", "DOGE", "XEM"}
-	bitoasisCurrencies = []string{"BTC", "ETH", "LTC", "XLM", "XRP", "BCH"}
 	coinbaseProCurrencies = []string{
-		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XRP-USD", "XLM-USD", "EOS-USD", "LINK-USD",
-		"DASH-USD", "ZEC-USD",
+		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XLM-USD", "EOS-USD", "LINK-USD",
+		"DASH-USD", "ZEC-USD", "MKR-USD",
 	}
 
-	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XRP", "XLM"}
-	cexioCurrencies    = []string{"BTC", "ETH", "LTC", "BCH", "XRP", "XLM"}
+	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XLM"}
 
 	wsDialer ws.Dialer
 )
@@ -172,7 +166,7 @@ func getParibuPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Paribu response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "XRP", "XLM", "EOS", "USDT", "LINK"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "XLM", "EOS", "USDT", "LINK", "MKR"}
 	for _, id := range ids {
 		priceAsk, err := jsonparser.GetFloat(responseData, fmt.Sprintf("%s_TL", id), "lowestAsk")
 		if err != nil {
@@ -279,7 +273,7 @@ func getKoinimPrices() ([]Price, error) {
 func getKoineksPrices() ([]Price, error) {
 	var prices []Price
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XRP", "XLM", "EOS", "LINK", "XEM", "DASH", "ZEC"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XLM", "EOS", "LINK", "XEM", "DASH", "ZEC", "MKR"}
 
 	for _, id := range ids {
 
@@ -450,7 +444,7 @@ func getBinancePrices() (map[string]Price, error) {
 		var uri string
 		if currency == "USDT" {
 			uri = fmt.Sprintf(BINANCE_URI, "USDC", currency)
-		} else if currency == "XRP" || currency == "XLM" {
+		} else if currency == "XLM" {
 			uri = fmt.Sprintf(BINANCE_URI, currency, "USDC")
 		} else {
 			uri = fmt.Sprintf(BINANCE_URI, currency, "BTC")
@@ -492,41 +486,6 @@ func getBinancePrices() (map[string]Price, error) {
 	return prices, nil
 }
 
-func getBitoasisPrices() ([]Price, error) {
-	prices := []Price{}
-
-	for _, currency := range bitoasisCurrencies {
-
-		uri := fmt.Sprintf(BITOASIS_URI, currency)
-
-		response, err := http.Get(uri)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get BitoasIs response : %s", err)
-		}
-
-		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read Bitoasis response data : %s", err)
-		}
-
-		priceAsk, err := jsonparser.GetString(responseData, "ticker", "ask")
-		if err != nil {
-			return nil, fmt.Errorf("failed to read the ask price from the Bitoasis response data: %s", err)
-		}
-		pAsk, _ := strconv.ParseFloat(priceAsk, 64)
-
-		priceBid, err := jsonparser.GetString(responseData, "ticker", "bid")
-		if err != nil {
-			return nil, fmt.Errorf("failed to read the bid price from the Bitoasis response data: %s", err)
-		}
-		pBid, _ := strconv.ParseFloat(priceBid, 64)
-
-		prices = append(prices, Price{Exchange: BITOASIS, Currency: "AED", ID: currency, Ask: pAsk, Bid: pBid})
-	}
-
-	return prices, nil
-}
-
 func getBitfinexPrices() ([]Price, error) {
 	prices := []Price{}
 
@@ -555,37 +514,6 @@ func getBitfinexPrices() ([]Price, error) {
 		pBid, _ := strconv.ParseFloat(priceBid, 64)
 
 		prices = append(prices, Price{Exchange: BITFINEX, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid})
-	}
-
-	return prices, nil
-}
-
-func getCexioPrices() ([]Price, error) {
-	prices := []Price{}
-
-	for _, currency := range cexioCurrencies {
-		uri := fmt.Sprintf(CEXIO_URI, currency)
-		response, err := http.Get(uri)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get Cexio response : %s", err)
-		}
-
-		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read Cexio response data : %s", err)
-		}
-
-		pAsk, err := jsonparser.GetFloat(responseData, "ask")
-		if err != nil {
-			return nil, fmt.Errorf("failed to read the ask price from the Cexio response data: %s", err)
-		}
-
-		pBid, err := jsonparser.GetFloat(responseData, "bid")
-		if err != nil {
-			return nil, fmt.Errorf("failed to read the bid price from the Cexio response data: %s", err)
-		}
-
-		prices = append(prices, Price{Exchange: CEXIO, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid})
 	}
 
 	return prices, nil
