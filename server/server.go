@@ -42,7 +42,7 @@ var (
 
 	mux sync.Mutex
 
-	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XLM", "EOS", "USDT", "DOGE", "XEM", "LINK", "DASH", "ZEC", "MKR"}
+	ALL_SYMBOLS = []string{"BTC", "ETH", "LTC", "BCH", "ETC", "ZRX", "XLM", "EOS", "USDT", "DOGE", "XEM", "LINK", "DASH", "ZEC", "MKR", "BAT", "ADA"}
 )
 
 func Run() {
@@ -336,8 +336,20 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"MKRSpread":            fmt.Sprintf("%.2f", spreads[GDAX+"MKR"]),
 		"KoineksMKRAsk":        diffs[GDAX+"-Koineks-MKR-Ask"],
 		"KoineksMKRBid":        diffs[GDAX+"-Koineks-MKR-Bid"],
-		"ParibuMKRAsk":        diffs[GDAX+"-Paribu-MKR-Ask"],
-		"ParibuMKRBid":        diffs[GDAX+"-Paribu-MKR-Bid"],
+		"ParibuMKRAsk":          diffs[GDAX+"-Paribu-MKR-Ask"],
+		"ParibuMKRBid":          diffs[GDAX+"-Paribu-MKR-Bid"],
+		"GdaxADA":               coinbaseProPrices["ADA"].Ask,
+		"ADASpread":             fmt.Sprintf("%.2f", spreads[GDAX+"ADA"]),
+		"KoineksADAAsk":         diffs[GDAX+"-Koineks-ADA-Ask"],
+		"KoineksADABid":         diffs[GDAX+"-Koineks-ADA-Bid"],
+		"ParibuADAAsk":          diffs[GDAX+"-Paribu-ADA-Ask"],
+		"ParibuADABid":          diffs[GDAX+"-Paribu-ADA-Bid"],
+		"BTCTurkADAAsk":         diffs[GDAX+"-BTCTurk-ADA-Ask"],
+		"BTCTurkADABid":         diffs[GDAX+"-BTCTurk-ADA-Bid"],
+		"GdaxBAT":               coinbaseProPrices["BAT"].Ask,
+		"BATSpread":             fmt.Sprintf("%.2f", spreads[GDAX+"BAT"]),
+		"KoineksBATAsk":         diffs[GDAX+"-Koineks-BAT-Ask"],
+		"KoineksBATBid":         diffs[GDAX+"-Koineks-BAT-Bid"],
 		"ParibuBTCAskPrice":     prices["Paribu-BTC-Ask"],
 		"ParibuBTCBidPrice":     prices["Paribu-BTC-Bid"],
 		"BTCTurkBTCAskPrice":    prices["BTCTurk-BTC-Ask"],
@@ -436,6 +448,14 @@ func printTable(c *gin.Context, crossPrices map[string]Price, exchange string) {
 		"KoineksMKRBidPrice":    prices["Koineks-MKR-Bid"],
 		"ParibuMKRAskPrice":     prices["Paribu-MKR-Ask"],
 		"ParibuMKRBidPrice":     prices["Paribu-MKR-Bid"],
+		"KoineksADAAskPrice":    prices["Koineks-ADA-Ask"],
+		"KoineksADABidPrice":    prices["Koineks-ADA-Bid"],
+		"ParibuADAAskPrice":     prices["Paribu-ADA-Ask"],
+		"ParibuADABidPrice":     prices["Paribu-ADA-Bid"],
+		"BTCTurkADAAskPrice":     prices["BTCTurk-ADA-Ask"],
+		"BTCTurkADABidPrice":     prices["BTCTurk-ADA-Bid"],
+		"KoineksBATAskPrice":    prices["Koineks-BAT-Ask"],
+		"KoineksBATBidPrice":    prices["Koineks-BAT-Bid"],
 		"GdaxUSDT":              fmt.Sprintf("%.8f", coinbaseProPrices["USDT"].Ask),
 		"USDTSpread":            fmt.Sprintf("%.2f", spreads[BINANCE+"USDT"]),
 		"ParibuUSDTAsk":         diffs[BINANCE+"-Paribu-USDT-Ask"],

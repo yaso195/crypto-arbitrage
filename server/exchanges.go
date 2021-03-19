@@ -47,7 +47,7 @@ var (
 	binanceCurrencies  = []string{"USDT", "DOGE", "XEM"}
 	coinbaseProCurrencies = []string{
 		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XLM-USD", "EOS-USD", "LINK-USD",
-		"DASH-USD", "ZEC-USD", "MKR-USD",
+		"DASH-USD", "ZEC-USD", "MKR-USD", "ADA-USD", "BAT-USDC",
 	}
 
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XLM"}
@@ -134,6 +134,10 @@ func startCoinbaseProWS() error {
 				tempID = id[0:len(id)-4]
 			}
 
+			if strings.HasSuffix(id, "-USDC") {
+				tempID = id[0:len(id)-5]
+			}
+
 			pAsk, _ := strconv.ParseFloat(message.BestAsk, 64)
 			pBid, _ := strconv.ParseFloat(message.BestBid, 64)
 			mux.Lock()
@@ -166,7 +170,7 @@ func getParibuPrices() ([]Price, error) {
 		return nil, fmt.Errorf("failed to read Paribu response data : %s", err)
 	}
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "XLM", "EOS", "USDT", "LINK", "MKR"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "DOGE", "XLM", "EOS", "USDT", "LINK", "MKR", "ADA"}
 	for _, id := range ids {
 		priceAsk, err := jsonparser.GetFloat(responseData, fmt.Sprintf("%s_TL", id), "lowestAsk")
 		if err != nil {
@@ -273,7 +277,7 @@ func getKoinimPrices() ([]Price, error) {
 func getKoineksPrices() ([]Price, error) {
 	var prices []Price
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XLM", "EOS", "LINK", "XEM", "DASH", "ZEC", "MKR"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XLM", "EOS", "LINK", "XEM", "DASH", "ZEC", "MKR", "BAT", "ADA"}
 
 	for _, id := range ids {
 
