@@ -30,7 +30,7 @@ func sendMessages() {
 	var out string
 	if fiatNotificationEnabled {
 		for _, exchange := range ALL_EXCHANGES {
-			if exchange == PARIBU || exchange == BTCTURK {
+			if exchange == PARIBU || exchange == BTCTURK || exchange == VEBITCOIN {
 				continue
 			}
 
