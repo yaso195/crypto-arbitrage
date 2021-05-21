@@ -36,18 +36,12 @@ th, td {
     <th>GDAX</th>
 
     <th colspan="2">BTCTurk</th>
-    <th colspan="2">Koineks</th>
     <th colspan="2">Koinim</th>
-    <th colspan="2">Vebitcoin</th>
     <th colspan="2">Paribu</th>
   </tr>
   <tr>
   	<th>Symbol</th>
     <th>ASK</th>
-    <th>ASK</th>
-    <th>BID</th>
-    <th>ASK</th>
-    <th>BID</th>
     <th>ASK</th>
     <th>BID</th>
     <th>ASK</th>
@@ -60,12 +54,8 @@ th, td {
     <td>{{.GdaxBTC}}</td>
     <td>%{{.BTCTurkBTCAsk}} <br><small><i> ({{.BTCTurkBTCAskPrice}})</small></td>
     <td>%{{.BTCTurkBTCBid}} <br><small><i> ({{.BTCTurkBTCBidPrice}})</small></td>
-    <td>%{{.KoineksBTCAsk}} <br><small><i> ({{.KoineksBTCAskPrice}})</small></td>
-    <td>%{{.KoineksBTCBid}} <br><small><i> ({{.KoineksBTCBidPrice}})</small></td>
     <td>%{{.KoinimBTCAsk}} <br><small><i> ({{.KoinimBTCAskPrice}})</small></td>
     <td>%{{.KoinimBTCBid}} <br><small><i> ({{.KoinimBTCBidPrice}})</small></td>
-    <td>%{{.VebitcoinBTCAsk}} <br><small><i> ({{.VebitcoinBTCAskPrice}})</small></td>
-    <td>%{{.VebitcoinBTCBid}} <br><small><i> ({{.VebitcoinBTCBidPrice}})</small></td>
     <td>%{{.ParibuBTCAsk}} <br><small><i> ({{.ParibuBTCAskPrice}})</small></td>
     <td>%{{.ParibuBTCBid}} <br><small><i> ({{.ParibuBTCBidPrice}})</small></td>
   </tr>
@@ -74,12 +64,8 @@ th, td {
     <td>{{.GdaxETH}}</td>
     <td>%{{.BTCTurkETHAsk}} <br><small><i> ({{.BTCTurkETHAskPrice}})</small></td>
     <td>%{{.BTCTurkETHBid}} <br><small><i> ({{.BTCTurkETHBidPrice}})</small></td>
-    <td>%{{.KoineksETHAsk}} <br><small><i> ({{.KoineksETHAskPrice}})</small></td>
-    <td>%{{.KoineksETHBid}} <br><small><i> ({{.KoineksETHBidPrice}})</small></td>
     <td>%{{.KoinimETHAsk}} <br><small><i> ({{.KoinimETHAskPrice}})</small></td>
     <td>%{{.KoinimETHBid}} <br><small><i> ({{.KoinimETHBidPrice}})</small></td>
-    <td>%{{.VebitcoinETHAsk}} <br><small><i> ({{.VebitcoinETHAskPrice}})</small></td>
-    <td>%{{.VebitcoinETHBid}} <br><small><i> ({{.VebitcoinETHBidPrice}})</small></td>
     <td>%{{.ParibuETHAsk}} <br><small><i> ({{.ParibuETHAskPrice}})</small></td>
     <td>%{{.ParibuETHBid}} <br><small><i> ({{.ParibuETHBidPrice}})</small></td>
   </tr>
@@ -88,12 +74,8 @@ th, td {
     <td>{{.GdaxLTC}}</td>
     <td>%{{.BTCTurkLTCAsk}} <br><small><i> ({{.BTCTurkLTCAskPrice}})</small></td>
     <td>%{{.BTCTurkLTCBid}} <br><small><i> ({{.BTCTurkLTCBidPrice}})</small></td>
-    <td>%{{.KoineksLTCAsk}} <br><small><i> ({{.KoineksLTCAskPrice}})</small></td>
-    <td>%{{.KoineksLTCBid}} <br><small><i> ({{.KoineksLTCBidPrice}})</small></td>
     <td>%{{.KoinimLTCAsk}} <br><small><i> ({{.KoinimLTCAskPrice}})</small></td>
     <td>%{{.KoinimLTCBid}} <br><small><i> ({{.KoinimLTCBidPrice}})</small></td>
-    <td>%{{.VebitcoinLTCAsk}} <br><small><i> ({{.VebitcoinLTCAskPrice}})</small></td>
-    <td>%{{.VebitcoinLTCBid}} <br><small><i> ({{.VebitcoinLTCBidPrice}})</small></td>
     <td>%{{.ParibuLTCAsk}} <br><small><i> ({{.ParibuLTCAskPrice}})</small></td>
     <td>%{{.ParibuLTCBid}} <br><small><i> ({{.ParibuLTCBidPrice}})</small></td>
   </tr>
@@ -102,22 +84,14 @@ th, td {
     <td>{{.GdaxBCH}} <br><small><i> (%{{.BCHSpread}})</small></td>
     <td>-</td>
     <td>-</td>
-    <td>%{{.KoineksBCHAsk}} <br><small><i> ({{.KoineksBCHAskPrice}})</small></td>
-    <td>%{{.KoineksBCHBid}} <br><small><i> ({{.KoineksBCHBidPrice}})</small></td>
     <td>%{{.KoinimBCHAsk}} <br><small><i> ({{.KoinimBCHAskPrice}})</small></td>
     <td>%{{.KoinimBCHBid}} <br><small><i> ({{.KoinimBCHBidPrice}})</small></td>
-    <td>-</td>
-    <td>-</td>
     <td>%{{.ParibuBCHAsk}} <br><small><i> ({{.ParibuBCHAskPrice}})</small></td>
     <td>%{{.ParibuBCHBid}} <br><small><i> ({{.ParibuBCHBidPrice}})</small></td>
   </tr>
   <tr>
     <td>ETC</td>
     <td>{{.GdaxETC}}<br><small><i> (%{{.ETCSpread}})</small></td>
-    <td>-</td>
-    <td>-</td>
-    <td>%{{.KoineksETCAsk}} <br><small><i> ({{.KoineksETCAskPrice}})</small></td>
-    <td>%{{.KoineksETCBid}} <br><small><i> ({{.KoineksETCBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
     <td>-</td>
@@ -130,12 +104,8 @@ th, td {
     <td>{{.GdaxXLM}} <br><small><i> (%{{.XLMSpread}})</small></td>
     <td>%{{.BTCTurkXLMAsk}} <br><small><i> ({{.BTCTurkXLMAskPrice}})</small></td>
     <td>%{{.BTCTurkXLMBid}} <br><small><i> ({{.BTCTurkXLMBidPrice}})</small></td>
-    <td>%{{.KoineksXLMAsk}} <br><small><i> ({{.KoineksXLMAskPrice}})</small></td>
-    <td>%{{.KoineksXLMBid}} <br><small><i> ({{.KoineksXLMBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
-    <td>%{{.VebitcoinXLMAsk}} <br><small><i> ({{.VebitcoinXLMAskPrice}})</small></td>
-    <td>%{{.VebitcoinXLMBid}} <br><small><i> ({{.VebitcoinXLMBidPrice}})</small></td>
     <td>%{{.ParibuXLMAsk}} <br><small><i> ({{.ParibuXLMAskPrice}})</small></td>
     <td>%{{.ParibuXLMBid}} <br><small><i> ({{.ParibuXLMBidPrice}})</small></td>
   </tr>
@@ -144,12 +114,8 @@ th, td {
     <td>{{.GdaxEOS}} <br><small><i> (%{{.EOSSpread}})</small></td>
     <td>-</td>
     <td>-</td>
-    <td>%{{.KoineksEOSAsk}} <br><small><i> ({{.KoineksEOSAskPrice}})</small></td>
-    <td>%{{.KoineksEOSBid}} <br><small><i> ({{.KoineksEOSBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
-    <td>%{{.VebitcoinEOSAsk}} <br><small><i> ({{.VebitcoinEOSAskPrice}})</small></td>
-    <td>%{{.VebitcoinEOSBid}} <br><small><i> ({{.VebitcoinEOSBidPrice}})</small></td>
     <td>%{{.ParibuEOSAsk}} <br><small><i> ({{.ParibuEOSAskPrice}})</small></td>
     <td>%{{.ParibuEOSBid}} <br><small><i> ({{.ParibuEOSBidPrice}})</small></td>
   </tr>
@@ -158,12 +124,8 @@ th, td {
     <td>{{.GdaxLINK}} <br><small><i> (%{{.LINKSpread}})</small></td>
     <td>%{{.BTCTurkLINKAsk}} <br><small><i> ({{.BTCTurkLINKAskPrice}})</small></td>
     <td>%{{.BTCTurkLINKBid}} <br><small><i> ({{.BTCTurkLINKBidPrice}})</small></td>
-    <td>%{{.KoineksLINKAsk}} <br><small><i> ({{.KoineksLINKAskPrice}})</small></td>
-    <td>%{{.KoineksLINKBid}} <br><small><i> ({{.KoineksLINKBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
-    <td>%{{.VebitcoinLINKAsk}} <br><small><i> ({{.VebitcoinLINKAskPrice}})</small></td>
-    <td>%{{.VebitcoinLINKBid}} <br><small><i> ({{.VebitcoinLINKBidPrice}})</small></td>
     <td>%{{.ParibuLINKAsk}} <br><small><i> ({{.ParibuLINKAskPrice}})</small></td>
     <td>%{{.ParibuLINKBid}} <br><small><i> ({{.ParibuLINKBidPrice}})</small></td>
   </tr>
@@ -172,26 +134,8 @@ th, td {
     <td>{{.GdaxDASH}} <br><small><i> (%{{.DASHSpread}})</small></td>
     <td>-</td>
     <td>-</td>
-    <td>%{{.KoineksDASHAsk}} <br><small><i> ({{.KoineksDASHAskPrice}})</small></td>
-    <td>%{{.KoineksDASHBid}} <br><small><i> ({{.KoineksDASHBidPrice}})</small></td>
     <td>%{{.KoinimDASHAsk}} <br><small><i> ({{.KoinimDASHAskPrice}})</small></td>
     <td>%{{.KoinimDASHBid}} <br><small><i> ({{.KoinimDASHBidPrice}})</small></td>
-    <td>%{{.VebitcoinDASHAsk}} <br><small><i> ({{.VebitcoinDASHAskPrice}})</small></td>
-    <td>%{{.VebitcoinDASHBid}} <br><small><i> ({{.VebitcoinDASHBidPrice}})</small></td>
-    <td>-</td>
-    <td>-</td>
-  </tr>
-  <tr>
-    <td>ZEC</td>
-    <td>{{.GdaxZEC}} <br><small><i> (%{{.ZECSpread}})</small></td>
-    <td>-</td>
-    <td>-</td>
-    <td>%{{.KoineksZECAsk}} <br><small><i> ({{.KoineksZECAskPrice}})</small></td>
-    <td>%{{.KoineksZECBid}} <br><small><i> ({{.KoineksZECBidPrice}})</small></td>
-    <td>-</td>
-    <td>-</td>
-    <td>%{{.VebitcoinZECAsk}} <br><small><i> ({{.VebitcoinZECAskPrice}})</small></td>
-    <td>%{{.VebitcoinZECBid}} <br><small><i> ({{.VebitcoinZECBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
   </tr>
@@ -200,12 +144,8 @@ th, td {
     <td>{{.GdaxUSDT}} <br><small><i> (%{{.USDTSpread}})</small></td>
     <td>%{{.BTCTurkUSDTAsk}} <br><small><i> ({{.BTCTurkUSDTAskPrice}})</small></td>
     <td>%{{.BTCTurkUSDTBid}} <br><small><i> ({{.BTCTurkUSDTBidPrice}})</small></td>
-    <td>%{{.KoineksUSDTAsk}} <br><small><i> ({{.KoineksUSDTAskPrice}})</small></td>
-    <td>%{{.KoineksUSDTBid}} <br><small><i> ({{.KoineksUSDTBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
-    <td>%{{.VebitcoinUSDTAsk}} <br><small><i> ({{.VebitcoinUSDTAskPrice}})</small></td>
-    <td>%{{.VebitcoinUSDTBid}} <br><small><i> ({{.VebitcoinUSDTBidPrice}})</small></td>
     <td>%{{.ParibuUSDTAsk}} <br><small><i> ({{.ParibuUSDTAskPrice}})</small></td>
     <td>%{{.ParibuUSDTBid}} <br><small><i> ({{.ParibuUSDTBidPrice}})</small></td>
   </tr>
@@ -214,36 +154,14 @@ th, td {
     <td>{{.GdaxDOGE}} <br><small><i> ({{.DOGEAsk}}) (%{{.DOGESpread}})</small></td>
     <td>-</td>
     <td>-</td>
-    <td>%{{.KoineksDOGEAsk}} <br><small><i> ({{.KoineksDOGEAskPrice}})</small></td>
-    <td>%{{.KoineksDOGEBid}} <br><small><i> ({{.KoineksDOGEBidPrice}})</small></td>
     <td>%{{.KoinimDOGEAsk}} <br><small><i> ({{.KoinimDOGEAskPrice}})</small></td>
     <td>%{{.KoinimDOGEBid}} <br><small><i> ({{.KoinimDOGEBidPrice}})</small></td>
-    <td>-</td>
-    <td>-</td>
     <td>%{{.ParibuDOGEAsk}} <br><small><i> ({{.ParibuDOGEAskPrice}})</small></td>
     <td>%{{.ParibuDOGEBid}} <br><small><i> ({{.ParibuDOGEBidPrice}})</small></td>
   </tr>
   <tr>
-    <td>XEM</td>
-    <td>{{.GdaxXEM}} <br><small><i> ({{.XEMAsk}}) (%{{.XEMSpread}})</small></td>
-    <td>-</td>
-    <td>-</td>
-    <td>%{{.KoineksXEMAsk}} <br><small><i> ({{.KoineksXEMAskPrice}})</small></td>
-    <td>%{{.KoineksXEMBid}} <br><small><i> ({{.KoineksXEMBidPrice}})</small></td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-  </tr>
-  <tr>
     <td>MKR</td>
     <td>{{.GdaxMKR}} <br><small><i> (%{{.MKRSpread}})</small></td>
-    <td>-</td>
-    <td>-</td>
-    <td>%{{.KoineksMKRAsk}} <br><small><i> ({{.KoineksMKRAskPrice}})</small></td>
-    <td>%{{.KoineksMKRBid}} <br><small><i> ({{.KoineksMKRBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
     <td>-</td>
@@ -256,28 +174,10 @@ th, td {
     <td>{{.GdaxADA}} <br><small><i> (%{{.ADASpread}})</small></td>
     <td>%{{.BTCTurkADAAsk}} <br><small><i> ({{.BTCTurkADAAskPrice}})</small></td>
     <td>%{{.BTCTurkADABid}} <br><small><i> ({{.BTCTurkADABidPrice}})</small></td>
-    <td>%{{.KoineksADAAsk}} <br><small><i> ({{.KoineksADAAskPrice}})</small></td>
-    <td>%{{.KoineksADABid}} <br><small><i> ({{.KoineksADABidPrice}})</small></td>
-    <td>-</td>
-    <td>-</td>
     <td>-</td>
     <td>-</td>
     <td>%{{.ParibuADAAsk}} <br><small><i> ({{.ParibuADAAskPrice}})</small></td>
     <td>%{{.ParibuADABid}} <br><small><i> ({{.ParibuADABidPrice}})</small></td>
-  </tr>
-  <tr>
-    <td>BAT</td>
-    <td>{{.GdaxBAT}} <br><small><i> (%{{.BATSpread}})</small></td>
-    <td>-</td>
-    <td>-</td>
-    <td>%{{.KoineksBATAsk}} <br><small><i> ({{.KoineksBATAskPrice}})</small></td>
-    <td>%{{.KoineksBATBid}} <br><small><i> ({{.KoineksBATBidPrice}})</small></td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
   </tr>
   </table>
 
