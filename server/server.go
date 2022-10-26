@@ -22,7 +22,7 @@ type Price struct {
 }
 
 const (
-	BASE_CURRENCY_URI = "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=%s&apikey=GOJHTH53I4S9GPIV"
+	BASE_CURRENCY_URI = "https://api.apilayer.com/exchangerates_data/latest?symbols=TRY&base=USD"
 )
 
 var (
@@ -148,7 +148,7 @@ func calculatePrices() {
 		}
 	}()
 
-	wg.Add(1)
+	/*wg.Add(1)
 	go func() {
 		defer wg.Done()
 		koineksPrices, err = getKoineksPrices()
@@ -158,7 +158,7 @@ func calculatePrices() {
 			fmt.Println(message)
 			log.Println(message)
 		}
-	}()
+	}()*/
 
 	wg.Add(1)
 	go func() {
@@ -172,7 +172,7 @@ func calculatePrices() {
 		}
 	}()
 
-	wg.Add(1)
+	/*wg.Add(1)
 	go func() {
 		defer wg.Done()
 		vebitcoinPrices, err = getVebitcoinPrices()
@@ -200,7 +200,7 @@ func calculatePrices() {
 			fmt.Println(message)
 			log.Println(message)
 		}
-	}()
+	}()*/
 	wg.Wait()
 }
 
