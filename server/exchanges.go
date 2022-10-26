@@ -43,11 +43,11 @@ var (
 	symbolToExchangeNames map[string][]string
 
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN}
-	bittrexCurrencies  = []string{"USDT", "DOGE", "XLM", "XEM"}
-	binanceCurrencies  = []string{"USDT", "DOGE", "XEM"}
+	bittrexCurrencies  = []string{"USDT", "DOGE", "XLM"}
+	binanceCurrencies  = []string{}
 	coinbaseProCurrencies = []string{
 		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XLM-USD", "EOS-USD", "LINK-USD",
-		"DASH-USD", "ZEC-USD", "MKR-USD", "ADA-USD", "BAT-USDC",
+		"DASH-USD", "ZEC-USD", "MKR-USD", "ADA-USD", "BAT-USDC", "USDT-USD", "DOGE-USD",
 	}
 
 	bitfinexCurrencies = []string{"BTC", "ETH", "LTC", "XLM"}
@@ -208,7 +208,7 @@ func getBTCTurkPrices() ([]Price, error) {
 			return
 		}
 
-		if !strings.HasSuffix(pairName, "TRY") {
+		if !strings.HasSuffix(pairName, "TRY") || pairName == "ETHWTRY"{
 			return
 		}
 
@@ -230,6 +230,7 @@ func getBTCTurkPrices() ([]Price, error) {
 			returnError = fmt.Errorf("failed to read the %s bid price from the BTCTurk response data: %s", pair, err)
 			return
 		}
+
 		prices = append(prices, Price{Exchange: BTCTURK, Currency: "TRY", ID: pair, Ask: priceAsk, Bid: priceBid})
 
 	}, "data")
@@ -277,7 +278,7 @@ func getKoinimPrices() ([]Price, error) {
 func getKoineksPrices() ([]Price, error) {
 	var prices []Price
 
-	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XLM", "EOS", "LINK", "XEM", "DASH", "ZEC", "MKR", "BAT", "ADA"}
+	ids := []string{"BTC", "ETH", "LTC", "BCH", "USDT", "ETC", "DOGE", "XLM", "EOS", "LINK", "DASH", "ZEC", "MKR", "BAT", "ADA"}
 
 	for _, id := range ids {
 
@@ -349,96 +350,6 @@ func getVebitcoinPrices() ([]Price, error) {
 	})
 
 	return prices, err
-}
-
-func getBittrexDOGEVolumes() error {
-	response, err := http.Get(BITTREX_DOGE_VOLUME_URI)
-	if err != nil {
-		return fmt.Errorf("failed to get Bittrex DOGE volume response : %s", err)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read Bittrex DOGE volume response data : %s", err)
-	}
-
-	pAsk, err := jsonparser.GetFloat(responseData, "result", "sell", "[0]", "Rate")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE ask price from the Bittrex response data: %s", err)
-	}
-
-	askVolumeSize, err := jsonparser.GetFloat(responseData, "result", "sell", "[0]", "Quantity")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE ask volume size from the Bittrex response data: %s", err)
-	}
-
-	pBid, err := jsonparser.GetFloat(responseData, "result", "buy", "[0]", "Rate")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE bid price from the Bittrex response data: %s", err)
-	}
-
-	bidVolumeSize, err := jsonparser.GetFloat(responseData, "result", "buy", "[0]", "Quantity")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE bid volume size from the Bittrex response data: %s", err)
-	}
-
-	mux.Lock()
-	dogeVolumes["BittrexAsk"] = pAsk * askVolumeSize
-	dogeVolumes["BittrexBid"] = pBid * bidVolumeSize
-
-
-	prices["BittrexDOGEAsk"] = pAsk
-	prices["BittrexDOGEBid"] = pBid
-	mux.Unlock()
-
-	return nil
-}
-
-func getBinanceDOGEVolumes() error {
-	uri := fmt.Sprintf(BINANCE_URI, "DOGE", "BTC")
-	response, err := http.Get(uri)
-	if err != nil {
-		return fmt.Errorf("failed to get Binance DOGE volume response : %s", err)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read Binance DOGE volume response data : %s", err)
-	}
-
-	priceAsk, err := jsonparser.GetString(responseData, "askPrice")
-	if err != nil {
-		return fmt.Errorf("failed to read the ask price from the Binance response data: %s", err)
-	}
-	pAsk, _ := strconv.ParseFloat(priceAsk, 64)
-
-	askVolumeSizeStr, err := jsonparser.GetString(responseData, "askQty")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE ask volume size from the Binance response data: %s", err)
-	}
-	askVolumeSize, _ := strconv.ParseFloat(askVolumeSizeStr, 64)
-
-	priceBid, err := jsonparser.GetString(responseData, "bidPrice")
-	if err != nil {
-		return fmt.Errorf("failed to read the bid price from the Binance response data: %s", err)
-	}
-	pBid, _ := strconv.ParseFloat(priceBid, 64)
-
-	bidVolumeSizeStr, err := jsonparser.GetString(responseData, "bidQty")
-	if err != nil {
-		return fmt.Errorf("failed to read the DOGE bid volume size from the Binance response data: %s", err)
-	}
-	bidVolumeSize, _ := strconv.ParseFloat(bidVolumeSizeStr, 64)
-
-	mux.Lock()
-	dogeVolumes["BinanceAsk"] = pAsk * askVolumeSize
-	dogeVolumes["BinanceBid"] = pBid * bidVolumeSize
-
-	prices["BinanceDOGEAsk"] = pAsk
-	prices["BinanceDOGEBid"] = pBid
-	mux.Unlock()
-
-	return nil
 }
 
 func getBinancePrices() (map[string]Price, error) {

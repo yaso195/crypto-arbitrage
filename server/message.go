@@ -43,7 +43,7 @@ func sendMessages() {
 
 				commissionFee := 0.0
 				firstExchange := GDAX
-				if symbol == "USDT" || symbol == "DOGE" || symbol == "XEM"{
+				if symbol == "USDT" || symbol == "DOGE" {
 					firstExchange = BINANCE
 					commissionFee = 0.1
 				}
