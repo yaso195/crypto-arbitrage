@@ -29,13 +29,13 @@ th, td {
 
 <body>
   USD/TRY = {{.USDTRY}} <br>
-  USD/AED = {{.USDAED}} <br> <br>
   <table style="width:70%">
   <tr>
   	<th></th>
     <th>GDAX</th>
 
     <th colspan="2">BTCTurk</th>
+    <th colspan="2">TRBinance</th>
     <th colspan="2">Koinim</th>
     <th colspan="2">Paribu</th>
   </tr>
@@ -48,12 +48,16 @@ th, td {
     <th>BID</th>
     <th>ASK</th>
     <th>BID</th>
+    <th>ASK</th>
+    <th>BID</th>
   </tr>
   <tr>
   	<td>BTC</td>
     <td>{{.GdaxBTC}}</td>
     <td>%{{.BTCTurkBTCAsk}} <br><small><i> ({{.BTCTurkBTCAskPrice}})</small></td>
     <td>%{{.BTCTurkBTCBid}} <br><small><i> ({{.BTCTurkBTCBidPrice}})</small></td>
+    <td>%{{.BinanceBTCAsk}} <br><small><i> ({{.BinanceBTCAskPrice}})</small></td>
+    <td>%{{.BinanceBTCBid}} <br><small><i> ({{.BinanceBTCBidPrice}})</small></td>
     <td>%{{.KoinimBTCAsk}} <br><small><i> ({{.KoinimBTCAskPrice}})</small></td>
     <td>%{{.KoinimBTCBid}} <br><small><i> ({{.KoinimBTCBidPrice}})</small></td>
     <td>%{{.ParibuBTCAsk}} <br><small><i> ({{.ParibuBTCAskPrice}})</small></td>
@@ -64,6 +68,8 @@ th, td {
     <td>{{.GdaxETH}}</td>
     <td>%{{.BTCTurkETHAsk}} <br><small><i> ({{.BTCTurkETHAskPrice}})</small></td>
     <td>%{{.BTCTurkETHBid}} <br><small><i> ({{.BTCTurkETHBidPrice}})</small></td>
+    <td>%{{.BinanceETHAsk}} <br><small><i> ({{.BinanceETHAskPrice}})</small></td>
+    <td>%{{.BinanceETHBid}} <br><small><i> ({{.BinanceETHBidPrice}})</small></td>
     <td>%{{.KoinimETHAsk}} <br><small><i> ({{.KoinimETHAskPrice}})</small></td>
     <td>%{{.KoinimETHBid}} <br><small><i> ({{.KoinimETHBidPrice}})</small></td>
     <td>%{{.ParibuETHAsk}} <br><small><i> ({{.ParibuETHAskPrice}})</small></td>
@@ -74,6 +80,8 @@ th, td {
     <td>{{.GdaxLTC}}</td>
     <td>%{{.BTCTurkLTCAsk}} <br><small><i> ({{.BTCTurkLTCAskPrice}})</small></td>
     <td>%{{.BTCTurkLTCBid}} <br><small><i> ({{.BTCTurkLTCBidPrice}})</small></td>
+    <td>-</td>
+    <td>-</td>
     <td>%{{.KoinimLTCAsk}} <br><small><i> ({{.KoinimLTCAskPrice}})</small></td>
     <td>%{{.KoinimLTCBid}} <br><small><i> ({{.KoinimLTCBidPrice}})</small></td>
     <td>%{{.ParibuLTCAsk}} <br><small><i> ({{.ParibuLTCAskPrice}})</small></td>
@@ -82,6 +90,8 @@ th, td {
   <tr>
     <td>BCH</td>
     <td>{{.GdaxBCH}} <br><small><i> (%{{.BCHSpread}})</small></td>
+    <td>-</td>
+    <td>-</td>
     <td>-</td>
     <td>-</td>
     <td>%{{.KoinimBCHAsk}} <br><small><i> ({{.KoinimBCHAskPrice}})</small></td>
@@ -94,6 +104,8 @@ th, td {
     <td>{{.GdaxETC}}<br><small><i> (%{{.ETCSpread}})</small></td>
     <td>-</td>
     <td>-</td>
+    <td>%{{.BinanceETCAsk}} <br><small><i> ({{.BinanceETCAskPrice}})</small></td>
+    <td>%{{.BinanceETCBid}} <br><small><i> ({{.BinanceETCBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
     <td>-</td>
@@ -104,6 +116,8 @@ th, td {
     <td>{{.GdaxXLM}} <br><small><i> (%{{.XLMSpread}})</small></td>
     <td>%{{.BTCTurkXLMAsk}} <br><small><i> ({{.BTCTurkXLMAskPrice}})</small></td>
     <td>%{{.BTCTurkXLMBid}} <br><small><i> ({{.BTCTurkXLMBidPrice}})</small></td>
+    <td>%{{.BinanceXLMAsk}} <br><small><i> ({{.BinanceXLMAskPrice}})</small></td>
+    <td>%{{.BinanceXLMBid}} <br><small><i> ({{.BinanceXLMBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
     <td>%{{.ParibuXLMAsk}} <br><small><i> ({{.ParibuXLMAskPrice}})</small></td>
@@ -114,6 +128,8 @@ th, td {
     <td>{{.GdaxEOS}} <br><small><i> (%{{.EOSSpread}})</small></td>
     <td>-</td>
     <td>-</td>
+    <td>%{{.BinanceEOSAsk}} <br><small><i> ({{.BinanceEOSAskPrice}})</small></td>
+    <td>%{{.BinanceEOSBid}} <br><small><i> ({{.BinanceEOSBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
     <td>%{{.ParibuEOSAsk}} <br><small><i> ({{.ParibuEOSAskPrice}})</small></td>
@@ -124,6 +140,8 @@ th, td {
     <td>{{.GdaxLINK}} <br><small><i> (%{{.LINKSpread}})</small></td>
     <td>%{{.BTCTurkLINKAsk}} <br><small><i> ({{.BTCTurkLINKAskPrice}})</small></td>
     <td>%{{.BTCTurkLINKBid}} <br><small><i> ({{.BTCTurkLINKBidPrice}})</small></td>
+    <td>%{{.BinanceLINKAsk}} <br><small><i> ({{.BinanceLINKAskPrice}})</small></td>
+    <td>%{{.BinanceLINKBid}} <br><small><i> ({{.BinanceLINKBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
     <td>%{{.ParibuLINKAsk}} <br><small><i> ({{.ParibuLINKAskPrice}})</small></td>
@@ -132,6 +150,8 @@ th, td {
   <tr>
     <td>DASH</td>
     <td>{{.GdaxDASH}} <br><small><i> (%{{.DASHSpread}})</small></td>
+    <td>-</td>
+    <td>-</td>
     <td>-</td>
     <td>-</td>
     <td>%{{.KoinimDASHAsk}} <br><small><i> ({{.KoinimDASHAskPrice}})</small></td>
@@ -144,6 +164,8 @@ th, td {
     <td>{{.GdaxUSDT}} <br><small><i> (%{{.USDTSpread}})</small></td>
     <td>%{{.BTCTurkUSDTAsk}} <br><small><i> ({{.BTCTurkUSDTAskPrice}})</small></td>
     <td>%{{.BTCTurkUSDTBid}} <br><small><i> ({{.BTCTurkUSDTBidPrice}})</small></td>
+    <td>%{{.BinanceUSDTAsk}} <br><small><i> ({{.BinanceUSDTAskPrice}})</small></td>
+    <td>%{{.BinanceUSDTBid}} <br><small><i> ({{.BinanceUSDTBidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
     <td>%{{.ParibuUSDTAsk}} <br><small><i> ({{.ParibuUSDTAskPrice}})</small></td>
@@ -151,9 +173,11 @@ th, td {
   </tr>
   <tr>
     <td>DOGE</td>
-    <td>{{.GdaxDOGE}} <br><small><i> ({{.DOGEAsk}}) (%{{.DOGESpread}})</small></td>
+    <td>{{.GdaxDOGE}} <br><small><i> (%{{.DOGESpread}})</small></td>
     <td>-</td>
     <td>-</td>
+    <td>%{{.BinanceDOGEAsk}} <br><small><i> ({{.BinanceDOGEAskPrice}})</small></td>
+    <td>%{{.BinanceDOGEBid}} <br><small><i> ({{.BinanceDOGEBidPrice}})</small></td>
     <td>%{{.KoinimDOGEAsk}} <br><small><i> ({{.KoinimDOGEAskPrice}})</small></td>
     <td>%{{.KoinimDOGEBid}} <br><small><i> ({{.KoinimDOGEBidPrice}})</small></td>
     <td>%{{.ParibuDOGEAsk}} <br><small><i> ({{.ParibuDOGEAskPrice}})</small></td>
@@ -166,6 +190,8 @@ th, td {
     <td>-</td>
     <td>-</td>
     <td>-</td>
+    <td>-</td>
+    <td>-</td>
     <td>%{{.ParibuMKRAsk}} <br><small><i> ({{.ParibuMKRAskPrice}})</small></td>
     <td>%{{.ParibuMKRBid}} <br><small><i> ({{.ParibuMKRBidPrice}})</small></td>
   </tr>
@@ -174,6 +200,8 @@ th, td {
     <td>{{.GdaxADA}} <br><small><i> (%{{.ADASpread}})</small></td>
     <td>%{{.BTCTurkADAAsk}} <br><small><i> ({{.BTCTurkADAAskPrice}})</small></td>
     <td>%{{.BTCTurkADABid}} <br><small><i> ({{.BTCTurkADABidPrice}})</small></td>
+    <td>%{{.BinanceADAAsk}} <br><small><i> ({{.BinanceADAAskPrice}})</small></td>
+    <td>%{{.BinanceADABid}} <br><small><i> ({{.BinanceADABidPrice}})</small></td>
     <td>-</td>
     <td>-</td>
     <td>%{{.ParibuADAAsk}} <br><small><i> ({{.ParibuADAAskPrice}})</small></td>

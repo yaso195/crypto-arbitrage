@@ -44,7 +44,7 @@ var (
 
 	ALL_EXCHANGES      = []string{PARIBU, BTCTURK, KOINEKS, KOINIM, VEBITCOIN}
 	bittrexCurrencies  = []string{"USDT", "DOGE", "XLM"}
-	binanceCurrencies  = []string{}
+	binanceCurrencies  = []string{"ADA", "BTC", "ETH", "DOGE", "ETC", "EOS", "LINK", "USDT", "XLM"}
 	coinbaseProCurrencies = []string{
 		"BTC-USD", "BCH-USD", "ETH-USD", "LTC-USD", "ETC-USD", "ZRX-USD", "XLM-USD", "EOS-USD", "LINK-USD",
 		"DASH-USD", "ZEC-USD", "MKR-USD", "ADA-USD", "BAT-USDC", "USDT-USD", "DOGE-USD",
@@ -68,20 +68,7 @@ func init() {
 
 	coinbaseProPrices = map[string]*Price{}
 	for _, symbol := range ALL_SYMBOLS {
-
-		binanceCurrency := false
-		for _, c := range binanceCurrencies {
-			if c == symbol {
-				binanceCurrency = true
-				break
-			}
-		}
-		exchange := GDAX
-		if binanceCurrency {
-			exchange = BINANCE
-		}
-
-		coinbaseProPrices[symbol] = &Price{Exchange: exchange, Currency: "USD", ID: symbol}
+		coinbaseProPrices[symbol] = &Price{Exchange: GDAX, Currency: "USD", ID: symbol}
 
 	}
 
@@ -352,18 +339,12 @@ func getVebitcoinPrices() ([]Price, error) {
 	return prices, err
 }
 
-func getBinancePrices() (map[string]Price, error) {
-	prices := map[string]Price{}
+func getBinancePrices() ([]Price, error) {
+	var prices []Price
 
 	for _, currency := range binanceCurrencies {
 		var uri string
-		if currency == "USDT" {
-			uri = fmt.Sprintf(BINANCE_URI, "USDC", currency)
-		} else if currency == "XLM" {
-			uri = fmt.Sprintf(BINANCE_URI, currency, "USDC")
-		} else {
-			uri = fmt.Sprintf(BINANCE_URI, currency, "BTC")
-		}
+		uri = fmt.Sprintf(BINANCE_URI, currency, "TRY")
 
 		response, err := http.Get(uri)
 		if err != nil {
@@ -387,15 +368,12 @@ func getBinancePrices() (map[string]Price, error) {
 		}
 		pBid, _ := strconv.ParseFloat(priceBid, 64)
 
-		if currency == "USDT" {
-			prices[currency] = Price{Exchange: BINANCE, Currency: "USD", ID: currency, Ask: 1 / pAsk, Bid: 1 / pBid}
-		} else {
-			prices[currency] = Price{Exchange: BINANCE, Currency: "USD", ID: currency, Ask: pAsk, Bid: pBid}
-		}
+		prices = append(prices, Price{Exchange: BINANCE, Currency: "TRY", ID: currency, Ask: pAsk, Bid: pBid})
 
-		mux.Lock()
+
+		/*mux.Lock()
 		spreads[BINANCE+currency] = (pAsk - pBid) * 100 / pBid
-		mux.Unlock()
+		mux.Unlock()*/
 	}
 
 	return prices, nil

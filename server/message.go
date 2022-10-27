@@ -30,10 +30,6 @@ func sendMessages() {
 	var out string
 	if fiatNotificationEnabled {
 		for _, exchange := range ALL_EXCHANGES {
-			if exchange == PARIBU || exchange == BTCTURK || exchange == VEBITCOIN || exchange == KOINEKS {
-				continue
-			}
-
 			for _, symbol := range ALL_SYMBOLS {
 				exchangeSymbol := fmt.Sprintf("%s-%s", exchange, symbol)
 
@@ -43,10 +39,6 @@ func sendMessages() {
 
 				commissionFee := 0.0
 				firstExchange := GDAX
-				if symbol == "USDT" || symbol == "DOGE" {
-					firstExchange = BINANCE
-					commissionFee = 0.1
-				}
 				mux.Lock()
 				spread := spreads[fmt.Sprintf("%s%s", firstExchange, symbol)]
 
